@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import MaidCard from '../../components/MaidCard.astro';
+import { asset, href, whatsappLink, telLink, WA } from '../../lib/urls';
+import { site } from '../../lib/config';
+import { getPublicMaids, STATUS_LABEL, SKILL_LABEL, LEVEL_LABEL, NATIONALITY_LABEL, formatDate, DEMO, type Maid } from '../../lib/maids';
+
+export async function getStaticPaths() {
+  const maids = await getPublicMaids();
+  return maids.map((maid) => ({ params: { slug: maid.slug }, props: { maid, all: maids } }));
+}
+
+interface Props { maid: Maid; all: Maid[] }
+const { maid: m, all } = Astro.props;
+const nat = NATIONALITY_LABEL[m.nationality];
+const catPath = m.nationality === 'indonesian' ? '/maids/indonesian-maids/' : '/maids/filipino-maids/';
+const skills = (Object.keys(m.skills) as (keyof Maid['skills'])[]).filter((k) => m.skills[k] !== 'none');
+const related = all.filter((x) => x.slug !== m.slug && x.nationality === m.nationality && x.status === 'available').slice(0, 3);
+const expText = m.experienceYears === 0 ? 'new helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'} of experience`;
+const title = `${nat} Maid ${m.code} – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`} | Final Choice`;
+const description = `Biodata of ${nat.toLowerCase()} domestic helper ${m.code}: ${expText}${skills.length ? `, skills in ${skills.slice(0, 3).map((k) => SKILL_LABEL[k].toLowerCase()).join(', ')}` : ''}. Request an interview with Final Choice.`;
+const paragraphs = m.summary.split(/\n\s*\n/).filter(Boolean);
+---
+<BaseLayout
+  title={title}
+  description={description.slice(0, 165)}
+  path={`/maids/${m.slug}/`}
+  crumbs={[{ name: 'Find a Maid', path: '/maids/' }, { name: `${nat} Maids`, path: catPath }, { name: m.code, path: `/maids/${m.slug}/` }]}
+  waMessage={WA.profile(m.code)}
+  noindex={DEMO}
+>
+  <section class="section section--tight">
+    <div class="container profile">
+      <aside class="profile__aside">
+        <div class="profile__photo">
+          {m.photo ? (
+            <img src={asset(m.photo)} alt={`Photo of domestic helper ${m.code}`} width="720" height="900" fetchpriority="high" />
+          ) : (
+            <span class="maid-card__placeholder"><Icon name="users" size={64} /><span>Photo available on request</span></span>
+          )}
+          {m.demo && <span class="demo-ribbon">DEMO – not a real candidate</span>}
+        </div>
+        <div class="card">
+          <p style="margin-bottom:8px"><span class={`status status--${m.status}`}>{STATUS_LABEL[m.status]}</span></p>
+          <p class="muted" style="font-size:.9rem">Status recorded on {formatDate(m.statusUpdated)}. Please contact us to confirm current availability.</p>
+          <div style="display:grid;gap:10px">
+            <a class="btn btn--wa btn--block" href={whatsappLink(WA.interview(m.code))} target="_blank" rel="noopener" data-track={`profile_interview_${m.code}`}><Icon name="whatsapp" size={18} /> Request Interview</a>
+            <a class="btn btn--outline btn--block" href={whatsappLink(WA.profile(m.code))} target="_blank" rel="noopener" data-track={`profile_enquire_${m.code}`}>Ask about {m.code}</a>
+            {m.biodataPdf && <a class="btn btn--outline btn--block" href={asset(m.biodataPdf)} download><Icon name="download" size={18} /> Download biodata (PDF)</a>}
+            <a class="btn btn--outline btn--block" href={telLink}><Icon name="phone" size={18} /> Call {site.contact.phoneDisplay}</a>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <p class="eyebrow">{nat} domestic helper</p>
+        <h1>{m.displayName ? `${m.displayName} — ` : ''}Maid reference {m.code}</h1>
+        {paragraphs.map((p) => <p class="lead">{p}</p>)}
+
+        <div class="card" style="margin:28px 0">
+          <h2 style="font-size:1.25rem">Candidate details</h2>
+          <dl class="facts">
+            <dt>Reference code</dt><dd>{m.code}</dd>
+            <dt>Nationality</dt><dd>{nat}</dd>
+            {m.publication.showAge && m.age && (<><dt>Age</dt><dd>{m.age}</dd></>)}
+            {m.religion && (<><dt>Religion</dt><dd>{m.religion}</dd></>)}
+            {m.maritalStatus && (<><dt>Marital status</dt><dd>{m.maritalStatus}</dd></>)}
+            <dt>Work experience</dt><dd>{m.experienceYears === 0 ? 'New helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'}`}{m.overseasExperience ? ' (including overseas)' : ''}</dd>
+            {m.interviewAvailability && (<><dt>Interview</dt><dd>{m.interviewAvailability}</dd></>)}
+          </dl>
+        </div>
+
+        {skills.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">Skills and responsibilities</h2>
+            <table class="skill-table">
+              <thead><tr><th scope="col">Area</th><th scope="col">Level</th></tr></thead>
+              <tbody>
+                {skills.map((k) => <tr><td>{SKILL_LABEL[k]}</td><td>{LEVEL_LABEL[m.skills[k]]}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {m.employmentHistory.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">Employment history summary</h2>
+            <table class="skill-table">
+              <thead><tr><th scope="col">Country</th><th scope="col">Duration</th><th scope="col">Main duties</th></tr></thead>
+              <tbody>
+                {m.employmentHistory.map((e) => <tr><td>{e.country}</td><td>{e.duration}</td><td>{e.duties}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {m.languages.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">Languages</h2>
+            <ul class="chips">
+              {m.languages.map((l) => <li>{l.language} · {l.level}</li>)}
+            </ul>
+          </div>
+        )}
+
+        <div class="callout">
+          <Icon name="shield" size={20} />
+          <p>
+            Skills and experience are as declared by the candidate and recorded by our team. We encourage every employer to
+            confirm suitability during the interview. Personal documents are never published online.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section section--tint section--tight">
+      <div class="container">
+        <h2 style="font-size:1.5rem">Other available {nat.toLowerCase()} helpers</h2>
+        <div class="maid-grid">{related.map((r) => <MaidCard maid={r} />)}</div>
+        <p style="margin-top:24px"><a class="card__more" href={href(catPath)}>All {nat.toLowerCase()} maid profiles <Icon name="arrow" size={18} /></a></p>
+      </div>
+    </section>
+  )}
+</BaseLayout>

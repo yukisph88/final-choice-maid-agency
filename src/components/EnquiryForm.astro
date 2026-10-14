@@ -1,0 +1,141 @@
+---
+// Enquiry form. GitHub Pages has no server, so by default the form composes a WhatsApp
+// message and opens WhatsApp; the visitor then presses Send. It never claims an enquiry
+// was "received" unless an optional form service (site.yaml → forms) confirms receipt.
+import Icon from './Icon.astro';
+import { site } from '../lib/config';
+import { href } from '../lib/urls';
+interface Props { defaultNationality?: string; defaultNeed?: string; idPrefix?: string }
+const { defaultNationality = '', defaultNeed = '', idPrefix = 'enq' } = Astro.props;
+const id = (s: string) => `${idPrefix}-${s}`;
+const usesService = Boolean(site.forms.endpoint);
+---
+<form
+  class="enquiry-form"
+  novalidate
+  data-enquiry
+  data-wa={site.contact.whatsappNumber}
+  data-endpoint={site.forms.endpoint}
+  data-key={site.forms.accessKey}
+>
+  <div class="form-grid">
+    <div class="field">
+      <label for={id('name')}>Name <span class="req" aria-hidden="true">*</span></label>
+      <input id={id('name')} name="name" type="text" autocomplete="name" required maxlength="80" aria-describedby={id('name-err')} />
+      <p class="field__error" id={id('name-err')} data-error-for="name"></p>
+    </div>
+    <div class="field">
+      <label for={id('phone')}>Contact number <span class="req" aria-hidden="true">*</span></label>
+      <input id={id('phone')} name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="e.g. 012-345 6789" aria-describedby={id('phone-err')} />
+      <p class="field__error" id={id('phone-err')} data-error-for="phone"></p>
+    </div>
+    <div class="field">
+      <label for={id('nat')}>Preferred maid nationality</label>
+      <select id={id('nat')} name="nationality">
+        <option value="" selected={!defaultNationality}>No preference yet</option>
+        <option selected={defaultNationality === 'Indonesian'}>Indonesian</option>
+        <option selected={defaultNationality === 'Filipino'}>Filipino</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for={id('need')}>Main household requirement</label>
+      <select id={id('need')} name="need">
+        <option value="" selected={!defaultNeed}>Please choose</option>
+        {['Childcare', 'Elderly care', 'Housekeeping', 'Cooking', 'General domestic help'].map((o) => <option selected={defaultNeed === o}>{o}</option>)}
+      </select>
+    </div>
+    <fieldset class="field field--full field--radios">
+      <legend>Preferred contact method</legend>
+      <label class="check"><input type="radio" name="method" value="WhatsApp" checked /> WhatsApp</label>
+      <label class="check"><input type="radio" name="method" value="Phone call" /> Phone call</label>
+    </fieldset>
+    <div class="field field--full">
+      <label for={id('msg')}>Message</label>
+      <textarea id={id('msg')} name="message" rows="4" maxlength="1000" placeholder="e.g. Looking for a helper with newborn care experience, from March."></textarea>
+    </div>
+    <div class="hp" aria-hidden="true">
+      <label for={id('website')}>Leave this field empty</label>
+      <input id={id('website')} name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <div class="field field--full">
+      <label class="check check--consent">
+        <input type="checkbox" name="consent" required aria-describedby={id('consent-err')} />
+        <span>I agree that Final Choice may use these details to respond to my enquiry, as described in the <a href={href('/privacy-policy/')}>privacy policy</a>. <span class="req" aria-hidden="true">*</span></span>
+      </label>
+      <p class="field__error" id={id('consent-err')} data-error-for="consent"></p>
+    </div>
+  </div>
+  <button class="btn btn--wa btn--lg" type="submit">
+    <Icon name="whatsapp" size={20} /> {usesService ? 'Send enquiry' : 'Send enquiry via WhatsApp'}
+  </button>
+  <p class="form-hint">
+    {usesService
+      ? 'Your enquiry is sent securely to our team.'
+      : 'This opens WhatsApp with your details filled in. Press Send in WhatsApp to reach our consultant.'}
+  </p>
+  <div class="form-status" role="status" aria-live="polite" data-status></div>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-enquiry]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const err = (name: string, msg: string) => {
+      const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      const input = form.elements.namedItem(name) as HTMLInputElement | null;
+      if (el) el.textContent = msg;
+      input?.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      return !msg;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const v = (k: string) => String(fd.get(k) ?? '').trim();
+      if (v('website')) return; // spam bot filled the hidden field
+
+      const phoneDigits = v('phone').replace(/[^\d+]/g, '');
+      const ok = [
+        err('name', v('name').length >= 2 ? '' : 'Please enter your name.'),
+        err('phone', /^\+?\d{9,13}$/.test(phoneDigits) ? '' : 'Please enter a valid contact number.'),
+        err('consent', fd.get('consent') ? '' : 'Please tick to agree before sending.'),
+      ].every(Boolean);
+      if (!ok) {
+        (form.querySelector('[aria-invalid="true"]') as HTMLElement | null)?.focus();
+        return;
+      }
+
+      const lines = [
+        'Hi Final Choice, I would like to enquire about hiring a domestic helper.',
+        `Name: ${v('name')}`,
+        `Contact: ${v('phone')}`,
+        v('nationality') && `Preferred nationality: ${v('nationality')}`,
+        v('need') && `Main requirement: ${v('need')}`,
+        `Preferred contact: ${v('method')}`,
+        v('message') && `Message: ${v('message')}`,
+      ].filter(Boolean) as string[];
+
+      const endpoint = form.dataset.endpoint;
+      if (endpoint) {
+        status.textContent = 'Sending…';
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ access_key: form.dataset.key, subject: 'Website enquiry – Final Choice', botcheck: '', ...Object.fromEntries(fd), summary: lines.join('\n') }),
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          status.textContent = 'Thank you. Your enquiry has been received and our consultant will contact you.';
+          form.reset();
+        } catch {
+          status.textContent = 'Sorry, the enquiry could not be sent. Please WhatsApp us instead.';
+        }
+        return;
+      }
+
+      const url = `https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.open(url, '_blank', 'noopener');
+      status.textContent = 'WhatsApp has opened with your details. Please press Send in WhatsApp to reach our consultant.';
+      (window as unknown as { dataLayer?: object[] }).dataLayer?.push({ event: 'form_whatsapp_handoff', need: v('need'), nationality: v('nationality') });
+    });
+  });
+</script>

@@ -1,0 +1,65 @@
+# =====================================================================
+#  FINAL CHOICE — SITE SETTINGS
+#  Staff: edit the values on the right of the colon. Keep the quotes.
+#  After you commit, GitHub rebuilds the website in about 2 minutes.
+#  If you make a mistake (e.g. delete a quote), the build stops and the
+#  live website keeps the previous version. See CONTENT_MANAGEMENT.md.
+# =====================================================================
+
+company:
+  legalName: "Agensi Pekerjaan Final Choice Sdn Bhd"
+  brandName: "Final Choice"
+  registrationNo: "201201028954 (1013441-H)"
+  # JTKSM private employment agency licence (verified from approved company material)
+  licence: "JTKSM 483 (Category C)"
+  email: "apfinalchoice@gmail.com"
+  address:
+    street: "No. 58, Jalan Mutiara Barat 6, Taman Mutiara Barat"
+    postcode: "56000"
+    city: "Kuala Lumpur"
+    state: "Wilayah Persekutuan Kuala Lumpur"
+    country: "MY"
+  # Google Maps link. Replace with your Google Business Profile link once it is verified.
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=No.+58+Jalan+Mutiara+Barat+6+Taman+Mutiara+Barat+56000+Kuala+Lumpur"
+  hours:
+    - label: "Monday – Friday"
+      opens: "09:00"
+      closes: "18:00"
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    - label: "Saturday"
+      opens: "09:00"
+      closes: "13:00"
+      days: ["Saturday"]
+
+contact:
+  # Name shown next to the phone number
+  consultantName: "Yuki"
+  # Shown on the website exactly as typed
+  phoneDisplay: "018-377 3333"
+  # International format, digits only, no "+" or spaces (used for wa.me and tel: links)
+  whatsappNumber: "60183773333"
+
+# Official social media pages. Leave "" to hide a link.
+social:
+  facebook: ""
+  instagram: ""
+  tiktok: ""
+  googleBusinessProfile: ""
+
+seo:
+  # Set to true ONLY when the site is on the final company domain and approved for launch.
+  # While false, every page carries <meta name="robots" content="noindex"> and robots.txt blocks crawling.
+  indexing: false
+  # Google Search Console HTML-tag verification code (only the content="..." value). Leave "" if not used.
+  googleSiteVerification: ""
+  defaultOgImage: "images/og-image.jpg"
+  # Set to true after management / legal adviser approves the privacy policy text.
+  # This removes the "draft" box and allows the page to be indexed.
+  privacyPolicyApproved: false
+  privacyPolicyDate: "[DATE OF APPROVAL]"
+
+# Optional: free form-handling endpoint (e.g. Web3Forms access URL). Leave "" to use WhatsApp only.
+# The website only shows "received" when this service confirms receipt.
+forms:
+  endpoint: ""
+  accessKey: ""

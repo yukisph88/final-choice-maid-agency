@@ -1,0 +1,53 @@
+# Builds the website and publishes it to GitHub Pages on every push to "main".
+# If a staff edit breaks a data file, the "Build" step fails and the live site keeps the previous version.
+name: Build and deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # Preview on GitHub Pages project URL. For a custom domain, set repository variables
+  # SITE_URL=https://www.your-domain.com and BASE_PATH=/  (Settings → Secrets and variables → Actions → Variables)
+  SITE_URL: ${{ vars.SITE_URL || 'https://yukisph88.github.io' }}
+  BASE_PATH: ${{ vars.BASE_PATH || '/final-choice-maid-agency' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so sitemap lastmod dates come from real commit dates
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Quality checks (links, titles, structured data, privacy patterns)
+        run: npm run test:site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

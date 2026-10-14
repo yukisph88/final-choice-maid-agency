@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/config';
+import { href, asset } from '../lib/urls';
+import { organizationSchema } from '../lib/schema';
+const c = site.company;
+
+const values = [
+  { icon: 'chat', title: 'Honest guidance', text: 'We explain costs, terms and realistic timelines up front, including what we cannot promise.' },
+  { icon: 'users', title: 'Careful matching', text: 'We recommend candidates based on your household’s real needs and each candidate’s confirmed experience.' },
+  { icon: 'shield', title: 'Respect for privacy', text: 'Candidate biodata is published only with consent, and personal documents are never placed online.' },
+  { icon: 'handshake', title: 'Support after placement', text: 'We stay available to employers and helpers after handover, and help with renewals later.' },
+];
+---
+<BaseLayout
+  title="About Final Choice | Licensed Maid Agency in Kuala Lumpur"
+  description="Agensi Pekerjaan Final Choice is a licensed private employment agency in Kuala Lumpur placing Indonesian and Filipino domestic helpers with families."
+  path="/about-us/"
+  crumbs={[{ name: 'About Us', path: '/about-us/' }]}
+  schema={[organizationSchema()]}
+>
+  <PageHero eyebrow="About us" title="About Agensi Pekerjaan Final Choice" lead="A licensed Malaysian private employment agency helping families find, interview and employ domestic helpers." />
+
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>Who we are</h2>
+        <p>
+          {c.legalName} is a private employment agency based in Taman Mutiara Barat, Kuala Lumpur. We assist Malaysian employers
+          with the recruitment and placement of Indonesian and Filipino domestic helpers, and with work permit and contract renewal after placement.
+        </p>
+        <p>
+          Our consultants guide families through each stage: understanding what the household needs, sharing suitable biodata, arranging
+          interviews, preparing documentation, following up on approvals, and handing over the helper after her arrival, medical screening and orientation.
+        </p>
+        <p>We also assist Malaysian companies with foreign worker recruitment in other sectors through a separate service.</p>
+      </div>
+      <div class="logo-panel">
+        <picture>
+          <source srcset={asset('images/logo-final-choice.webp')} type="image/webp" />
+          <img src={asset('images/logo-final-choice.png')} alt="Agensi Pekerjaan Final Choice Sdn Bhd official logo" width="720" height="537" loading="lazy" decoding="async" />
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head"><h2>How we work</h2></div>
+      <div class="grid grid--4">
+        {values.map((v) => (
+          <div class="card">
+            <span class="card__icon"><Icon name={v.icon} size={24} /></span>
+            <h3>{v.title}</h3>
+            <p class="muted">{v.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:820px">
+      <h2>Company details</h2>
+      <div class="info-panel">
+        <dl class="facts">
+          <dt>Company name</dt><dd>{c.legalName}</dd>
+          <dt>Company No.</dt><dd>{c.registrationNo}</dd>
+          <dt>Agency licence</dt><dd>{c.licence}</dd>
+          <dt>Office</dt><dd>{c.address.street}, {c.address.postcode} {c.address.city}</dd>
+          <dt>Email</dt><dd><a href={`mailto:${c.email}`}>{c.email}</a></dd>
+          <dt>Phone / WhatsApp</dt><dd>{site.contact.phoneDisplay}</dd>
+          <dt>Office hours</dt><dd>{c.hours.map((h) => <>{h.label}: {h.opens}–{h.closes}<br /></>)}</dd>
+        </dl>
+      </div>
+      <p style="margin-top:24px"><a class="btn btn--outline" href={href('/contact/')}>Contact us <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+  <CtaBand />
+</BaseLayout>

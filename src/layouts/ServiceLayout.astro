@@ -1,0 +1,75 @@
+---
+// Shared layout for the household-need service pages. Each page supplies its own content.
+import BaseLayout from './BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import MaidCard from '../components/MaidCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import Icon from '../components/Icon.astro';
+import { href, whatsappLink, WA } from '../lib/urls';
+import { getPublicMaids, type Maid } from '../lib/maids';
+import { serviceSchema } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  h1: string;
+  eyebrow: string;
+  lead: string;
+  serviceName: string;
+  skill: keyof Maid['skills'];
+  need: string; // form prefill
+  related: { label: string; path: string }[];
+}
+const p = Astro.props;
+const matches = (await getPublicMaids())
+  .filter((m) => m.status === 'available' && (m.skills[p.skill] === 'experienced' || m.skills[p.skill] === 'some-experience'))
+  .slice(0, 4);
+const wa = WA.service(p.serviceName.toLowerCase());
+---
+<BaseLayout
+  title={p.title}
+  description={p.description}
+  path={p.path}
+  crumbs={[{ name: 'Services', path: '/services/' }, { name: p.serviceName, path: p.path }]}
+  waMessage={wa}
+  schema={[serviceSchema({ name: p.serviceName, description: p.description, path: p.path })]}
+>
+  <PageHero eyebrow={p.eyebrow} title={p.h1} lead={p.lead}>
+    <div class="btn-row">
+      <a class="btn btn--wa btn--lg" href={whatsappLink(wa)} target="_blank" rel="noopener" data-track={`svc_${p.skill}`}><Icon name="whatsapp" size={20} /> WhatsApp our consultant</a>
+      <a class="btn btn--outline btn--lg" href={href('/maids/')}>Browse maid biodata</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container prose">
+      <slot />
+    </div>
+  </section>
+
+  {matches.length > 0 && (
+    <section class="section section--tint section--tight">
+      <div class="container">
+        <h2 style="font-size:1.5rem">Published profiles with relevant experience</h2>
+        <div class="maid-grid">{matches.map((m) => <MaidCard maid={m} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <section class="section section--tint" id="enquire">
+    <div class="container contact-grid">
+      <div>
+        <h2>Tell us about your household</h2>
+        <p class="muted">Share a few details and our consultant will recommend suitable candidates and explain the next steps.</p>
+        <h3 style="margin-top:28px;font-size:1.1rem">Related pages</h3>
+        <ul class="related-links" style="grid-template-columns:1fr">
+          {p.related.map((r) => <li><a href={href(r.path)}>{r.label} <Icon name="arrow" size={16} /></a></li>)}
+        </ul>
+      </div>
+      <EnquiryForm defaultNeed={p.need} idPrefix={p.skill} />
+    </div>
+  </section>
+  <CtaBand message={wa} />
+</BaseLayout>

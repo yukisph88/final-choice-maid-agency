@@ -1,0 +1,90 @@
+# =====================================================================
+#  FINAL CHOICE — MAID PACKAGES (prices and inclusions)
+#
+#  HOW TO CHANGE A PRICE
+#    Find the nationality and package below and change the number after
+#    "price:". Numbers only — no "RM", no commas (e.g. 15600).
+#    To hide a price and show "Request a quotation" instead, use:  price: null
+#
+#  HOW TO ADD / CHANGE AN INCLUSION
+#    Each inclusion has a "text" and "verified".
+#    Only inclusions with  verified: true  are shown on the website.
+#    Set verified: true ONLY after management has confirmed that term in writing.
+#
+#  Indonesian and Filipino packages are kept separate on purpose:
+#  their terms are NOT assumed to be the same.
+# =====================================================================
+
+# Shown under the price cards on every page that displays packages
+priceNote: >-
+  Prices are reference package prices in Ringgit Malaysia and are subject to
+  confirmation. Your consultant will confirm the final quotation, inclusions and
+  terms in writing before you commit. Warranty and replacement arrangements are
+  subject to the terms of your service agreement.
+
+# Date the prices were last checked by staff (YYYY-MM-DD)
+lastReviewed: "2026-10-14"
+
+# Package tiers, in display order. "highlight" marks the centre card.
+tiers:
+  - id: premium
+    name: "Premium"
+    highlight: false
+  - id: platinum
+    name: "Platinum"
+    highlight: true
+  - id: diamond
+    name: "Diamond"
+    highlight: false
+
+nationalities:
+  indonesian:
+    label: "Indonesian Domestic Helper"
+    shortLabel: "Indonesian"
+    packages:
+      premium:
+        price: 15600
+        inclusions:
+          - text: "90-day warranty period"
+            verified: true
+          - text: "Replacement fee: RM3,800"
+            verified: true
+      platinum:
+        price: 17600
+        inclusions:
+          - text: "180-day warranty period"
+            verified: true
+          - text: "Replacement fee: RM3,800"
+            verified: true
+      diamond:
+        price: 19600
+        inclusions:
+          - text: "180-day warranty period"
+            verified: true
+          - text: "No replacement fee"
+            verified: true
+
+  filipino:
+    label: "Filipino Domestic Helper"
+    shortLabel: "Filipino"
+    packages:
+      premium:
+        price: 15600
+        inclusions: []
+      platinum:
+        price: 17600
+        inclusions:
+          # Internal reference only — set verified: true after confirmation
+          - text: "Includes SOCSO contribution"
+            verified: false
+          - text: "Includes ACC"
+            verified: false
+      diamond:
+        price: 19600
+        inclusions:
+          - text: "Includes SOCSO contribution"
+            verified: false
+          - text: "Includes ACC"
+            verified: false
+          - text: "No replacement fee"
+            verified: false

@@ -1,0 +1,148 @@
+---
+// Candidate directory. Every published profile is rendered as static HTML (crawlable,
+// works without JavaScript). Filtering, code search and pagination run in the browser
+// and do not create new URLs, so filters never produce duplicate indexable pages.
+import MaidCard from './MaidCard.astro';
+import Icon from './Icon.astro';
+import { whatsappLink, WA } from '../lib/urls';
+import type { Maid } from '../lib/maids';
+interface Props { maids: Maid[]; nationality?: 'indonesian' | 'filipino'; waMessage?: string; pageSize?: number }
+const { maids, nationality, waMessage = WA.home, pageSize = 12 } = Astro.props;
+---
+{maids.length === 0 ? (
+  <div class="empty-state">
+    <Icon name="file" size={40} />
+    <h2>New biodata are being prepared</h2>
+    <p>
+      We only publish profiles after the candidate has agreed to it, so the list may be short or empty.
+      Our consultant can share suitable biodata directly, based on your household's needs.
+    </p>
+    <a class="btn btn--wa" href={whatsappLink(waMessage)} target="_blank" rel="noopener" data-track="directory_empty">
+      <Icon name="whatsapp" size={18} /> Ask for current biodata
+    </a>
+  </div>
+) : (
+  <div class="directory" data-directory data-page-size={pageSize}>
+    <form class="filters" aria-label="Filter maid profiles" data-filters onsubmit="return false">
+      <div class="filters__row">
+        <div class="field field--search">
+          <label for="f-code">Search reference code</label>
+          <div class="input-icon"><Icon name="search" size={18} /><input id="f-code" name="code" type="search" placeholder="e.g. FC-ID-0012" autocomplete="off" /></div>
+        </div>
+        {!nationality && (
+          <div class="field">
+            <label for="f-nat">Nationality</label>
+            <select id="f-nat" name="nationality">
+              <option value="">All</option>
+              <option value="indonesian">Indonesian</option>
+              <option value="filipino">Filipino</option>
+            </select>
+          </div>
+        )}
+        <div class="field">
+          <label for="f-exp">Experience</label>
+          <select id="f-exp" name="exp">
+            <option value="0">Any</option>
+            <option value="1">1+ years</option>
+            <option value="3">3+ years</option>
+            <option value="5">5+ years</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-status">Availability</label>
+          <select id="f-status" name="status">
+            <option value="">All statuses</option>
+            <option value="available">Available</option>
+            <option value="interview-pending">Interview pending</option>
+            <option value="reserved">Reserved</option>
+            <option value="temporarily-unavailable">Temporarily unavailable</option>
+          </select>
+        </div>
+      </div>
+      <fieldset class="filters__skills">
+        <legend>Experience with</legend>
+        <label class="check"><input type="checkbox" name="childcare" /> Childcare</label>
+        <label class="check"><input type="checkbox" name="elderly" /> Elderly care</label>
+        <label class="check"><input type="checkbox" name="cooking" /> Cooking</label>
+        <label class="check"><input type="checkbox" name="housekeeping" /> Housekeeping</label>
+        <button class="link-btn" type="reset">Clear filters</button>
+      </fieldset>
+    </form>
+
+    <p class="directory__count" aria-live="polite" data-count>{maids.length} profile{maids.length === 1 ? '' : 's'}</p>
+
+    <div class="maid-grid" data-grid>
+      {maids.map((m) => <MaidCard maid={m} />)}
+    </div>
+
+    <div class="empty-state empty-state--inline" data-no-results hidden>
+      <h2>No profiles match these filters</h2>
+      <p>Try removing a filter, or tell us what you need. We may have suitable candidates who are not listed online yet.</p>
+      <a class="btn btn--wa" href={whatsappLink(waMessage)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> WhatsApp our consultant</a>
+    </div>
+
+    <nav class="pagination" aria-label="Profile pages" data-pagination hidden></nav>
+  </div>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-directory]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('[data-filters]')!;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-maid]'));
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const empty = root.querySelector<HTMLElement>('[data-no-results]')!;
+    const pager = root.querySelector<HTMLElement>('[data-pagination]')!;
+    const grid = root.querySelector<HTMLElement>('[data-grid]')!;
+    const size = Number(root.dataset.pageSize) || 12;
+    let page = 1;
+
+    const val = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null);
+
+    function matches(c: HTMLElement) {
+      const d = c.dataset;
+      const code = (val('code')?.value || '').trim().toLowerCase();
+      if (code && !d.code!.includes(code)) return false;
+      const nat = val('nationality')?.value;
+      if (nat && d.nationality !== nat) return false;
+      if (Number(d.exp) < Number(val('exp')?.value || 0)) return false;
+      const st = val('status')?.value;
+      if (st && d.status !== st) return false;
+      for (const k of ['childcare', 'elderly', 'cooking', 'housekeeping']) {
+        if (val(k)?.checked && d[k] !== '1') return false;
+      }
+      return true;
+    }
+
+    function render(scroll = false) {
+      const hits = cards.filter(matches);
+      const pages = Math.max(1, Math.ceil(hits.length / size));
+      page = Math.min(page, pages);
+      cards.forEach((c) => (c.hidden = true));
+      hits.slice((page - 1) * size, page * size).forEach((c) => (c.hidden = false));
+      count.textContent = `${hits.length} profile${hits.length === 1 ? '' : 's'}${pages > 1 ? ` · page ${page} of ${pages}` : ''}`;
+      empty.hidden = hits.length > 0;
+      pager.hidden = pages < 2;
+      pager.innerHTML = '';
+      if (pages > 1) {
+        const mk = (label: string, p: number, opts: { current?: boolean; disabled?: boolean; aria?: string } = {}) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          if (opts.aria) b.setAttribute('aria-label', opts.aria);
+          if (opts.current) b.setAttribute('aria-current', 'page');
+          b.disabled = !!opts.disabled;
+          b.addEventListener('click', () => { page = p; render(true); });
+          pager.appendChild(b);
+        };
+        mk('‹ Prev', page - 1, { disabled: page === 1, aria: 'Previous page' });
+        for (let p = 1; p <= pages; p++) mk(String(p), p, { current: p === page, aria: `Page ${p}` });
+        mk('Next ›', page + 1, { disabled: page === pages, aria: 'Next page' });
+      }
+      if (scroll) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.addEventListener('input', () => { page = 1; render(); });
+    form.addEventListener('reset', () => setTimeout(() => { page = 1; render(); }));
+    render();
+  });
+</script>

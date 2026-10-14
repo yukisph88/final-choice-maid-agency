@@ -1,0 +1,281 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import MaidCard from '../components/MaidCard.astro';
+import PackageCards from '../components/PackageCards.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import FaqList from '../components/FaqList.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import { site } from '../lib/config';
+import { href, asset, whatsappLink, telLink, WA } from '../lib/urls';
+import { getPublicMaids } from '../lib/maids';
+import { organizationSchema, websiteSchema } from '../lib/schema';
+
+const maids = await getPublicMaids();
+// Featured first, then other available profiles. Only candidates who can currently be interviewed.
+const showable = maids.filter((m) => m.status === 'available' || m.status === 'interview-pending');
+const featured = [...showable.filter((m) => m.featured), ...showable.filter((m) => !m.featured && m.status === 'available')].slice(0, 8);
+const c = site.company;
+
+const strengths = [
+  { icon: 'users', title: 'Personalised helper recommendations', text: 'We listen to your household’s needs first, then recommend candidates whose experience fits — not simply whoever is next on the list.' },
+  { icon: 'chat', title: 'Maid interview arrangements', text: 'Interview your shortlisted helper, usually by video call, so you can decide with confidence before committing.' },
+  { icon: 'file', title: 'Recruitment documentation guidance', text: 'A clear checklist for your case and help with the contract and application forms, so nothing is missed.' },
+  { icon: 'clipboard', title: 'Placement process assistance', text: 'We coordinate the application, approvals follow-up, travel and arrival steps and keep you informed throughout.' },
+  { icon: 'graduation', title: 'Pre-handover orientation', text: 'Before handover, helpers receive an orientation on household expectations and practical working arrangements.' },
+  { icon: 'handshake', title: 'After-placement assistance', text: 'Questions after your helper arrives? We stay in touch, and help with permit and contract renewal when the time comes.' },
+];
+
+const needs = [
+  { icon: 'baby', title: 'Childcare', text: 'Helpers with experience caring for toddlers and school-going children.', path: '/services/childcare-maid/' },
+  { icon: 'heart', title: 'Newborn assistance', text: 'Support for families with a new baby, from candidates with infant-care experience.', path: '/services/childcare-maid/' },
+  { icon: 'elderly', title: 'Elderly care', text: 'Daily support and companionship for parents or grandparents at home.', path: '/services/elderly-care-maid/' },
+  { icon: 'sparkle', title: 'Housekeeping', text: 'Cleaning, laundry, ironing and keeping the home in good order.', path: '/services/housekeeping-maid/' },
+  { icon: 'cooking', title: 'Cooking', text: 'Helpers who can prepare family meals or are willing to learn your recipes.', path: '/services/' },
+  { icon: 'home', title: 'General household support', text: 'An all-round helper for the day-to-day running of a busy home.', path: '/services/' },
+];
+---
+<BaseLayout
+  title="Maid Agency Malaysia | Indonesian & Filipino Maids | Final Choice"
+  description="Looking for an Indonesian or Filipino maid in Malaysia? Browse domestic helper profiles and get recruitment and placement help from licensed agency Final Choice."
+  path="/"
+  schema={[organizationSchema(), websiteSchema()]}
+>
+  <!-- B. HERO -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div>
+        <p class="eyebrow">Licensed maid agency in Kuala Lumpur</p>
+        <h1>Find the Right <span>Domestic Helper</span> for Your Family</h1>
+        <p class="lead">
+          Explore Indonesian and Filipino domestic helpers with Agensi Pekerjaan Final Choice. Our team assists
+          Malaysian employers with helper selection, interviews, documentation and placement arrangements.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary btn--lg" href={href('/maids/')}>Browse Available Maids <Icon name="arrow" size={18} /></a>
+          <a class="btn btn--wa btn--lg" href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track="hero_whatsapp"><Icon name="whatsapp" size={20} /> WhatsApp Our Consultant</a>
+        </div>
+        <ul class="hero__trust">
+          <li><Icon name="shield" size={18} /> Licence {c.licence}</li>
+          <li><Icon name="check" size={18} /> Indonesian &amp; Filipino helpers</li>
+          <li><Icon name="check" size={18} /> Interview before you decide</li>
+        </ul>
+      </div>
+      <div class="hero__media">
+        <div class="hero__photo">
+          <picture>
+            <source media="(max-width: 700px)" srcset={asset('images/home-helper-housekeeping-640.webp')} type="image/webp" />
+            <img src={asset('images/home-helper-housekeeping-1024.webp')} alt="Two women neatly making a bed together in a bright bedroom" width="1024" height="640" fetchpriority="high" />
+          </picture>
+        </div>
+        <div class="hero__badge">
+          <Icon name="calendar" size={28} />
+          <span><strong>Two-year contracts</strong>Arranged with clear terms explained before you sign.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. WHY FINAL CHOICE -->
+  <section class="section section--tint" aria-labelledby="why-h">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Why Final Choice</p>
+        <h2 id="why-h">Practical support at every step of hiring a helper</h2>
+        <p>Hiring a domestic helper is a big decision for any family. We focus on careful matching, clear explanations and steady follow-up.</p>
+      </div>
+      <div class="grid grid--3">
+        {strengths.map((s) => (
+          <div class="card">
+            <span class="card__icon"><Icon name={s.icon} size={24} /></span>
+            <h3>{s.title}</h3>
+            <p class="muted">{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- D. BROWSE BY NATIONALITY -->
+  <section class="section" aria-labelledby="nat-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Browse by nationality</p>
+        <h2 id="nat-h">Indonesian and Filipino domestic helpers</h2>
+        <p>Recruitment procedures and package terms differ between nationalities. Choose a category to learn more and see available profiles.</p>
+      </div>
+      <div class="grid grid--2">
+        <article class="nat-card">
+          <div class="nat-card__band"></div>
+          <div class="nat-card__body">
+            <span class="nat-card__flag">Indonesia</span>
+            <h3>Indonesian Domestic Helpers</h3>
+            <ul>
+              <li><Icon name="check" size={18} />Communication in Bahasa Indonesia, close to Bahasa Malaysia</li>
+              <li><Icon name="check" size={18} />Candidates with childcare, elderly-care and household experience</li>
+              <li><Icon name="check" size={18} />Placement following current Malaysia–Indonesia procedures</li>
+            </ul>
+            <div class="actions">
+              <a class="btn btn--primary" href={href('/maids/indonesian-maids/')}>Indonesian maids <Icon name="arrow" size={18} /></a>
+              <a class="btn btn--wa-outline" href={whatsappLink(WA.indonesian)} target="_blank" rel="noopener" data-track="nat_indonesian"><Icon name="whatsapp" size={18} /> Enquire</a>
+            </div>
+          </div>
+        </article>
+        <article class="nat-card">
+          <div class="nat-card__band"></div>
+          <div class="nat-card__body">
+            <span class="nat-card__flag">Philippines</span>
+            <h3>Filipino Domestic Helpers</h3>
+            <ul>
+              <li><Icon name="check" size={18} />Many candidates communicate well in English</li>
+              <li><Icon name="check" size={18} />Experience in childcare, elderly care and housekeeping</li>
+              <li><Icon name="check" size={18} />Documentation guided according to Philippine requirements</li>
+            </ul>
+            <div class="actions">
+              <a class="btn btn--primary" href={href('/maids/filipino-maids/')}>Filipino maids <Icon name="arrow" size={18} /></a>
+              <a class="btn btn--wa-outline" href={whatsappLink(WA.filipino)} target="_blank" rel="noopener" data-track="nat_filipino"><Icon name="whatsapp" size={18} /> Enquire</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- E. BY HOUSEHOLD NEED -->
+  <section class="section section--tint" aria-labelledby="need-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Find a maid by household need</p>
+        <h2 id="need-h">What kind of help does your family need?</h2>
+        <p>Every household is different. Actual suitability always depends on each candidate’s confirmed skills and experience, which we check with you during selection and interview.</p>
+      </div>
+      <div class="grid grid--3">
+        {needs.map((n) => (
+          <div class="card card--link need-card">
+            <span class="card__icon"><Icon name={n.icon} size={24} /></span>
+            <div>
+              <h3><a class="stretched" href={href(n.path)} style="color:inherit;text-decoration:none">{n.title}</a></h3>
+              <p>{n.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- F. FEATURED PROFILES -->
+  <section class="section" aria-labelledby="feat-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Maid biodata</p>
+        <h2 id="feat-h">{featured.length ? 'Featured helper profiles' : 'Ask for current helper biodata'}</h2>
+        <p>
+          {featured.length
+            ? 'A selection of published profiles. Availability changes quickly, so please confirm the current status with our consultant.'
+            : 'We publish profiles only with each candidate’s consent. Tell us what you need and our consultant will share suitable biodata directly.'}
+        </p>
+      </div>
+      {featured.length > 0 ? (
+        <>
+          <div class="maid-grid">{featured.map((m) => <MaidCard maid={m} />)}</div>
+          <p style="margin-top:28px"><a class="btn btn--outline" href={href('/maids/')}>View all maid biodata <Icon name="arrow" size={18} /></a></p>
+        </>
+      ) : (
+        <div class="empty-state">
+          <Icon name="file" size={40} />
+          <h3>Receive suitable biodata on WhatsApp</h3>
+          <p>Share your household needs and preferred nationality. We will send profiles of candidates who match, and arrange interviews with those you shortlist.</p>
+          <div class="btn-row" style="justify-content:center">
+            <a class="btn btn--wa" href={whatsappLink('Hi Final Choice, please share suitable domestic helper biodata for my family.')} target="_blank" rel="noopener" data-track="featured_empty"><Icon name="whatsapp" size={18} /> Request biodata</a>
+            <a class="btn btn--outline" href={href('/maids/')}>Go to maid directory</a>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- G. PROCESS -->
+  <section class="section section--tint" aria-labelledby="proc-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Our hiring process</p>
+        <h2 id="proc-h">From first conversation to handover in seven steps</h2>
+      </div>
+      <ProcessSteps />
+      <p style="margin-top:24px"><a class="card__more" href={href('/maid-hiring-process/')}>Read the full hiring process <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- H. PACKAGES -->
+  <section class="section" aria-labelledby="pkg-h" id="packages">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Maid packages</p>
+        <h2 id="pkg-h">Premium, Platinum and Diamond packages</h2>
+        <p>Package terms differ for Indonesian and Filipino helpers. Select a nationality to compare, then WhatsApp us for an accurate quotation.</p>
+      </div>
+      <PackageCards id="home-packages" />
+    </div>
+  </section>
+
+  <!-- I. FAQ -->
+  <section class="section section--tint" aria-labelledby="faq-h">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-h">Questions employers often ask</h2>
+      </div>
+      <FaqList homeOnly />
+      <p style="text-align:center;margin-top:24px"><a class="card__more" href={href('/faq/')}>See all questions <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- J. ABOUT -->
+  <section class="section" aria-labelledby="about-h">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">About Final Choice</p>
+        <h2 id="about-h">A licensed Malaysian employment agency</h2>
+        <p>
+          {c.legalName} is a private employment agency based in Kuala Lumpur, licensed under {c.licence}.
+          We help Malaysian families recruit and place Indonesian and Filipino domestic helpers, and assist
+          with permit and contract renewal after placement.
+        </p>
+        <p>We believe a good placement starts with understanding the family and being honest about the process, costs and timelines.</p>
+        <a class="btn btn--outline" href={href('/about-us/')}>About us <Icon name="arrow" size={18} /></a>
+      </div>
+      <div class="logo-panel">
+        <picture>
+          <source srcset={asset('images/logo-final-choice.webp')} type="image/webp" />
+          <img src={asset('images/logo-final-choice.png')} alt="Agensi Pekerjaan Final Choice Sdn Bhd official logo" width="720" height="537" loading="lazy" decoding="async" />
+        </picture>
+        <div class="licence-box">
+          <span><strong>Company No.</strong> {c.registrationNo}</span>
+          <span><strong>Licence</strong> {c.licence}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- K. CONTACT -->
+  <section class="section section--tint" aria-labelledby="contact-h" id="enquire">
+    <div class="container contact-grid">
+      <div class="info-panel">
+        <p class="eyebrow">Contact us</p>
+        <h2 id="contact-h">Speak with our consultant</h2>
+        <p class="muted">WhatsApp is the fastest way to reach us. You can also call, email or visit our office.</p>
+        <ul class="contact-list">
+          <li><Icon name="whatsapp" size={20} /><a href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track="contact_whatsapp">WhatsApp {site.contact.consultantName}: {site.contact.phoneDisplay}</a></li>
+          <li><Icon name="phone" size={20} /><a href={telLink} data-track="contact_phone">Call {site.contact.phoneDisplay}</a></li>
+          <li><Icon name="mail" size={20} /><a href={`mailto:${c.email}`}>{c.email}</a></li>
+          <li><Icon name="pin" size={20} /><span>{c.address.street}, {c.address.postcode} {c.address.city}<br /><a href={c.mapsUrl} target="_blank" rel="noopener">Get directions</a></span></li>
+          <li><Icon name="clock" size={20} /><span>{c.hours.map((h) => <>{h.label}: {h.opens}–{h.closes}<br /></>)}</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Send an enquiry</h3>
+        <EnquiryForm idPrefix="home" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

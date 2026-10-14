@@ -1,0 +1,21 @@
+# build output
+dist/
+.astro/
+node_modules/
+
+# environment / secrets — never commit
+.env
+.env.*
+!.env.example
+
+# private candidate documents must never be added to this public repository
+private/
+*.passport.*
+*_unredacted*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

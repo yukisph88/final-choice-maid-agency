@@ -1,0 +1,79 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../lib/config';
+import { href, whatsappLink, WA } from '../../lib/urls';
+import { formatDate } from '../../lib/maids';
+import { articleSchema } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', (p) => !p.data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+interface Props { post: CollectionEntry<'blog'> }
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const path = `/blog/${post.id}/`;
+const RELATED_LABELS: Record<string, string> = {
+  '/maid-hiring-process/': 'Maid hiring process',
+  '/maids/': 'Browse maid biodata',
+  '/maids/indonesian-maids/': 'Indonesian maids',
+  '/maids/filipino-maids/': 'Filipino maids',
+  '/maid-packages/': 'Maid packages',
+  '/services/elderly-care-maid/': 'Elderly care maid',
+  '/services/childcare-maid/': 'Childcare maid',
+  '/services/housekeeping-maid/': 'Housekeeping maid',
+  '/services/': 'Our services',
+  '/faq/': 'FAQ',
+  '/contact/': 'Contact us',
+};
+---
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  path={path}
+  ogType="article"
+  crumbs={[{ name: 'Blog', path: '/blog/' }, { name: d.h1 ?? d.title, path }]}
+  schema={[articleSchema({ title: d.h1 ?? d.title, description: d.description, path, published: d.published, updated: d.updated })]}
+>
+  <article class="section section--tight">
+    <div class="container article-layout">
+      <div>
+        <header style="margin-bottom:28px">
+          <p class="eyebrow">Employer guide</p>
+          <h1 style="max-width:820px">{d.h1 ?? d.title}</h1>
+          <p class="article-meta">
+            By {site.company.brandName} consultants · Published <time datetime={d.published.toISOString()}>{formatDate(d.published)}</time>
+            {d.updated && <> · Updated <time datetime={d.updated.toISOString()}>{formatDate(d.updated)}</time></>}
+          </p>
+        </header>
+        <div class="prose">
+          <Content />
+          <div class="callout" style="margin-top:32px">
+            <Icon name="shield" size={20} />
+            <p>This guide gives general information for Malaysian employers. Government requirements change from time to time — our consultant will confirm the current requirements for your application.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="sidebar-card">
+        <div class="info-panel">
+          <h2 style="font-size:1.15rem">Talk to a consultant</h2>
+          <p class="muted" style="font-size:.95rem">Tell us what your household needs and we will recommend suitable helpers.</p>
+          <a class="btn btn--wa btn--block" href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track={`blog_${post.id}`}><Icon name="whatsapp" size={18} /> WhatsApp us</a>
+          {d.related.length > 0 && (
+            <>
+              <h2 style="font-size:1rem;margin-top:24px">Related</h2>
+              <ul class="related-links" style="grid-template-columns:1fr">
+                {d.related.map((r) => <li><a href={href(r)}>{RELATED_LABELS[r] ?? r} <Icon name="arrow" size={16} /></a></li>)}
+              </ul>
+            </>
+          )}
+        </div>
+      </aside>
+    </div>
+  </article>
+  <CtaBand />
+</BaseLayout>

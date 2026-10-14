@@ -1,0 +1,54 @@
+---
+import ServiceLayout from '../../layouts/ServiceLayout.astro';
+import { href } from '../../lib/urls';
+---
+<ServiceLayout
+  title="Childcare Maid Malaysia | Nanny & Newborn Helper | Final Choice"
+  description="Find a domestic helper with childcare or newborn experience in Malaysia. Final Choice helps you shortlist, interview and place a helper who suits your family."
+  path="/services/childcare-maid/"
+  h1="Childcare maid for Malaysian families"
+  eyebrow="Childcare & newborn helper"
+  lead="Help at home with babies, toddlers and school-going children, from a helper whose childcare experience matches your family’s routine."
+  serviceName="Childcare maid"
+  skill="childcare"
+  need="Childcare"
+  related={[
+    { label: 'How to interview a domestic helper', path: '/blog/how-to-interview-a-domestic-helper/' },
+    { label: 'Common mistakes when hiring a maid', path: '/blog/common-mistakes-when-hiring-a-maid/' },
+    { label: 'Maid hiring process', path: '/maid-hiring-process/' },
+  ]}
+>
+  <h2>How a childcare helper supports your family</h2>
+  <p>
+    For working parents and busy households, a helper who is good with children can make each day calmer. Depending on
+    her experience and your instructions, a childcare helper may assist with:
+  </p>
+  <ul>
+    <li>Feeding, bathing and changing babies and toddlers</li>
+    <li>Preparing children’s meals and snacks</li>
+    <li>Keeping to nap, play and bedtime routines</li>
+    <li>Getting children ready for school and accompanying school pick-ups where arranged</li>
+    <li>Washing and sterilising bottles, children’s laundry and tidying play areas</li>
+    <li>Light household work alongside childcare</li>
+  </ul>
+
+  <h2>Newborn assistance</h2>
+  <p>
+    Caring for a newborn requires patience and specific experience. If you are expecting a baby, tell us your due date and
+    how you plan to share night feeds and routines. We can prioritise candidates who have cared for infants before. Start
+    early, because <a href={href('/maid-hiring-process/')}>the hiring process</a> takes time and arrival dates cannot be guaranteed.
+  </p>
+
+  <h2>Choosing the right helper for your children</h2>
+  <p>Before the interview, think about:</p>
+  <ul>
+    <li><strong>Ages of your children.</strong> Infant care, toddler care and caring for older children require different strengths.</li>
+    <li><strong>Language.</strong> Which language will she use with your children day to day?</li>
+    <li><strong>Supervision.</strong> Will a grandparent or parent be at home, or will she be responsible alone for part of the day?</li>
+    <li><strong>Balance of duties.</strong> Be realistic about how much housework can be combined with full-time childcare.</li>
+  </ul>
+  <p>
+    Our article on <a href={href('/blog/how-to-interview-a-domestic-helper/')}>how to interview a domestic helper</a> includes
+    questions that help you understand a candidate’s real childcare experience.
+  </p>
+</ServiceLayout>

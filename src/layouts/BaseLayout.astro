@@ -1,0 +1,77 @@
+---
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/montserrat/700.css';
+import '@fontsource/montserrat/800.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../lib/config';
+import { absUrl, asset, WA } from '../lib/urls';
+import { breadcrumbSchema, type Crumb } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string; // canonical site path, e.g. '/maids/'
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  schema?: object[];
+  crumbs?: Crumb[]; // excluding Home
+  waMessage?: string;
+}
+
+const { title, description, path, ogImage, ogType = 'website', noindex = false, schema = [], crumbs, waMessage = WA.home } = Astro.props;
+
+const canonical = absUrl(path);
+const image = new URL(asset(ogImage ?? site.seo.defaultOgImage), Astro.site).toString();
+const indexable = site.seo.indexing && !noindex;
+const allCrumbs = crumbs ? [{ name: 'Home', path: '/' }, ...crumbs] : null;
+const jsonLd = [...schema, ...(allCrumbs ? [breadcrumbSchema(allCrumbs)] : [])];
+---
+<!doctype html>
+<html lang="en-MY">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow'} />
+    {site.seo.googleSiteVerification && <meta name="google-site-verification" content={site.seo.googleSiteVerification} />}
+    <meta name="theme-color" content="#0a1a5c" />
+    <link rel="icon" href={asset('favicon/favicon-48.png')} sizes="48x48" type="image/png" />
+    <link rel="apple-touch-icon" href={asset('favicon/apple-touch-icon.png')} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.company.brandName} />
+    <meta property="og:locale" content="en_MY" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <slot name="head" />
+    {jsonLd.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header currentPath={path} />
+    <main id="main">
+      {allCrumbs && <Breadcrumbs crumbs={allCrumbs} />}
+      <slot />
+    </main>
+    <Footer />
+    <WhatsAppFloat message={waMessage} />
+  </body>
+</html>

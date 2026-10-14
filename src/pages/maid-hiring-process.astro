@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/urls';
+---
+<BaseLayout
+  title="Maid Hiring Process in Malaysia | Step-by-Step Guide | Final Choice"
+  description="How hiring a domestic helper in Malaysia works with Final Choice: requirements, biodata, interview, documents, approvals, arrival, FOMEMA screening and handover."
+  path="/maid-hiring-process/"
+  crumbs={[{ name: 'Maid Hiring Process', path: '/maid-hiring-process/' }]}
+>
+  <PageHero
+    eyebrow="Maid hiring process"
+    title="How the maid hiring process works in Malaysia"
+    lead="Seven clear steps, from your first conversation with our consultant to handover and follow-up. Here is what happens at each stage, and what we need from you."
+  />
+  <section class="section">
+    <div class="container" style="max-width:920px">
+      <ProcessSteps detailed headingLevel="h2" />
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container split" style="align-items:start">
+      <div class="prose">
+        <h2>What affects how long it takes</h2>
+        <ul>
+          <li><strong>Your documents.</strong> Complete, clear documents avoid back-and-forth.</li>
+          <li><strong>Government and embassy approvals.</strong> Processing times are set by the authorities and vary.</li>
+          <li><strong>The helper’s own documents.</strong> Passport, training and pre-departure requirements in her home country.</li>
+          <li><strong>Travel arrangements.</strong> Flight availability and arrival scheduling.</li>
+          <li><strong>Medical screening.</strong> The FOMEMA examination after arrival must be completed before the process can finish.</li>
+        </ul>
+        <p>We will give you an estimate for your case and keep you updated. We cannot guarantee approval or a specific arrival date.</p>
+      </div>
+      <div class="prose">
+        <h2>Contract, salary and rest days</h2>
+        <p>
+          Final Choice generally arranges a two-year employment contract. The contract sets out the helper’s salary, rest day,
+          working arrangements and other terms. Requirements differ between Indonesian and Filipino helpers, and are set by
+          Malaysian law and the agreements and rules of each source country.
+        </p>
+        <p>
+          Your consultant will explain the terms that apply to your helper before you sign. Employer eligibility requirements,
+          such as income criteria, are separate from the helper’s salary.
+        </p>
+        <p><a href={href('/blog/documents-needed-to-hire-a-domestic-helper/')}>Documents you may need</a> · <a href={href('/faq/')}>FAQ</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <h2 style="font-size:1.4rem">Helpful guides</h2>
+      <ul class="related-links">
+        <li><a href={href('/blog/how-to-hire-a-maid-in-malaysia/')}>How to hire a maid in Malaysia <Icon name="arrow" size={16} /></a></li>
+        <li><a href={href('/blog/how-to-interview-a-domestic-helper/')}>How to interview a helper <Icon name="arrow" size={16} /></a></li>
+        <li><a href={href('/blog/what-happens-after-your-maid-arrives-in-malaysia/')}>After your maid arrives <Icon name="arrow" size={16} /></a></li>
+        <li><a href={href('/maid-packages/')}>Maid packages <Icon name="arrow" size={16} /></a></li>
+      </ul>
+    </div>
+  </section>
+  <CtaBand title="Ready to start?" text="Tell us your requirements and we will share suitable biodata." />
+</BaseLayout>

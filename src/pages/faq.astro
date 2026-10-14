@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FaqList from '../components/FaqList.astro';
+import CtaBand from '../components/CtaBand.astro';
+---
+<BaseLayout
+  title="Maid Hiring FAQ Malaysia | Final Choice"
+  description="Answers to common questions about hiring a maid in Malaysia: documents, interviews, timelines, arrival, replacement assistance, permit renewal and choosing a nationality."
+  path="/faq/"
+  crumbs={[{ name: 'FAQ', path: '/faq/' }]}
+>
+  <PageHero eyebrow="FAQ" title="Frequently asked questions about hiring a maid" lead="Clear answers to the questions Malaysian employers ask us most. If your question is not here, WhatsApp our consultant." />
+  <section class="section section--tight">
+    <div class="container">
+      <FaqList headingLevel="h2" />
+    </div>
+  </section>
+  <CtaBand title="Still have questions?" />
+</BaseLayout>

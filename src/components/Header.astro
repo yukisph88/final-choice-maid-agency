@@ -1,0 +1,75 @@
+---
+import Icon from './Icon.astro';
+import { href, asset, whatsappLink, WA } from '../lib/urls';
+interface Props { currentPath: string }
+const { currentPath } = Astro.props;
+
+const NAV = [
+  { label: 'Home', path: '/' },
+  { label: 'Find a Maid', path: '/maids/' },
+  { label: 'Indonesian Maid', path: '/maids/indonesian-maids/' },
+  { label: 'Filipino Maid', path: '/maids/filipino-maids/' },
+  { label: 'Our Services', path: '/services/' },
+  { label: 'Packages', path: '/maid-packages/' },
+  { label: 'About Us', path: '/about-us/' },
+  { label: 'Contact', path: '/contact/' },
+];
+
+function isActive(p: string) {
+  if (p === '/') return currentPath === '/';
+  if (p === '/maids/') return currentPath === '/maids/' || (currentPath.startsWith('/maids/') && !currentPath.includes('-maids/'));
+  return currentPath.startsWith(p);
+}
+---
+<header class="site-header" data-header>
+  <div class="container site-header__inner">
+    <a class="brand" href={href('/')} aria-label="Final Choice — home">
+      <picture>
+        <source srcset={asset('images/logo-final-choice-mark.webp')} type="image/webp" />
+        <img src={asset('images/logo-final-choice-mark.png')} alt="Agensi Pekerjaan Final Choice logo" width="320" height="196" fetchpriority="high" />
+      </picture>
+    </a>
+
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul>
+        {NAV.map((n) => (
+          <li><a href={href(n.path)} aria-current={isActive(n.path) ? 'page' : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+      <a class="btn btn--wa main-nav__cta" href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track="whatsapp_header">
+        <Icon name="whatsapp" size={18} /> WhatsApp Us
+      </a>
+    </nav>
+
+    <a class="btn btn--wa btn--sm header-wa" href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track="whatsapp_header">
+      <Icon name="whatsapp" size={18} /> <span>WhatsApp</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-controls="main-nav" aria-expanded="false" data-nav-toggle>
+      <span class="nav-toggle__open"><Icon name="menu" size={24} /></span>
+      <span class="nav-toggle__close"><Icon name="close" size={24} /></span>
+      <span class="sr-only">Menu</span>
+    </button>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (btn && header) {
+    const set = (open: boolean) => {
+      btn.setAttribute('aria-expanded', String(open));
+      header.classList.toggle('is-open', open);
+      document.body.classList.toggle('nav-open', open);
+    };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && header.classList.contains('is-open')) { set(false); btn.focus(); } });
+    header.querySelectorAll('.main-nav a').forEach((a) => a.addEventListener('click', () => set(false)));
+  }
+  // Lightweight conversion tracking hook: pushes to dataLayer only if GA/GTM is installed later.
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-track]');
+    if (!el) return;
+    const w = window as unknown as { dataLayer?: object[] };
+    w.dataLayer?.push({ event: el.href?.startsWith('tel:') ? 'phone_click' : 'whatsapp_click', label: el.dataset.track });
+  });
+</script>
