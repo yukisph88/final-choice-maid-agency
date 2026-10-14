@@ -19,7 +19,7 @@ const maidSchema = z
     age: z.number().int().min(21).max(60).optional(), // shown only if publication.showAge is true
     religion: z.string().max(30).optional(),
     maritalStatus: z.string().max(30).optional(),
-    experienceYears: z.number().min(0).max(40),
+    experienceYears: z.number().min(0).max(40).optional(), // leave out when the biodata does not state years
     overseasExperience: z.boolean().default(false),
     skills: z.object({
       childcare: skillLevel,

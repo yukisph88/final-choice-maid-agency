@@ -8,7 +8,7 @@ interface Props { maid: Maid; lang: Lang; headingLevel?: 'h2' | 'h3' }
 const { maid: m, lang, headingLevel = 'h3' } = Astro.props;
 const T = t(lang);
 const H = headingLevel;
-const has = (k: keyof Maid['skills']) => (m.skills[k] === 'experienced' || m.skills[k] === 'some-experience' ? '1' : '0');
+const has = (k: keyof Maid['skills']) => (m.skills[k] === 'experienced' ? '1' : '0');
 const skills = experiencedSkills(m, lang);
 const profile = href(withLang(lang, profilePath(lang, m.slug)));
 const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
@@ -18,7 +18,7 @@ const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
   data-maid
   data-code={m.code.toLowerCase()}
   data-nationality={m.nationality}
-  data-exp={m.experienceYears}
+  data-exp={m.experienceYears ?? 0}
   data-childcare={has('childcare')}
   data-elderly={has('elderlyCare')}
   data-cooking={has('cooking')}
@@ -41,7 +41,7 @@ const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
     <H class="maid-card__title"><a href={profile}>{title}</a></H>
     <dl class="maid-card__facts">
       {m.publication.showAge && m.age && (<div><dt>{T.card.age}</dt><dd>{m.age}</dd></div>)}
-      <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>
+      <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>
       {m.religion && (<div><dt>{T.card.religion}</dt><dd>{m.religion}</dd></div>)}
     </dl>
     {skills.length > 0 && (

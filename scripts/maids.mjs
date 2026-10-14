@@ -73,7 +73,7 @@ function toMarkdown(m) {
   if (m.age) L.push(`age: ${m.age}`);
   if (m.religion) L.push(`religion: ${s(m.religion)}`);
   if (m.maritalStatus) L.push(`maritalStatus: ${s(m.maritalStatus)}`);
-  L.push(`experienceYears: ${m.experienceYears}`);
+  if (m.experienceYears !== undefined) L.push(`experienceYears: ${m.experienceYears}`);
   L.push(`overseasExperience: ${m.overseasExperience}`);
   L.push('skills:');
   for (const k of SKILLS) L.push(`  ${k}: ${m.skills[k]}`);
@@ -111,8 +111,9 @@ function fromRow(r) {
   if (!NATIONALITIES.includes(nationality)) errors.push('nationality must be indonesian or filipino');
   const status = (r.status || 'available').toLowerCase();
   if (!STATUSES.includes(status)) errors.push(`status must be one of: ${STATUSES.join(', ')}`);
-  const exp = Number(r.experienceYears || 0);
-  if (!Number.isFinite(exp) || exp < 0 || exp > 40) errors.push('experienceYears must be a number 0–40');
+  const exp = String(r.experienceYears ?? '').trim() === '' ? undefined : Number(r.experienceYears);
+  if (exp !== undefined && (!Number.isFinite(exp) || exp < 0 || exp > 40)) errors.push('experienceYears must be a number 0–40 (or empty if not stated)');
+  if (exp === undefined) warnings.push('Years of experience not stated — shown as "not stated"');
   const age = r.age ? Number(r.age) : undefined;
   if (age !== undefined && (!Number.isInteger(age) || age < 21 || age > 60)) errors.push('age must be 21–60');
   const skills = {};
@@ -176,8 +177,8 @@ async function importCsv() {
     const src = findFile(join(IMPORT, 'photos'), m.code, ['.jpg', '.jpeg', '.png', '.webp']);
     if (src && !m.publication.photoConsent) warnings.push('Photo consent not recorded — photo shown in this private review only; it will NOT be published');
     if (src) {
-      // 4:5 portrait, smart crop that keeps the face; metadata (incl. GPS) is stripped by sharp
-      await sharp(src).rotate().resize(720, 900, { fit: 'cover', position: sharp.strategy.attention }).webp({ quality: 80 }).toFile(join(STAGING, 'photos', `${slug}.webp`));
+      // 4:5 portrait, crop anchored at the top so the face is always kept; metadata (incl. GPS) is stripped by sharp
+      await sharp(src).rotate().resize(720, 900, { fit: 'cover', position: 'top' }).webp({ quality: 80 }).toFile(join(STAGING, 'photos', `${slug}.webp`));
       m.photo = `images/maids/${slug}.webp`;
     } else if (!src) warnings.push('No photo (a neutral placeholder will be shown)');
     const pdf = findFile(join(IMPORT, 'pdfs'), m.code, ['.pdf']);
@@ -197,7 +198,7 @@ img{width:120px;border-radius:8px}.e{color:#b42318;font-weight:600}.w{color:#a15
 <table><tr><th>Photo</th><th>Code</th><th>Details</th><th>Checks</th></tr>
 ${report.map(({ m, errors, warnings, slug, priv }) => `<tr><td>${m.photo ? `<img src="photos/${slug}.webp">` : '—'}</td>
 <td><b>${esc(m.code)}</b><br><span style="color:#4f5d73">Private: ${esc(priv.name)}<br>${esc(priv.source)}</span><br>${esc(m.nationality)}<br>${esc(m.status)}${m.featured ? '<br>★ featured' : ''}</td>
-<td>${m.age ? `Age ${m.age}${m.publication.showAge ? '' : ' (hidden)'} · ` : ''}${m.experienceYears} yrs${m.overseasExperience ? ' · overseas' : ''}<br>
+<td>${m.age ? `Age ${m.age}${m.publication.showAge ? '' : ' (hidden)'} · ` : ''}${m.experienceYears ?? 'not stated'} yrs${m.overseasExperience ? ' · overseas' : ''}<br>
 Skills: ${SKILLS.filter((k) => m.skills[k] !== 'none').map((k) => `${k} (${m.skills[k]})`).join(', ')}<br>
 Languages: ${m.languages.map((l) => `${esc(l.language)}${l.level ? ' ' + l.level : ''}`).join(', ')}<br>
 History: ${m.employmentHistory.map((e) => `${esc(e.country)} ${esc(e.duration)}: ${esc(e.duties)}`).join(' / ')}<br>

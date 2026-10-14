@@ -19,11 +19,11 @@ const skills = (Object.keys(m.skills) as (keyof Maid['skills'])[]).filter((k) =>
 const related = all.filter((x) => x.slug !== m.slug && x.nationality === m.nationality && x.status === 'available').slice(0, 3);
 const skillList = skills.slice(0, 3).map((k) => T.skill[k].toLowerCase()).join(', ');
 const title = ms
-  ? `Pembantu Rumah ${nat} ${m.code} – ${m.experienceYears === 0 ? 'Pembantu Baharu' : `Pengalaman ${m.experienceYears} Tahun`} | Final Choice`
-  : `${nat} Maid ${m.code} – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`} | Final Choice`;
+  ? `Pembantu Rumah ${nat} ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'Pembantu Baharu' : `Pengalaman ${m.experienceYears} Tahun`}`} | Final Choice`
+  : `${nat} Maid ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`}`} | Final Choice`;
 const description = (ms
-  ? `Biodata pembantu rumah ${nat} ${m.code}: ${m.experienceYears === 0 ? 'pembantu baharu' : `${m.experienceYears} tahun pengalaman`}${skillList ? `, kemahiran ${skillList}` : ''}. Mohon temu duga bersama Final Choice.`
-  : `Biodata of ${nat.toLowerCase()} domestic helper ${m.code}: ${m.experienceYears === 0 ? 'new helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'} of experience`}${skillList ? `, skills in ${skillList}` : ''}. Request an interview with Final Choice.`
+  ? `Biodata pembantu rumah ${nat} ${m.code}: ${m.experienceYears === undefined ? 'pengalaman kerja rumah' : m.experienceYears === 0 ? 'pembantu baharu' : `${m.experienceYears} tahun pengalaman`}${skillList ? `, kemahiran ${skillList}` : ''}. Mohon temu duga bersama Final Choice.`
+  : `Biodata of ${nat.toLowerCase()} domestic helper ${m.code}: ${m.experienceYears === undefined ? 'household experience' : m.experienceYears === 0 ? 'new helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'} of experience`}${skillList ? `, skills in ${skillList}` : ''}. Request an interview with Final Choice.`
 ).slice(0, 165);
 // Approved BM summary if staff provided one; otherwise the English summary with a clear note (never machine-invented).
 const summary = ms && m.summary_ms ? m.summary_ms : m.summary;
@@ -73,7 +73,7 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
             {m.publication.showAge && m.age && (<><dt>{T.card.age}</dt><dd>{m.age}</dd></>)}
             {m.religion && (<><dt>{T.card.religion}</dt><dd>{m.religion}</dd></>)}
             {m.maritalStatus && (<><dt>{P.maritalStatus}</dt><dd>{m.maritalStatus}</dd></>)}
-            <dt>{P.workExperience}</dt><dd>{m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` ${P.includingOverseas}` : ''}</dd>
+            <dt>{P.workExperience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` ${P.includingOverseas}` : ''}</dd>
             {interview && (<><dt>{P.interview}</dt><dd>{interview}</dd></>)}
           </dl>
         </div>

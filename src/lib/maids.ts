@@ -33,7 +33,8 @@ function statusRank(s: Maid['status']) {
 export function experiencedSkills(m: Maid, lang: Lang): string[] {
   const L = t(lang).skill;
   return (Object.keys(m.skills) as (keyof Maid['skills'])[])
-    .filter((k) => m.skills[k] === 'experienced' || m.skills[k] === 'some-experience')
+    // Cards and filters show only skills marked "experienced" (backed by work history); full levels are on the profile.
+    .filter((k) => m.skills[k] === 'experienced')
     .map((k) => L[k]);
 }
 

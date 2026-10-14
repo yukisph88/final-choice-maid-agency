@@ -25,7 +25,7 @@ const en = {
   level: { experienced: 'Experienced', 'some-experience': 'Some experience', 'willing-to-learn': 'Willing to learn', none: '' },
   langLevel: { basic: 'basic', conversational: 'conversational', fluent: 'fluent', native: 'native' },
   card: {
-    age: 'Age', experience: 'Experience', religion: 'Religion', newHelper: 'New helper', years: (n: number) => `${n} yr${n === 1 ? '' : 's'}`,
+    age: 'Age', experience: 'Experience', religion: 'Religion', newHelper: 'New helper', notStated: 'Not stated', years: (n: number) => `${n} yr${n === 1 ? '' : 's'}`,
     overseas: 'overseas', updated: 'Status updated', photoOnRequest: 'Photo available on request', demo: 'DEMO – not a real candidate', review: 'LOCAL REVIEW – NOT PUBLISHED', experienceIn: 'Experience in',
   },
   dir: {
@@ -138,7 +138,7 @@ const ms: Dict = {
   level: { experienced: 'Berpengalaman', 'some-experience': 'Ada sedikit pengalaman', 'willing-to-learn': 'Sanggup belajar', none: '' },
   langLevel: { basic: 'asas', conversational: 'boleh bertutur', fluent: 'fasih', native: 'bahasa ibunda' },
   card: {
-    age: 'Umur', experience: 'Pengalaman', religion: 'Agama', newHelper: 'Pembantu baharu', years: (n: number) => `${n} tahun`,
+    age: 'Umur', experience: 'Pengalaman', religion: 'Agama', newHelper: 'Pembantu baharu', notStated: 'Tidak dinyatakan', years: (n: number) => `${n} tahun`,
     overseas: 'luar negara', updated: 'Status dikemas kini', photoOnRequest: 'Gambar boleh diberi atas permintaan', demo: 'DEMO – bukan calon sebenar', review: 'SEMAKAN DALAMAN – BELUM DISIARKAN', experienceIn: 'Pengalaman dalam',
   },
   dir: {
