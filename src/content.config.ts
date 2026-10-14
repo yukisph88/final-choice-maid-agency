@@ -30,7 +30,9 @@ const maidSchema = z
     employmentHistory: z
       .array(z.object({ country: z.string(), duration: z.string(), duties: z.string().max(200), duties_ms: z.string().max(200).optional() }))
       .default([]),
-    status: z.enum(['available', 'interview-pending', 'reserved', 'placed', 'temporarily-unavailable']),
+    // available | interview-pending | reserved | processing  → shown publicly (if published + consent)
+    // placed | unavailable | withdrawn                       → automatically hidden from the website
+    status: z.enum(['available', 'interview-pending', 'reserved', 'processing', 'placed', 'unavailable', 'withdrawn']),
     statusUpdated: z.coerce.date(),
     interviewAvailability: z.string().max(120).optional(),
     interviewAvailability_ms: z.string().max(120).optional(),

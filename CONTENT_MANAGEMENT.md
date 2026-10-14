@@ -37,7 +37,34 @@ The website is in **English** (`/en/…`) and **Bahasa Melayu** (`/ms/…`).
   - Employment history duties: `duties` (English) and optional `duties_ms`.
 - Status labels are translated automatically (Available → Tersedia, Reserved → Telah Ditempah, Placed → Telah Ditempatkan).
 
-## 1. Add a new maid
+## 1A. Recommended: add maids in bulk from Excel (on the office PC)
+
+Private files stay in `private-biodata/` on this PC (never uploaded). Only what you **publish** goes on the website.
+
+| Step | Command / action |
+|---|---|
+| 1. Fill the spreadsheet | `private-biodata/import/maids.csv` (template: `scripts/maids-import-template.csv`). One row per candidate. Save from Excel as **CSV UTF-8**. In `employmentHistory`, put one job per line (Alt+Enter) as `Country|Duration|Duties`. Languages: `Bahasa Indonesia:native; English:fluent`. |
+| 2. Add photos | `private-biodata/import/photos/FC-ID-0012.jpg` (named by code). Only used if `photoConsent` = yes. Resized to 720×900 WebP, metadata (incl. GPS) removed. |
+| 3. Import for review | `npm run maids:import` → open `private-biodata/staging/REVIEW.html`. Rows with passport-, IC- or phone-like numbers are rejected; rows without consent can't be published. |
+| 4. Publish approved | `npm run maids:publish -- FC-ID-0012 FC-PH-0003` |
+| 5. Check & release | `npm run build`, check locally, then commit and push when approved. |
+
+**Daily updates**
+
+| Task | Command |
+|---|---|
+| Change status | `npm run maids:status -- FC-ID-0012 reserved` (also sets today's date) |
+| Homepage featured on/off | `npm run maids:feature -- FC-ID-0012 on` |
+| Remove placed / withdrawn | `npm run maids:archive` (moves record + photo + PDF to `private-biodata/archive/`) |
+| See what's online | `npm run maids:list` |
+
+**Statuses:** `available`, `interview-pending`, `reserved`, `processing` are shown on the website.
+`placed`, `unavailable`, `withdrawn` are hidden automatically the moment the status changes.
+The homepage shows up to 8 available (or interview-pending) helpers, featured first, alternating Indonesian and Filipino.
+
+Status changes can also be made on github.com by editing the candidate's file (section 2 below).
+
+## 1. Add a new maid (single candidate, by hand)
 
 **Before you start:** the candidate's signed publication consent must be on file in the office.
 
@@ -63,11 +90,11 @@ The profile appears at `/maids/fc-id-0012/`, in the directory, on its nationalit
 ## 2. Update availability
 
 1. Open the candidate's file, e.g. `src/content/maids/fc-id-0012.md`, and click the ✏️ pencil.
-2. Change `status:` to one of: `available`, `interview-pending`, `reserved`, `temporarily-unavailable`, `placed`.
+2. Change `status:` to one of: `available`, `interview-pending`, `reserved`, `processing`, `placed`, `unavailable`, `withdrawn`.
 3. **Change `statusUpdated:` to today's date** (YYYY-MM-DD). The website shows this date so visitors know the status is not real-time.
 4. Commit.
 
-`placed` removes the profile from the website automatically (the page then shows "not found").
+`placed`, `unavailable` and `withdrawn` remove the profile from the website automatically (the page then shows "not found").
 
 ## 3. Unpublish or remove a candidate
 

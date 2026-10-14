@@ -42,7 +42,8 @@ employmentHistory:
     duration: "2019 – 2023 (4 years)"
     duties: "Cared for two children aged 3 and 6, cooking, general housekeeping"
 
-# available | interview-pending | reserved | placed | temporarily-unavailable
+# available | interview-pending | reserved | processing  (shown on the website)
+# placed | unavailable | withdrawn                       (hidden automatically)
 status: available
 statusUpdated: 2026-10-14      # change this date every time you change the status
 interviewAvailability: "Video interview on weekdays"

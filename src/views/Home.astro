@@ -20,9 +20,17 @@ const T = t(lang);
 const p = (k: Parameters<typeof path>[1], hash = '') => href(path(lang, k, hash));
 
 const maids = await getPublicMaids();
-// Featured first, then other available profiles. Only candidates who can currently be interviewed.
-const showable = maids.filter((m) => m.status === 'available' || m.status === 'interview-pending');
-const featured = [...showable.filter((m) => m.featured), ...showable.filter((m) => !m.featured && m.status === 'available')].slice(0, 8);
+// Homepage: up to 8 helpers who can be interviewed now. Staff-selected (featured: true) first, newest next,
+// alternating Indonesian and Filipino so both nationalities are represented.
+const showable = maids
+  .filter((m) => m.status === 'available' || m.status === 'interview-pending')
+  .sort((a, b) => Number(b.featured) - Number(a.featured) || +b.statusUpdated - +a.statusUpdated);
+const byNat = { indonesian: showable.filter((m) => m.nationality === 'indonesian'), filipino: showable.filter((m) => m.nationality === 'filipino') };
+const featured: typeof showable = [];
+for (let i = 0; featured.length < 8 && (i < byNat.indonesian.length || i < byNat.filipino.length); i++) {
+  if (byNat.indonesian[i]) featured.push(byNat.indonesian[i]);
+  if (byNat.filipino[i] && featured.length < 8) featured.push(byNat.filipino[i]);
+}
 const c = site.company;
 const areas = c.serviceAreas.join(lang === 'ms' ? ' dan ' : ' and ');
 const hours = c.hours.map((h) => ({ label: T.hours[h.label] ?? h.label, opens: h.opens, closes: h.closes }));
@@ -322,7 +330,7 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
       {featured.length > 0 ? (
         <>
           <div class="maid-grid">{featured.map((m) => <MaidCard maid={m} lang={lang} />)}</div>
-          <p style="margin-top:28px"><a class="btn btn--outline" href={p('maids')}>{T.btn.allBiodata} <Icon name="arrow" size={18} /></a></p>
+          <p style="margin-top:28px"><a class="btn btn--primary" href={p('maids')}>{T.dir.allAvailable} <Icon name="arrow" size={18} /></a></p>
         </>
       ) : (
         <div class="empty-state">

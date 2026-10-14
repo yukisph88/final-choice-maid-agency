@@ -314,7 +314,8 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .status--available { background: var(--wa-soft); color: var(--wa-dark); }
 .status--interview-pending { background: var(--amber-soft); color: var(--amber); }
 .status--reserved { background: var(--blue-soft); color: var(--royal); }
-.status--placed, .status--temporarily-unavailable { background: #eef0f4; color: #4a5468; }
+.status--processing { background: #efeafc; color: #5b3fb0; }
+.status--placed, .status--unavailable, .status--withdrawn { background: #eef0f4; color: #4a5468; }
 
 .pagination { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 32px; }
 .pagination button { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); background: #fff; border-radius: 10px; font: 600 .95rem var(--font-body); color: var(--navy); cursor: pointer; }

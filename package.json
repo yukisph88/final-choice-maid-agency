@@ -11,7 +11,13 @@
     "build:demo": "cross-env PUBLIC_DEMO_CANDIDATES=true astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:site": "node scripts/check-site.mjs"
+    "test:site": "node scripts/check-site.mjs",
+    "maids:import": "node scripts/maids.mjs import",
+    "maids:publish": "node scripts/maids.mjs publish",
+    "maids:status": "node scripts/maids.mjs status",
+    "maids:feature": "node scripts/maids.mjs feature",
+    "maids:archive": "node scripts/maids.mjs archive",
+    "maids:list": "node scripts/maids.mjs list"
   },
   "engines": {
     "node": ">=22.12"

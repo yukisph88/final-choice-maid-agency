@@ -26,3 +26,6 @@ photo-inbox/
 # local tooling and review screenshots (not part of the website)
 .claude/
 _review-screenshots/
+
+# PRIVATE maid biodata, passports, consent forms, import staging and archive — never upload
+private-biodata/

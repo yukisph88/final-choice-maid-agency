@@ -8,20 +8,24 @@ export type Maid = CollectionEntry<'maids'>['data'] & { slug: string; summary: s
 
 export const DEMO = import.meta.env.PUBLIC_DEMO_CANDIDATES === 'true';
 
+/** Statuses that are never shown publicly, even if a record is still marked published. */
+export const HIDDEN_STATUSES: Maid['status'][] = ['placed', 'unavailable', 'withdrawn'];
+
 /**
- * Candidates that may appear publicly. A profile must be published, have recorded consent,
- * and must not be placed. Everything else is excluded from pages, listings and the sitemap.
+ * Candidates that may appear publicly: published, consent recorded, and an active status
+ * (available, interview pending, reserved or processing). Everything else is excluded from
+ * pages, listings and the sitemap automatically.
  */
 export async function getPublicMaids(): Promise<Maid[]> {
   const entries = DEMO ? await getCollection('demoMaids') : await getCollection('maids');
   return entries
     .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO }))
-    .filter((m) => m.published && m.publication.consentRecorded && m.status !== 'placed')
+    .filter((m) => m.published && m.publication.consentRecorded && !HIDDEN_STATUSES.includes(m.status))
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || +b.statusUpdated - +a.statusUpdated);
 }
 
 function statusRank(s: Maid['status']) {
-  return ['available', 'interview-pending', 'reserved', 'temporarily-unavailable', 'placed'].indexOf(s);
+  return ['available', 'interview-pending', 'reserved', 'processing', 'unavailable', 'placed', 'withdrawn'].indexOf(s);
 }
 
 export function experiencedSkills(m: Maid, lang: Lang): string[] {

@@ -18,7 +18,7 @@ employmentHistory:
   - country: "Demo country"
     duration: "Demo duration"
     duties: "Demonstration data for testing only"
-status: temporarily-unavailable
+status: processing
 statusUpdated: 2026-10-12
 interviewAvailability: "Demo"
 featured: false
