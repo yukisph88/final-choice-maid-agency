@@ -1,4 +1,4 @@
-// @ts-check
+﻿// @ts-check
 import { defineConfig } from 'astro/config';
 
 // SITE_URL and BASE_PATH are set by the GitHub Actions workflow.
@@ -14,3 +14,4 @@ export default defineConfig({
   build: { format: 'directory', inlineStylesheets: 'auto' },
   compressHTML: true,
 });
+

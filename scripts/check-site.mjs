@@ -44,6 +44,7 @@ for (const f of htmlFiles) {
   if (!title) errors.push(`${url}: missing <title>`);
   if (!desc) errors.push(`${url}: missing meta description`);
   if (!html.includes('rel="canonical"')) errors.push(`${url}: missing canonical`);
+  if (!/rel="stylesheet"|<style[\s>]/.test(html)) errors.push(`${url}: no stylesheet linked (page would render unstyled)`);
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
   if (h1 !== 1) errors.push(`${url}: has ${h1} <h1> elements (expected 1)`);
   if (!is404) {

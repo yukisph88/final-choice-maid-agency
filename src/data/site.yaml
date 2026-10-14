@@ -19,6 +19,9 @@ company:
     city: "Kuala Lumpur"
     state: "Wilayah Persekutuan Kuala Lumpur"
     country: "MY"
+  # Areas where the agency serves employers (shown on the website and in structured data).
+  # [CONFIRM with management]
+  serviceAreas: ["Kuala Lumpur", "Selangor"]
   # Google Maps link. Replace with your Google Business Profile link once it is verified.
   mapsUrl: "https://www.google.com/maps/search/?api=1&query=No.+58+Jalan+Mutiara+Barat+6+Taman+Mutiara+Barat+56000+Kuala+Lumpur"
   hours:

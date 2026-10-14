@@ -30,7 +30,7 @@ export function organizationSchema() {
       addressRegion: c.address.state,
       addressCountry: c.address.country,
     },
-    areaServed: { '@type': 'Country', name: 'Malaysia' },
+    areaServed: c.serviceAreas.length ? c.serviceAreas.map((a) => ({ '@type': 'AdministrativeArea', name: a })) : { '@type': 'Country', name: 'Malaysia' },
     openingHoursSpecification: c.hours.map((h) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: h.days,

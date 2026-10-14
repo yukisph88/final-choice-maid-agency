@@ -1,0 +1,16 @@
+# =====================================================================
+#  FINAL CHOICE — CUSTOMER TESTIMONIALS
+#
+#  Add ONLY genuine feedback from real employers, with their written
+#  permission to publish it. Never invent, edit the meaning of, or pay
+#  for testimonials. Leave the list empty if there are none yet — the
+#  website then simply hides the testimonials block.
+#
+#  Example (remove the # signs to use):
+#  - name: "Mrs Tan"                 # how the customer agreed to be named
+#    location: "Petaling Jaya"
+#    text: "Their own words, unchanged."
+#    date: "2026-09"                 # YYYY-MM
+#    consentRecorded: true           # written permission is on file
+# =====================================================================
+[]

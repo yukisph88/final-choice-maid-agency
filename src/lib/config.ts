@@ -6,6 +6,7 @@ import { z } from 'astro/zod';
 import siteRaw from '../data/site.yaml?raw';
 import packagesRaw from '../data/packages.yaml?raw';
 import faqRaw from '../data/faq.yaml?raw';
+import testimonialsRaw from '../data/testimonials.yaml?raw';
 
 function load<T>(name: string, raw: string, schema: z.ZodType<T>): T {
   const parsed = schema.safeParse(parseYaml(raw));
@@ -24,6 +25,7 @@ const siteSchema = z.object({
     licence: z.string(),
     email: z.string().email(),
     address: z.object({ street: z.string(), postcode: z.string(), city: z.string(), state: z.string(), country: z.string().length(2) }),
+    serviceAreas: z.array(z.string()).default([]),
     mapsUrl: z.string().url(),
     hours: z.array(z.object({ label: z.string(), opens: z.string(), closes: z.string(), days: z.array(z.string()) })),
   }),
@@ -56,11 +58,23 @@ const packagesSchema = z.object({
   nationalities: z.object({ indonesian: nationalityPackages, filipino: nationalityPackages }),
 });
 
+const testimonialSchema = z.array(
+  z.object({
+    name: z.string().min(1), // as the customer agreed to be named, e.g. "Mrs Tan" or initials
+    location: z.string().default(''),
+    text: z.string().min(20).max(400),
+    date: z.string().regex(/^\d{4}-\d{2}$/, 'Use YYYY-MM'),
+    consentRecorded: z.boolean(), // written permission to publish is on file
+  }),
+).nullable().transform((v) => v ?? []);
+
 const faqSchema = z.array(z.object({ q: z.string().min(5), a: z.string().min(10), home: z.boolean().default(false) }));
 
 export const site = load('site.yaml', siteRaw, siteSchema);
 export const packages = load('packages.yaml', packagesRaw, packagesSchema);
 export const faq = load('faq.yaml', faqRaw, faqSchema);
+/** Only genuine testimonials with recorded publication consent are ever shown. */
+export const testimonials = load('testimonials.yaml', testimonialsRaw, testimonialSchema).filter((t) => t.consentRecorded);
 
 export type Nationality = 'indonesian' | 'filipino';
 export type TierId = 'premium' | 'platinum' | 'diamond';

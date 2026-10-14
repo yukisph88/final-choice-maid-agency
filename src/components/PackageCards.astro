@@ -16,7 +16,7 @@ const reviewed = new Date(packages.lastReviewed + 'T00:00:00+08:00').toLocaleDat
     <div class="tabs" role="tablist" aria-label="Choose helper nationality">
       {nats.map((n, i) => (
         <button class="tab" type="button" role="tab" id={`${id}-tab-${n.key}`} aria-controls={`${id}-panel-${n.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
-          {n.label}
+          <span class="tab__long">{n.label}</span><span class="tab__short">{n.shortLabel} helper</span>
         </button>
       ))}
     </div>

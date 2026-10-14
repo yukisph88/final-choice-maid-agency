@@ -30,6 +30,8 @@
 9. **Google Business Profile** link (replaces the Google Maps search link).
 10. **Official social media links** (Facebook / Instagram / TikTok) — currently hidden.
 11. **Candidate consent form** wording, before adding any real biodata.
+12. **Service areas** — the site says "serving Kuala Lumpur and Selangor" (`company.serviceAreas` in `site.yaml`). Confirm or change.
+13. **Testimonials** — none are shown. Add only genuine, permissioned feedback in `src/data/testimonials.yaml`.
 
 ## ⬜ Content to supply
 
