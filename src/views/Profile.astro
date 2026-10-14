@@ -4,7 +4,7 @@ import Icon from '../components/Icon.astro';
 import MaidCard from '../components/MaidCard.astro';
 import { asset, href, whatsappLink, telLink } from '../lib/urls';
 import { site } from '../lib/config';
-import { DEMO, languageName, countryName, type Maid } from '../lib/maids';
+import { DEMO, REVIEW, languageName, countryName, type Maid } from '../lib/maids';
 import { path, profilePath, withLang, type Lang } from '../i18n/routes';
 import { t, formatDate } from '../i18n/ui';
 
@@ -35,7 +35,7 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
 ---
 <BaseLayout lang={lang} title={title} description={description} path={pagePath} alternates={alternates}
   crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }, { name: T.crumb[catKey], path: path(lang, catKey) }, { name: m.code, path: pagePath }]}
-  waMessage={T.wa.profile(m.code)} noindex={DEMO}>
+  waMessage={T.wa.profile(m.code)} noindex={DEMO || REVIEW}>
   <section class="section section--tight">
     <div class="container profile">
       <aside class="profile__aside">
@@ -45,7 +45,7 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
           ) : (
             <span class="maid-card__placeholder"><Icon name="users" size={64} /><span>{T.card.photoOnRequest}</span></span>
           )}
-          {m.demo && <span class="demo-ribbon">{T.card.demo}</span>}
+          {m.demo && <span class="demo-ribbon">{REVIEW ? T.card.review : T.card.demo}</span>}
         </div>
         <div class="card">
           <p style="margin-bottom:8px"><span class={`status status--${m.status}`}>{T.status[m.status]}</span></p>
@@ -101,7 +101,7 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
         {m.languages.length > 0 && (
           <div class="card" style="margin-bottom:28px">
             <h2 style="font-size:1.25rem">{P.languages}</h2>
-            <ul class="chips">{m.languages.map((l) => <li>{languageName(l.language, lang)} · {T.langLevel[l.level]}</li>)}</ul>
+            <ul class="chips">{m.languages.map((l) => <li>{languageName(l.language, lang)}{l.level ? ` · ${T.langLevel[l.level]}` : ''}</li>)}</ul>
           </div>
         )}
 

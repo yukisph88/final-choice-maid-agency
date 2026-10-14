@@ -2,6 +2,10 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { RESERVED_PROFILE_SLUGS as RESERVED_SLUGS } from './i18n/routes';
 
+// Local review mode (npm run maids:preview): reads private drafts from private-biodata/staging.
+// That build goes to private-biodata/review-site/ and is never deployed.
+const REVIEW = Boolean(process.env.REVIEW_MAIDS_DIR);
+
 const skillLevel = z.enum(['experienced', 'some-experience', 'willing-to-learn', 'none']).default('none');
 
 const maidSchema = z
@@ -25,7 +29,8 @@ const maidSchema = z
       housekeeping: skillLevel,
       petCare: skillLevel,
     }),
-    languages: z.array(z.object({ language: z.string(), level: z.enum(['basic', 'conversational', 'fluent', 'native']) })).default([]),
+    // level is optional: leave it out when the biodata only ticks the language without a level
+    languages: z.array(z.object({ language: z.string(), level: z.enum(['basic', 'conversational', 'fluent', 'native']).optional() })).default([]),
     // Summary only: country, duration, main duties. No employer names or addresses.
     employmentHistory: z
       .array(z.object({ country: z.string(), duration: z.string(), duties: z.string().max(200), duties_ms: z.string().max(200).optional() }))
@@ -55,7 +60,7 @@ const maidSchema = z
     if (RESERVED_SLUGS.includes(slug)) {
       ctx.addIssue({ code: 'custom', message: `Code "${m.code}" is reserved` });
     }
-    if (m.photo && !m.publication.photoConsent) {
+    if (m.photo && !m.publication.photoConsent && !REVIEW) {
       ctx.addIssue({ code: 'custom', path: ['photo'], message: 'A photo is set but publication.photoConsent is false' });
     }
     if (m.published && !m.publication.consentRecorded) {
@@ -64,7 +69,7 @@ const maidSchema = z
   });
 
 const maids = defineCollection({
-  loader: glob({ pattern: ['**/*.md', '!**/_*.md'], base: './src/content/maids' }),
+  loader: glob({ pattern: ['*.md', '!_*.md'], base: process.env.REVIEW_MAIDS_DIR || './src/content/maids' }),
   schema: maidSchema,
 });
 

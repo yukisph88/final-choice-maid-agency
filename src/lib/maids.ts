@@ -7,6 +7,8 @@ import type { Lang } from '../i18n/routes';
 export type Maid = CollectionEntry<'maids'>['data'] & { slug: string; summary: string; demo: boolean };
 
 export const DEMO = import.meta.env.PUBLIC_DEMO_CANDIDATES === 'true';
+/** Local, private review of unpublished drafts (never deployed). Consent is not required in this mode. */
+export const REVIEW = import.meta.env.PUBLIC_REVIEW_MODE === 'true';
 
 /** Statuses that are never shown publicly, even if a record is still marked published. */
 export const HIDDEN_STATUSES: Maid['status'][] = ['placed', 'unavailable', 'withdrawn'];
@@ -19,8 +21,8 @@ export const HIDDEN_STATUSES: Maid['status'][] = ['placed', 'unavailable', 'with
 export async function getPublicMaids(): Promise<Maid[]> {
   const entries = DEMO ? await getCollection('demoMaids') : await getCollection('maids');
   return entries
-    .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO }))
-    .filter((m) => m.published && m.publication.consentRecorded && !HIDDEN_STATUSES.includes(m.status))
+    .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO || REVIEW }))
+    .filter((m) => (REVIEW || (m.published && m.publication.consentRecorded)) && !HIDDEN_STATUSES.includes(m.status))
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || +b.statusUpdated - +a.statusUpdated);
 }
 

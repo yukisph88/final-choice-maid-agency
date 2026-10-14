@@ -1,7 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { href, asset, whatsappLink } from '../lib/urls';
-import { experiencedSkills, type Maid } from '../lib/maids';
+import { experiencedSkills, REVIEW, type Maid } from '../lib/maids';
 import { profilePath, withLang, type Lang } from '../i18n/routes';
 import { t, formatDate } from '../i18n/ui';
 interface Props { maid: Maid; lang: Lang; headingLevel?: 'h2' | 'h3' }
@@ -31,7 +31,7 @@ const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
     ) : (
       <span class="maid-card__placeholder"><Icon name="users" size={48} /><span>{T.card.photoOnRequest}</span></span>
     )}
-    {m.demo && <span class="demo-ribbon">{T.card.demo}</span>}
+    {m.demo && <span class="demo-ribbon">{REVIEW ? T.card.review : T.card.demo}</span>}
   </a>
   <div class="maid-card__body">
     <div class="maid-card__top">

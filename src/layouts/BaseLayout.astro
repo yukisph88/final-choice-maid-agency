@@ -36,7 +36,7 @@ const { lang, title, description, path: pagePath, alternates = {}, ogImage, ogTy
 const T = t(lang);
 const canonical = absUrl(pagePath); // always self-referencing — Malay pages are never canonicalised to English
 const image = new URL(asset(ogImage ?? site.seo.defaultOgImage), Astro.site).toString();
-const indexable = site.seo.indexing && !noindex;
+const indexable = site.seo.indexing && !noindex && import.meta.env.PUBLIC_REVIEW_MODE !== 'true';
 // hreflang only between pages that genuinely exist in both languages
 const alts = { ...alternates, [lang]: pagePath } as Alternates;
 const hasBoth = LANGS.every((l) => alts[l]);

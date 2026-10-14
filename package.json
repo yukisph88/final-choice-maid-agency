@@ -17,7 +17,8 @@
     "maids:status": "node scripts/maids.mjs status",
     "maids:feature": "node scripts/maids.mjs feature",
     "maids:archive": "node scripts/maids.mjs archive",
-    "maids:list": "node scripts/maids.mjs list"
+    "maids:list": "node scripts/maids.mjs list",
+    "maids:preview": "node scripts/maids.mjs preview"
   },
   "engines": {
     "node": ">=22.12"

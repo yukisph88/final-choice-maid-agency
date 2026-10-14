@@ -8,6 +8,7 @@
 //   npm run maids:feature -- CODE on|off Show / hide a candidate in the homepage "featured" row
 //   npm run maids:archive                Move placed + withdrawn candidates off the website into private-biodata/archive/
 //   npm run maids:list                   Show every candidate on the website with status
+//   npm run maids:preview                Build a PRIVATE local review site from staging drafts (never deployed)
 //
 // Nothing in private-biodata/ is ever committed to Git (see .gitignore). Only files copied by
 // "publish" into src/content/maids, public/images/maids and public/biodata become public.
@@ -77,9 +78,9 @@ function toMarkdown(m) {
   L.push('skills:');
   for (const k of SKILLS) L.push(`  ${k}: ${m.skills[k]}`);
   L.push(m.languages.length ? 'languages:' : 'languages: []');
-  for (const l of m.languages) L.push(`  - language: ${s(l.language)}\n    level: ${l.level}`);
+  for (const l of m.languages) L.push(`  - language: ${s(l.language)}${l.level ? `\n    level: ${l.level}` : ''}`);
   L.push(m.employmentHistory.length ? 'employmentHistory:' : 'employmentHistory: []');
-  for (const e of m.employmentHistory) L.push(`  - country: ${s(e.country)}\n    duration: ${s(e.duration)}\n    duties: ${s(e.duties)}`);
+  for (const e of m.employmentHistory) L.push(`  - country: ${s(e.country)}\n    duration: ${s(e.duration)}\n    duties: ${s(e.duties)}${e.duties_ms ? `\n    duties_ms: ${s(e.duties_ms)}` : ''}`);
   L.push(`status: ${m.status}`);
   L.push(`statusUpdated: ${m.statusUpdated}`);
   if (m.interviewAvailability) L.push(`interviewAvailability: ${s(m.interviewAvailability)}`);
@@ -121,23 +122,25 @@ function fromRow(r) {
     skills[k] = v;
   }
   const languages = (r.languages || '').split(';').map((x) => x.trim()).filter(Boolean).map((x) => {
-    const [language, level = 'conversational'] = x.split(':').map((y) => y.trim());
-    if (!LANG_LEVELS.includes(level.toLowerCase())) errors.push(`language level "${level}" must be ${LANG_LEVELS.join('/')}`);
-    return { language, level: level.toLowerCase() };
+    const [language, level] = x.split(':').map((y) => y.trim());
+    if (level && !LANG_LEVELS.includes(level.toLowerCase())) errors.push(`language level "${level}" must be ${LANG_LEVELS.join('/')}`);
+    return { language, level: level ? level.toLowerCase() : undefined };
   });
-  // One job per line inside the Excel cell (Alt+Enter): Country|Duration|Duties
+  // One job per line inside the Excel cell (Alt+Enter): Country|Duration|Duties|Duties in BM (optional)
   const employmentHistory = (r.employmentHistory || '').split(/\r?\n/).map((x) => x.trim()).filter(Boolean).map((x) => {
-    const [country = '', duration = '', duties = ''] = x.split('|').map((y) => y.trim());
+    const [country = '', duration = '', duties = '', duties_ms = ''] = x.split('|').map((y) => y.trim());
     if (!country || !duration) errors.push('employmentHistory entries need "Country|Duration|Duties"');
     if (duties.length > 200) errors.push('employmentHistory duties must be 200 characters or fewer');
-    return { country, duration, duties };
+    return { country, duration, duties, ...(duties_ms ? { duties_ms } : {}) };
   });
   const consentRecorded = yes(r.consentRecorded);
   const consentDate = r.consentDate || '';
   if (consentRecorded && !/^\d{4}-\d{2}-\d{2}$/.test(consentDate)) errors.push('consentDate must be YYYY-MM-DD');
   if (!consentRecorded) warnings.push('No recorded consent — this candidate CANNOT be published');
   if (!r.approvedBy) warnings.push('approvedBy (staff initials) is empty');
-  const allText = Object.values(r).join(' ');
+  // Private columns (internalName, sourceFile, internalNotes) are shown on REVIEW.html only — never written to website files.
+  const priv = { name: r.internalName || '', source: r.sourceFile || '', notes: (r.internalNotes || '').split(/\r?\n|;/).map((x) => x.trim()).filter(Boolean) };
+  const allText = Object.entries(r).filter(([k]) => !['internalName', 'sourceFile', 'internalNotes'].includes(k)).map(([, v]) => v).join(' ');
   if (PASSPORT.test(allText)) errors.push('Text looks like a passport number — remove it');
   if (MYKAD.test(allText)) errors.push('Text looks like an IC number — remove it');
   if (PHONE.test(allText)) errors.push('Text looks like a phone number — remove it');
@@ -149,7 +152,7 @@ function fromRow(r) {
     publication: { consentRecorded, consentDate: consentDate || today(), photoConsent: yes(r.photoConsent), showAge: yes(r.showAge), approvedBy: (r.approvedBy || 'XX').slice(0, 10) },
     pdfApproved: yes(r.biodataPdfApproved),
   };
-  return { m, errors, warnings };
+  return { m, errors, warnings, priv };
 }
 
 const findFile = (dir, code, exts) => {
@@ -168,11 +171,11 @@ async function importCsv() {
   ensure(join(STAGING, 'photos')); ensure(join(STAGING, 'pdfs'));
   const report = [];
   for (const r of rows) {
-    const { m, errors, warnings } = fromRow(r);
+    const { m, errors, warnings, priv } = fromRow(r);
     const slug = m.code.toLowerCase();
     const src = findFile(join(IMPORT, 'photos'), m.code, ['.jpg', '.jpeg', '.png', '.webp']);
-    if (src && !m.publication.photoConsent) warnings.push('Photo found but photoConsent is not "yes" — photo will NOT be used');
-    if (src && m.publication.photoConsent) {
+    if (src && !m.publication.photoConsent) warnings.push('Photo consent not recorded — photo shown in this private review only; it will NOT be published');
+    if (src) {
       // 4:5 portrait, smart crop that keeps the face; metadata (incl. GPS) is stripped by sharp
       await sharp(src).rotate().resize(720, 900, { fit: 'cover', position: sharp.strategy.attention }).webp({ quality: 80 }).toFile(join(STAGING, 'photos', `${slug}.webp`));
       m.photo = `images/maids/${slug}.webp`;
@@ -181,7 +184,7 @@ async function importCsv() {
     if (pdf && m.pdfApproved) { copyFileSync(pdf, join(STAGING, 'pdfs', `${slug}.pdf`)); m.biodataPdf = `biodata/${slug}.pdf`; }
     else if (pdf) warnings.push('PDF found but biodataPdfApproved is not "yes" — PDF will NOT be published');
     if (!errors.length) writeFileSync(join(STAGING, `${slug}.md`), toMarkdown(m));
-    report.push({ m, errors, warnings, slug });
+    report.push({ m, errors, warnings, slug, priv });
     console.log(`${errors.length ? '✗' : '✓'} ${m.code}${errors.length ? ' — ' + errors.join('; ') : ''}${warnings.length ? '  (' + warnings.join('; ') + ')' : ''}`);
   }
   // Review page for staff (local only)
@@ -192,14 +195,14 @@ img{width:120px;border-radius:8px}.e{color:#b42318;font-weight:600}.w{color:#a15
 <p>Check every photo (face fully visible, no documents in the background) and every field. Then publish the approved codes:<br>
 <code>npm run maids:publish -- ${report.filter((x) => !x.errors.length && x.m.publication.consentRecorded).map((x) => x.m.code).join(' ') || 'CODE'}</code></p>
 <table><tr><th>Photo</th><th>Code</th><th>Details</th><th>Checks</th></tr>
-${report.map(({ m, errors, warnings, slug }) => `<tr><td>${m.photo ? `<img src="photos/${slug}.webp">` : '—'}</td>
-<td><b>${esc(m.code)}</b><br>${esc(m.nationality)}<br>${esc(m.status)}${m.featured ? '<br>★ featured' : ''}</td>
+${report.map(({ m, errors, warnings, slug, priv }) => `<tr><td>${m.photo ? `<img src="photos/${slug}.webp">` : '—'}</td>
+<td><b>${esc(m.code)}</b><br><span style="color:#4f5d73">Private: ${esc(priv.name)}<br>${esc(priv.source)}</span><br>${esc(m.nationality)}<br>${esc(m.status)}${m.featured ? '<br>★ featured' : ''}</td>
 <td>${m.age ? `Age ${m.age}${m.publication.showAge ? '' : ' (hidden)'} · ` : ''}${m.experienceYears} yrs${m.overseasExperience ? ' · overseas' : ''}<br>
 Skills: ${SKILLS.filter((k) => m.skills[k] !== 'none').map((k) => `${k} (${m.skills[k]})`).join(', ')}<br>
-Languages: ${m.languages.map((l) => `${esc(l.language)} ${l.level}`).join(', ')}<br>
+Languages: ${m.languages.map((l) => `${esc(l.language)}${l.level ? ' ' + l.level : ''}`).join(', ')}<br>
 History: ${m.employmentHistory.map((e) => `${esc(e.country)} ${esc(e.duration)}: ${esc(e.duties)}`).join(' / ')}<br>
 <i>${esc(m.summary)}</i>${m.summary_ms ? `<br><i lang="ms">${esc(m.summary_ms)}</i>` : ''}</td>
-<td>${errors.map((e) => `<div class="e">✗ ${esc(e)}</div>`).join('')}${warnings.map((w) => `<div class="w">! ${esc(w)}</div>`).join('')}${!errors.length && m.publication.consentRecorded ? '<div class="ok">Ready to publish</div>' : ''}</td></tr>`).join('')}
+<td>${priv.notes.map((n) => `<div class="w">⚑ ${esc(n)}</div>`).join('')}${errors.map((e) => `<div class="e">✗ ${esc(e)}</div>`).join('')}${warnings.map((w) => `<div class="w">! ${esc(w)}</div>`).join('')}${!errors.length && m.publication.consentRecorded ? '<div class="ok">Ready to publish</div>' : ''}</td></tr>`).join('')}
 </table>`;
   writeFileSync(join(STAGING, 'REVIEW.html'), html);
   console.log(`\n${report.length} row(s) processed. Open private-biodata/staging/REVIEW.html to review. Nothing has been published.`);
@@ -216,8 +219,12 @@ function publish(codes) {
     let text = readFileSync(md, 'utf8');
     if (!/consentRecorded: true/.test(text)) { console.error(`✗ ${raw}: no recorded consent — not published`); continue; }
     text = text.replace(/^published: false$/m, 'published: true');
+    const photoOk = /photoConsent: true/.test(text);
+    if (!photoOk) text = text.replace(/^photo: .*\n/m, '');
     writeFileSync(join(CONTENT, `${slug}.md`), text);
-    const ph = join(STAGING, 'photos', `${slug}.webp`); if (existsSync(ph)) copyFileSync(ph, join(PHOTOS, `${slug}.webp`));
+    const ph = join(STAGING, 'photos', `${slug}.webp`);
+    if (existsSync(ph) && photoOk) copyFileSync(ph, join(PHOTOS, `${slug}.webp`));
+    else if (existsSync(ph)) console.log(`  ${raw}: photo NOT published (no photo consent)`);
     const pdf = join(STAGING, 'pdfs', `${slug}.pdf`); if (existsSync(pdf)) copyFileSync(pdf, join(PDFS, `${slug}.pdf`));
     console.log(`✓ ${raw.toUpperCase()} published to the website files`);
   }
@@ -261,6 +268,21 @@ function archive() {
   console.log(n ? `\n${n} record(s) moved to private-biodata/archive/${today()}/. Commit the deletion to remove them from the live site.` : 'Nothing to archive.');
 }
 
+// ---------- preview (private, local-only review site) ----------
+async function preview() {
+  const { execSync } = await import('node:child_process');
+  const out = join(PRIV, 'review-site');
+  if (!readdirSync(STAGING).some((f) => f.endsWith('.md'))) die('No drafts in private-biodata/staging — run maids:import first');
+  console.log('Building private review site (drafts shown, marked LOCAL REVIEW – NOT PUBLISHED)…');
+  execSync(`npx astro build --outDir "${out}"`, {
+    stdio: 'inherit',
+    env: { ...process.env, REVIEW_MAIDS_DIR: './private-biodata/staging', PUBLIC_REVIEW_MODE: 'true', BASE_PATH: '/', SITE_URL: 'http://localhost:4330' },
+  });
+  ensure(join(out, 'images/maids'));
+  for (const f of readdirSync(join(STAGING, 'photos'))) copyFileSync(join(STAGING, 'photos', f), join(out, 'images/maids', f));
+  console.log('Review site ready in private-biodata/review-site/ — open: python -m http.server 4330 -d private-biodata/review-site');
+}
+
 // ---------- list ----------
 function list() {
   const files = existsSync(CONTENT) ? readdirSync(CONTENT).filter((x) => x.endsWith('.md') && !x.startsWith('_')) : [];
@@ -273,6 +295,6 @@ function list() {
   }
 }
 
-const run = { import: importCsv, publish: () => publish(args), status: () => setStatus(args[0], args[1]), feature: () => setFeatured(args[0], args[1]), archive, list }[cmd];
+const run = { import: importCsv, preview, publish: () => publish(args), status: () => setStatus(args[0], args[1]), feature: () => setFeatured(args[0], args[1]), archive, list }[cmd];
 if (!run) die('Commands: import | publish CODE… | status CODE STATUS | feature CODE on|off | archive | list');
 await run();
