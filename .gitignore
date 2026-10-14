@@ -22,3 +22,7 @@ Thumbs.db
 
 # original photographs dropped in by staff — never upload to the public repository
 photo-inbox/
+
+# local tooling and review screenshots (not part of the website)
+.claude/
+_review-screenshots/
