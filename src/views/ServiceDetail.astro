@@ -1,0 +1,176 @@
+---
+// Elderly care, childcare and housekeeping pages, in English and Bahasa Melayu.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import MaidCard from '../components/MaidCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import Icon from '../components/Icon.astro';
+import { href, whatsappLink } from '../lib/urls';
+import { getPublicMaids, type Maid } from '../lib/maids';
+import { serviceSchema } from '../lib/schema';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+type Key = 'elderly' | 'childcare' | 'housekeeping';
+interface Props { lang: Lang; service: Key }
+const { lang, service } = Astro.props;
+const T = t(lang);
+const ms = lang === 'ms';
+const P = (k: Parameters<typeof path>[1], hash = '') => href(path(lang, k, hash));
+const post = (en: string, m: string) => href(withLang(lang, postPath(lang, ms ? m : en)));
+const G = {
+  elderlyGuide: post('how-to-choose-a-maid-for-elderly-care', 'memilih-pembantu-rumah-jaga-orang-tua'),
+  interview: post('how-to-interview-a-domestic-helper', 'cara-temu-duga-pembantu-rumah'),
+  mistakes: post('common-mistakes-when-hiring-a-maid', 'kesilapan-biasa-mengambil-pembantu-rumah'),
+  arrival: post('what-happens-after-your-maid-arrives-in-malaysia', 'selepas-pembantu-rumah-tiba-di-malaysia'),
+  hire: post('how-to-hire-a-maid-in-malaysia', 'cara-mengambil-pembantu-rumah-di-malaysia'),
+};
+
+type C = { title: string; description: string; h1: string; eyebrow: string; lead: string; name: string; skill: keyof Maid['skills']; need: number; body: string; related: [string, string][] };
+
+const CONTENT: Record<Key, Record<Lang, C>> = {
+  elderly: {
+    en: {
+      title: 'Elderly Care Maid Malaysia | Helper for Parents | Final Choice',
+      description: 'Need a maid to care for an elderly parent in Malaysia? Final Choice helps you find a helper with elderly-care experience and interview her first.',
+      h1: 'Maid for elderly care in Malaysia', eyebrow: 'Elderly care helper', name: 'Elderly care maid', skill: 'elderlyCare', need: 1,
+      lead: 'Support for a parent or grandparent who needs help at home: daily routines, meals, companionship and keeping the household running, from a helper whose experience you have checked.',
+      body: `<h2>What an elderly-care helper can help with</h2>
+<p>A domestic helper with elderly-care experience can make daily life easier for an older family member and give the rest of the family peace of mind. Typical household support includes:</p>
+<ul><li>Helping with daily routines such as bathing, dressing and grooming</li><li>Preparing meals that follow the diet your family or doctor recommends</li><li>Reminding about medication times as instructed by the family</li><li>Accompanying short walks and helping with mobility around the home</li><li>Companionship, conversation and keeping an eye on wellbeing</li><li>General housekeeping, laundry and keeping living areas safe and tidy</li></ul>
+<blockquote><p>A domestic helper is not a nurse or medical professional. For medical care — such as wound care, injections, tube feeding or managing complex conditions — please speak with your doctor about trained healthcare support.</p></blockquote>
+<h2>Matching a helper to your parent’s needs</h2>
+<p>Care needs vary widely. A parent who is independent but lonely needs something different from a parent who is bed-bound or living with dementia. When you contact us, we ask about:</p>
+<ul><li>Your parent’s mobility, and whether lifting or transfers are needed</li><li>Any conditions that affect daily care, in general terms</li><li>Languages or dialects your parent is comfortable with</li><li>Night-time needs and how sleep arrangements will work</li><li>Dietary needs and cooking expectations</li></ul>
+<p>We then recommend candidates whose declared experience matches — for example, helpers who have previously cared for an elderly person at home. Suitability always depends on each candidate’s confirmed skills, so we encourage you to ask specific questions at the interview. Our guide on <a href="${G.elderlyGuide}">choosing a maid for elderly care</a> has a checklist you can use.</p>
+<h2>Indonesian or Filipino helper for elderly care?</h2>
+<p>Both can be good choices. Families often consider communication first: many Indonesian helpers speak Bahasa Indonesia, close to Bahasa Malaysia, while many Filipino helpers communicate in English. Compare <a href="${P('indonesian')}">Indonesian maids</a> and <a href="${P('filipino')}">Filipino maids</a>, or ask our consultant to recommend candidates from both.</p>`,
+      related: [['How to choose a maid for elderly care', G.elderlyGuide], ['How to interview a domestic helper', G.interview], ['Maid packages', P('packages')]],
+    },
+    ms: {
+      title: 'Pembantu Rumah Jaga Orang Tua | Jaga Warga Emas | Final Choice',
+      description: 'Perlukan pembantu rumah untuk jaga orang tua di Malaysia? Final Choice membantu anda mencari pembantu yang berpengalaman menjaga warga emas dan menemu duganya dahulu.',
+      h1: 'Pembantu rumah untuk jaga orang tua', eyebrow: 'Pembantu jaga warga emas', name: 'pembantu rumah jaga orang tua', skill: 'elderlyCare', need: 1,
+      lead: 'Bantuan untuk ibu bapa atau datuk nenek yang memerlukan penjagaan di rumah: rutin harian, makanan, teman berbual dan pengurusan rumah, daripada pembantu yang pengalamannya telah anda semak.',
+      body: `<h2>Bantuan yang boleh diberikan oleh pembantu jaga orang tua</h2>
+<p>Pembantu rumah yang berpengalaman menjaga warga emas boleh memudahkan kehidupan harian ahli keluarga yang berusia dan memberi ketenangan kepada seluruh keluarga. Bantuan biasa termasuk:</p>
+<ul><li>Membantu rutin harian seperti mandi, berpakaian dan berdandan</li><li>Menyediakan makanan mengikut diet yang disyorkan oleh keluarga atau doktor</li><li>Mengingatkan waktu makan ubat seperti yang diarahkan oleh keluarga</li><li>Menemani berjalan dan membantu pergerakan di dalam rumah</li><li>Menjadi teman berbual dan memerhati kesejahteraan</li><li>Kerja rumah am, membasuh pakaian dan memastikan rumah selamat serta kemas</li></ul>
+<blockquote><p>Pembantu rumah bukan jururawat atau pengamal perubatan. Untuk penjagaan perubatan — seperti merawat luka, suntikan, pemberian makanan melalui tiub atau penyakit yang kompleks — sila berbincang dengan doktor tentang penjaga kesihatan terlatih.</p></blockquote>
+<h2>Memadankan pembantu dengan keperluan ibu bapa anda</h2>
+<p>Keperluan penjagaan sangat berbeza. Ibu bapa yang masih berdikari tetapi kesunyian memerlukan bantuan yang berbeza daripada ibu bapa yang terlantar atau menghidap demensia. Apabila anda menghubungi kami, kami akan bertanya tentang:</p>
+<ul><li>Tahap pergerakan ibu bapa anda, dan sama ada perlu diangkat atau dipindahkan</li><li>Keadaan kesihatan yang menjejaskan penjagaan harian, secara umum</li><li>Bahasa atau loghat yang selesa digunakan oleh ibu bapa anda</li><li>Keperluan pada waktu malam dan susunan tempat tidur</li><li>Keperluan pemakanan dan jangkaan memasak</li></ul>
+<p>Kami kemudian mencadangkan calon yang pengalamannya sepadan — contohnya pembantu yang pernah menjaga warga emas di rumah. Kesesuaian sentiasa bergantung pada kemahiran calon yang telah disahkan, jadi kami menggalakkan anda bertanya soalan khusus semasa temu duga. Panduan kami tentang <a href="${G.elderlyGuide}">memilih pembantu rumah untuk jaga orang tua</a> menyediakan senarai semak yang boleh anda gunakan.</p>
+<h2>Pembantu Indonesia atau Filipina untuk jaga orang tua?</h2>
+<p>Kedua-duanya boleh menjadi pilihan yang baik. Keluarga biasanya mengutamakan komunikasi: ramai pembantu rumah Indonesia bertutur dalam Bahasa Indonesia yang hampir sama dengan Bahasa Melayu, manakala ramai pembantu rumah Filipina bertutur dalam Bahasa Inggeris. Bandingkan <a href="${P('indonesian')}">pembantu rumah Indonesia</a> dan <a href="${P('filipino')}">pembantu rumah Filipina</a>, atau minta perunding kami mencadangkan calon daripada kedua-duanya.</p>`,
+      related: [['Memilih pembantu rumah jaga orang tua', G.elderlyGuide], ['Cara menemu duga pembantu rumah', G.interview], ['Pakej pembantu rumah', P('packages')]],
+    },
+  },
+  childcare: {
+    en: {
+      title: 'Childcare Maid Malaysia | Nanny & Newborn Helper | Final Choice',
+      description: 'Find a domestic helper with childcare or newborn experience in Malaysia. Final Choice helps you shortlist, interview and place a helper who suits your family.',
+      h1: 'Childcare maid for Malaysian families', eyebrow: 'Childcare & newborn helper', name: 'Childcare maid', skill: 'childcare', need: 0,
+      lead: 'Help at home with babies, toddlers and school-going children, from a helper whose childcare experience matches your family’s routine.',
+      body: `<h2>How a childcare helper supports your family</h2>
+<p>For working parents and busy households, a helper who is good with children can make each day calmer. Depending on her experience and your instructions, a childcare helper may assist with:</p>
+<ul><li>Feeding, bathing and changing babies and toddlers</li><li>Preparing children’s meals and snacks</li><li>Keeping to nap, play and bedtime routines</li><li>Getting children ready for school and accompanying school pick-ups where arranged</li><li>Washing and sterilising bottles, children’s laundry and tidying play areas</li><li>Light household work alongside childcare</li></ul>
+<h2>Newborn assistance</h2>
+<p>Caring for a newborn requires patience and specific experience. If you are expecting a baby, tell us your due date and how you plan to share night feeds and routines. We can prioritise candidates who have cared for infants before. Start early, because <a href="${P('process')}">the hiring process</a> takes time and arrival dates cannot be guaranteed.</p>
+<h2>Choosing the right helper for your children</h2>
+<p>Before the interview, think about:</p>
+<ul><li><strong>Ages of your children.</strong> Infant care, toddler care and caring for older children require different strengths.</li><li><strong>Language.</strong> Which language will she use with your children day to day?</li><li><strong>Supervision.</strong> Will a grandparent or parent be at home, or will she be responsible alone for part of the day?</li><li><strong>Balance of duties.</strong> Be realistic about how much housework can be combined with full-time childcare.</li></ul>
+<p>Our article on <a href="${G.interview}">how to interview a domestic helper</a> includes questions that help you understand a candidate’s real childcare experience.</p>`,
+      related: [['How to interview a domestic helper', G.interview], ['Common mistakes when hiring a maid', G.mistakes], ['Maid hiring process', P('process')]],
+    },
+    ms: {
+      title: 'Pembantu Rumah Jaga Anak | Pembantu Jaga Bayi Malaysia | Final Choice',
+      description: 'Cari pembantu rumah jaga anak atau bayi di Malaysia. Final Choice membantu anda memilih, menemu duga dan menempatkan pembantu yang sesuai dengan keluarga anda.',
+      h1: 'Pembantu rumah untuk jaga anak', eyebrow: 'Pembantu jaga anak & bayi', name: 'pembantu rumah jaga anak', skill: 'childcare', need: 0,
+      lead: 'Bantuan di rumah untuk menjaga bayi, kanak-kanak kecil dan anak bersekolah, daripada pembantu yang pengalaman menjaga anaknya sesuai dengan rutin keluarga anda.',
+      body: `<h2>Bagaimana pembantu jaga anak membantu keluarga anda</h2>
+<p>Bagi ibu bapa yang bekerja dan keluarga yang sibuk, pembantu yang pandai menjaga anak boleh menjadikan setiap hari lebih tenang. Bergantung pada pengalaman dan arahan anda, pembantu jaga anak boleh membantu:</p>
+<ul><li>Menyuap, memandikan dan menukar lampin bayi serta kanak-kanak kecil</li><li>Menyediakan makanan dan snek anak-anak</li><li>Mengikut rutin tidur, bermain dan waktu tidur malam</li><li>Menyiapkan anak ke sekolah dan menemani ambil dari sekolah jika diatur</li><li>Membasuh dan mensteril botol, membasuh pakaian anak dan mengemas tempat bermain</li><li>Kerja rumah ringan di samping menjaga anak</li></ul>
+<h2>Bantuan menjaga bayi baru lahir</h2>
+<p>Menjaga bayi baru lahir memerlukan kesabaran dan pengalaman khusus. Jika anda bakal menimang cahaya mata, beritahu kami tarikh jangkaan bersalin dan cara anda merancang menyusukan bayi pada waktu malam serta rutin harian. Kami boleh mengutamakan calon yang pernah menjaga bayi. Mulakan awal, kerana <a href="${P('process')}">proses pengambilan</a> mengambil masa dan tarikh ketibaan tidak boleh dijamin.</p>
+<h2>Memilih pembantu yang sesuai untuk anak-anak anda</h2>
+<p>Sebelum temu duga, fikirkan tentang:</p>
+<ul><li><strong>Umur anak-anak.</strong> Menjaga bayi, kanak-kanak kecil dan anak yang lebih besar memerlukan kelebihan yang berbeza.</li><li><strong>Bahasa.</strong> Bahasa apakah yang akan digunakan bersama anak-anak setiap hari?</li><li><strong>Pengawasan.</strong> Adakah datuk, nenek atau ibu bapa berada di rumah, atau dia akan bertanggungjawab sendirian untuk sebahagian hari?</li><li><strong>Keseimbangan tugas.</strong> Bersikap realistik tentang berapa banyak kerja rumah yang boleh digabungkan dengan menjaga anak sepenuh masa.</li></ul>
+<p>Artikel kami tentang <a href="${G.interview}">cara menemu duga pembantu rumah</a> mengandungi soalan yang membantu anda memahami pengalaman sebenar calon menjaga anak.</p>`,
+      related: [['Cara menemu duga pembantu rumah', G.interview], ['Kesilapan biasa semasa mengambil pembantu rumah', G.mistakes], ['Proses pengambilan pembantu rumah', P('process')]],
+    },
+  },
+  housekeeping: {
+    en: {
+      title: 'Housekeeping Maid Malaysia | Live-in Domestic Helper | Final Choice',
+      description: 'Hire a live-in housekeeping maid in Malaysia for cleaning, laundry, ironing and cooking. Final Choice matches Indonesian and Filipino helpers to your home’s needs.',
+      h1: 'Housekeeping maid for your home', eyebrow: 'Housekeeping helper', name: 'Housekeeping maid', skill: 'housekeeping', need: 2,
+      lead: 'A live-in domestic helper to keep your home clean and organised: cleaning, laundry, ironing and help in the kitchen, arranged around your family’s routine.',
+      body: `<h2>Typical housekeeping duties</h2>
+<ul><li>Daily cleaning of living areas, bedrooms, bathrooms and kitchen</li><li>Laundry, ironing and folding</li><li>Washing dishes and keeping the kitchen tidy</li><li>Preparing simple family meals, or more, depending on cooking experience</li><li>Watering plants and light care of the home’s surroundings</li></ul>
+<p>A domestic helper works in your home only, as a live-in helper under her employment contract. If your family also needs childcare or elderly care, tell us — the right candidate for a mixed role may be different from one focused only on housekeeping.</p>
+<h2>Setting clear expectations</h2>
+<p>Most misunderstandings come from unclear expectations. We recommend writing a simple daily and weekly schedule before your helper arrives, showing her how you like things done in the first weeks, and agreeing on rest times and the rest day as set out in her contract. See <a href="${G.arrival}">what happens after your maid arrives</a> for a practical first-month guide.</p>
+<h2>Cooking</h2>
+<p>Cooking ability varies widely. Some candidates are confident with Malaysian, Chinese or Indian home-style dishes; others are willing to learn. Each profile on our <a href="${P('maids')}">maid directory</a> shows whether a candidate has cooking experience, and you can ask about the dishes she has prepared during the interview.</p>`,
+      related: [['What happens after your maid arrives', G.arrival], ['How to hire a maid in Malaysia', G.hire], ['Maid packages', P('packages')]],
+    },
+    ms: {
+      title: 'Pembantu Rumah untuk Kerja Rumah | Final Choice',
+      description: 'Pembantu rumah tinggal bersama untuk mengemas, membasuh, menggosok pakaian dan memasak. Kami memadankan pembantu Indonesia dan Filipina dengan keperluan anda.',
+      h1: 'Pembantu rumah untuk kerja-kerja rumah', eyebrow: 'Pembantu kerja rumah', name: 'pembantu rumah untuk kerja rumah', skill: 'housekeeping', need: 2,
+      lead: 'Pembantu rumah yang tinggal bersama untuk memastikan rumah anda bersih dan teratur: mengemas, membasuh, menggosok pakaian dan membantu di dapur, mengikut rutin keluarga anda.',
+      body: `<h2>Tugas kerja rumah yang biasa</h2>
+<ul><li>Membersihkan ruang tamu, bilik tidur, bilik air dan dapur setiap hari</li><li>Membasuh, menggosok dan melipat pakaian</li><li>Mencuci pinggan mangkuk dan memastikan dapur kemas</li><li>Menyediakan hidangan keluarga yang ringkas, atau lebih, bergantung pada pengalaman memasak</li><li>Menyiram pokok dan menjaga kawasan sekitar rumah</li></ul>
+<p>Pembantu rumah hanya bekerja di rumah anda, sebagai pembantu yang tinggal bersama di bawah kontrak pekerjaannya. Jika keluarga anda juga memerlukan penjagaan anak atau warga emas, beritahu kami — calon yang sesuai untuk tugas gabungan mungkin berbeza daripada calon yang hanya menumpukan kerja rumah.</p>
+<h2>Menetapkan jangkaan yang jelas</h2>
+<p>Kebanyakan salah faham berpunca daripada jangkaan yang tidak jelas. Kami mencadangkan anda menyediakan jadual harian dan mingguan yang ringkas sebelum pembantu tiba, menunjukkan cara anda mahu sesuatu dilakukan pada minggu-minggu awal, dan bersetuju tentang waktu rehat serta hari rehat seperti dalam kontraknya. Baca <a href="${G.arrival}">apa yang berlaku selepas pembantu rumah tiba</a> untuk panduan bulan pertama.</p>
+<h2>Memasak</h2>
+<p>Kebolehan memasak setiap calon berbeza. Ada yang yakin memasak hidangan rumah Melayu, Cina atau India; ada yang sanggup belajar. Setiap profil dalam <a href="${P('maids')}">direktori pembantu rumah</a> kami menunjukkan sama ada calon berpengalaman memasak, dan anda boleh bertanya tentang masakan yang pernah disediakannya semasa temu duga.</p>`,
+      related: [['Selepas pembantu rumah tiba di Malaysia', G.arrival], ['Cara mengambil pembantu rumah di Malaysia', G.hire], ['Pakej pembantu rumah', P('packages')]],
+    },
+  },
+};
+const C = CONTENT[service][lang];
+const pagePath = path(lang, service);
+const matches = (await getPublicMaids()).filter((m) => m.status === 'available' && (m.skills[C.skill] === 'experienced' || m.skills[C.skill] === 'some-experience')).slice(0, 4);
+const wa = T.wa.service(C.name.toLowerCase());
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={pagePath} alternates={routeAlternates(service)}
+  crumbs={[{ name: T.crumb.services, path: path(lang, 'services') }, { name: C.h1, path: pagePath }]}
+  waMessage={wa} schema={[serviceSchema({ name: C.name, description: C.description, path: pagePath, lang })]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead}>
+    <div class="btn-row">
+      <a class="btn btn--wa btn--lg" href={whatsappLink(wa)} target="_blank" rel="noopener" data-track={`svc_${service}`}><Icon name="whatsapp" size={20} /> {T.btn.whatsappConsultant}</a>
+      <a class="btn btn--outline btn--lg" href={P('maids')}>{T.btn.browseMaids}</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container prose" set:html={C.body} />
+  </section>
+
+  {matches.length > 0 && (
+    <section class="section section--tint section--tight">
+      <div class="container">
+        <h2 style="font-size:1.5rem">{ms ? 'Profil yang mempunyai pengalaman berkaitan' : 'Published profiles with relevant experience'}</h2>
+        <div class="maid-grid">{matches.map((m) => <MaidCard maid={m} lang={lang} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <section class="section section--tint" id="enquire">
+    <div class="container contact-grid">
+      <div>
+        <h2>{ms ? 'Ceritakan tentang keluarga anda' : 'Tell us about your household'}</h2>
+        <p class="muted">{ms ? 'Kongsikan sedikit maklumat dan perunding kami akan mencadangkan calon yang sesuai serta menerangkan langkah seterusnya.' : 'Share a few details and our consultant will recommend suitable candidates and explain the next steps.'}</p>
+        <h3 style="margin-top:28px;font-size:1.1rem">{ms ? 'Halaman berkaitan' : 'Related pages'}</h3>
+        <ul class="related-links" style="grid-template-columns:1fr">
+          {C.related.map(([label, url]) => <li><a href={url}>{label} <Icon name="arrow" size={16} /></a></li>)}
+        </ul>
+      </div>
+      <EnquiryForm lang={lang} defaultNeed={C.need} idPrefix={service} />
+    </div>
+  </section>
+  <CtaBand lang={lang} message={wa} />
+</BaseLayout>

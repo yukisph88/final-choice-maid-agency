@@ -1,7 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-
-const RESERVED_SLUGS = ['indonesian-maids', 'filipino-maids', 'page'];
+import { RESERVED_PROFILE_SLUGS as RESERVED_SLUGS } from './i18n/routes';
 
 const skillLevel = z.enum(['experienced', 'some-experience', 'willing-to-learn', 'none']).default('none');
 
@@ -29,11 +28,14 @@ const maidSchema = z
     languages: z.array(z.object({ language: z.string(), level: z.enum(['basic', 'conversational', 'fluent', 'native']) })).default([]),
     // Summary only: country, duration, main duties. No employer names or addresses.
     employmentHistory: z
-      .array(z.object({ country: z.string(), duration: z.string(), duties: z.string().max(200) }))
+      .array(z.object({ country: z.string(), duration: z.string(), duties: z.string().max(200), duties_ms: z.string().max(200).optional() }))
       .default([]),
     status: z.enum(['available', 'interview-pending', 'reserved', 'placed', 'temporarily-unavailable']),
     statusUpdated: z.coerce.date(),
     interviewAvailability: z.string().max(120).optional(),
+    interviewAvailability_ms: z.string().max(120).optional(),
+    // Optional approved Bahasa Melayu summary. If empty, the BM page shows the English summary with a note.
+    summary_ms: z.string().max(800).optional(),
     photo: z.string().optional(), // e.g. images/maids/fc-id-0001.webp (inside /public)
     biodataPdf: z.string().optional(), // e.g. biodata/fc-id-0001.pdf — REDACTED version only
     featured: z.boolean().default(false),
@@ -74,13 +76,15 @@ const blog = defineCollection({
   loader: glob({ pattern: ['**/*.md', '!**/_*.md'], base: './src/content/blog' }),
   schema: z.object({
     title: z.string().max(70),
+    // English articles: omit. Malay articles: the file name of the English original (without .md).
+    translationKey: z.string().optional(),
     description: z.string().min(70).max(170),
     h1: z.string().optional(),
     published: z.coerce.date(),
     updated: z.coerce.date().optional(),
     primaryKeyword: z.string(),
     draft: z.boolean().default(false),
-    related: z.array(z.string()).default([]), // site paths, e.g. /maid-hiring-process/
+    related: z.array(z.string()).default([]), // route keys from src/i18n/routes.ts, e.g. "process"
   }),
 });
 

@@ -1,0 +1,486 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import MaidCard from '../components/MaidCard.astro';
+import PackageCards from '../components/PackageCards.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import FaqList from '../components/FaqList.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { site, testimonials } from '../lib/config';
+import { href, asset, whatsappLink, telLink } from '../lib/urls';
+import { getPublicMaids } from '../lib/maids';
+import { organizationSchema, websiteSchema } from '../lib/schema';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const p = (k: Parameters<typeof path>[1], hash = '') => href(path(lang, k, hash));
+
+const maids = await getPublicMaids();
+// Featured first, then other available profiles. Only candidates who can currently be interviewed.
+const showable = maids.filter((m) => m.status === 'available' || m.status === 'interview-pending');
+const featured = [...showable.filter((m) => m.featured), ...showable.filter((m) => !m.featured && m.status === 'available')].slice(0, 8);
+const c = site.company;
+const areas = c.serviceAreas.join(lang === 'ms' ? ' dan ' : ' and ');
+const hours = c.hours.map((h) => ({ label: T.hours[h.label] ?? h.label, opens: h.opens, closes: h.closes }));
+const docsGuide = lang === 'ms' ? 'dokumen-untuk-mengambil-pembantu-rumah' : 'documents-needed-to-hire-a-domestic-helper';
+const arrivalGuide = lang === 'ms' ? 'selepas-pembantu-rumah-tiba-di-malaysia' : 'what-happens-after-your-maid-arrives-in-malaysia';
+
+const C = {
+  en: {
+    title: 'Maid Agency Malaysia | Indonesian & Filipino Maids | Final Choice',
+    description: 'Licensed maid agency in Kuala Lumpur helping families in KL and Selangor hire Indonesian and Filipino domestic helpers. Browse maid biodata and WhatsApp us.',
+    eyebrow: `Maid agency in Kuala Lumpur${areas ? ` · serving ${areas}` : ''}`,
+    h1a: 'Find the Right ', h1b: 'Domestic Helper', h1c: ' for Your Family',
+    lead: 'Explore Indonesian and Filipino domestic helpers with Agensi Pekerjaan Final Choice. Our team assists Malaysian employers with helper selection, interviews, documentation and placement arrangements.',
+    trust1: `Licence ${c.licence}`, trust2: 'Indonesian & Filipino helpers', trust3: 'Interview before you decide',
+    heroAlt: 'Two domestic helpers neatly making a bed together in a bright bedroom',
+    badgeT: 'Two-year contracts', badgeX: 'Terms explained clearly before you sign.',
+    onPage: 'On this page',
+    nav: ['Services', 'Indonesian maid', 'Filipino maid', 'Process', 'Documents', 'Packages', 'Arrival & FOMEMA', 'FAQ', 'Contact'],
+    whyE: 'Why choose Final Choice', whyH: 'Practical support at every step of hiring a helper',
+    whyP: 'Hiring a domestic helper is a big decision for any family. We focus on careful matching, clear explanations and steady follow-up.',
+    strengths: [
+      ['users', 'Personalised helper recommendations', 'We listen to your household’s needs first, then recommend candidates whose experience fits — not simply whoever is next on the list.'],
+      ['chat', 'Interview before you decide', 'Speak with your shortlisted helper, usually by video call, so you can choose with confidence before committing.'],
+      ['file', 'Clear documentation guidance', 'A checklist for your case and help with the contract and application forms, so nothing is missed.'],
+      ['clipboard', 'Placement handled step by step', 'We coordinate the application, approvals follow-up, travel and arrival, and keep you informed throughout.'],
+      ['graduation', 'Orientation before handover', 'Helpers receive an orientation on household expectations and practical working arrangements before joining you.'],
+      ['handshake', 'Support after placement', 'We stay in touch after your helper arrives, and help with permit and contract renewal when the time comes.'],
+    ],
+    svcE: 'Maid & domestic helper services', svcH: 'Help for every kind of household',
+    svcP: 'From childcare to elderly care and renewals, our services cover the whole time you employ a helper. Actual suitability always depends on each candidate’s confirmed skills and experience.',
+    services: [
+      ['baby', 'Childcare & newborn helpers', 'Helpers with experience caring for babies, toddlers and school-going children.', 'childcare', ''],
+      ['elderly', 'Elderly care helpers', 'Daily support and companionship for parents or grandparents living at home.', 'elderly', ''],
+      ['sparkle', 'Housekeeping & cooking', 'Cleaning, laundry, ironing and family meals for a well-kept home.', 'housekeeping', ''],
+      ['home', 'Domestic helper placement', 'End-to-end recruitment: matching, interview, documents, approvals, arrival and handover.', 'process', ''],
+      ['refresh', 'Permit & contract renewal', 'Guidance on renewing your helper’s work permit and employment contract on time.', 'services', 'permit-renewal'],
+      ['swap', 'Replacement assistance', 'Options if a placement does not work out, according to your package and service agreement.', 'services', 'replacement'],
+    ],
+    idE: 'Indonesian maid agency', idH: 'Indonesian maid for Malaysian families',
+    idP: 'Indonesian domestic helpers are a long-standing choice for families in Malaysia. Many speak Bahasa Indonesia, which is close to Bahasa Malaysia, and are familiar with local home cooking.',
+    idL: ['Candidates with childcare, elderly-care and housekeeping experience', 'Placement following current Malaysia–Indonesia procedures', 'Package terms specific to Indonesian helpers', 'Interview your shortlisted candidate before deciding'],
+    idB1: 'Indonesian maids', idB2: 'Enquire about an Indonesian maid',
+    phE: 'Filipino maid agency', phH: 'Filipino maid for English-speaking homes',
+    phP: 'Filipino domestic helpers are valued by many Malaysian families for their English communication and caregiving experience, including helpers who have worked overseas before.',
+    phL: ['Many candidates communicate comfortably in English', 'Experience in childcare, elderly care and housekeeping', 'Documentation guided according to Philippine requirements', 'Package terms specific to Filipino helpers'],
+    phB1: 'Filipino maids', phB2: 'Enquire about a Filipino maid',
+    bioE: 'Maid biodata Malaysia', bioH1: 'Featured helper profiles', bioH0: 'Ask for current helper biodata',
+    bioP1: 'A selection of published profiles. Availability changes quickly, so please confirm the current status with our consultant.',
+    bioP0: 'We publish profiles only with each candidate’s consent. Tell us what you need and our consultant will share suitable biodata directly.',
+    bioEmptyH: 'Receive suitable biodata on WhatsApp', bioEmptyP: 'Share your household needs and preferred nationality. We will send profiles of candidates who match, and arrange interviews with those you shortlist.',
+    procE: 'How the process works', procH: 'From first conversation to handover in seven steps', procLink: 'Read the full maid hiring process',
+    reqE: 'Employer requirements', reqH: 'What employers need to prepare',
+    reqP1: 'Employers must meet the eligibility criteria set by the Immigration Department of Malaysia, which include income requirements, and the rules that apply to the helper’s nationality. For example, Muslim employers are generally required to hire Muslim helpers.',
+    reqP2: 'Requirements are updated from time to time, so we confirm the current checklist for your case before you start.',
+    reqNote: 'Please don’t send identity documents in your first WhatsApp message. We will tell you how to share them securely.',
+    reqLink: 'Full guide: documents needed to hire a domestic helper', docsH: 'Documents commonly requested',
+    docs: [
+      ['Identification', 'A clear copy of your MyKad (front and back), and in some cases your spouse’s.'],
+      ['Proof of income', 'Recent salary slips, an EA form or bank statements. Business owners may provide business income documents.'],
+      ['Proof of address', 'A recent utility bill or another document showing your home address.'],
+      ['Household documents', 'Depending on your case, a marriage certificate or children’s birth certificates.'],
+    ],
+    pkgE: 'Packages & service options', pkgH: 'Premium, Platinum and Diamond packages',
+    pkgP: 'Package terms differ for Indonesian and Filipino helpers. Select a nationality to compare, then WhatsApp us for an accurate quotation.',
+    arrE: 'Training, FOMEMA & arrival', arrH: 'What happens before your helper joins you', arrP: 'After approvals, there are a few important steps before handover. Here is what to expect.',
+    arrival: [
+      ['graduation', 'Preparation before departure', 'Before travelling, helpers complete the preparation and documentation required by their home country’s rules.'],
+      ['plane', 'Arrival in Malaysia', 'Travel is arranged once approvals are in place. We keep you informed about the expected arrival.'],
+      ['shield', 'FOMEMA medical examination', 'After arrival, your helper must complete a medical examination at a FOMEMA-registered clinic.'],
+      ['clipboard', 'Work-pass formalities', 'The remaining work-pass steps are completed with the authorities after the medical result.'],
+      ['users', 'Orientation by Final Choice', 'Before handover, we brief the helper on household expectations and practical working arrangements.'],
+      ['handshake', 'Handover & follow-up', 'We hand over your helper, explain key documents, and remain available for questions.'],
+    ],
+    arrLink: 'What happens after your maid arrives',
+    trustE: 'Why families can trust us', trustH: 'A licensed, registered agency with a real office',
+    trust: [
+      ['shield', 'Licensed employment agency', `Private employment agency licence ${c.licence}.`],
+      ['file', 'Registered Malaysian company', `${c.legalName}, Company No. ${c.registrationNo}.`],
+      ['pin', 'Office you can visit', `${c.address.street}, ${c.address.postcode} ${c.address.city}.`],
+      ['clipboard', 'Prices shown up front', 'Reference package prices are published, and final terms are confirmed in writing before you commit.'],
+    ],
+    testiH: 'What employers say', reviews: 'Read our reviews on Google',
+    faqE: 'FAQ', faqH: 'Questions employers often ask',
+    ctaH: 'Ready to find your domestic helper?', ctaP: 'WhatsApp our consultant with your household’s needs. We will recommend suitable helpers and explain the next steps, costs and documents.',
+    infoP: `A licensed private employment agency in Kuala Lumpur, helping families${areas ? ` in ${areas}` : ''} recruit Indonesian and Filipino domestic helpers, and assisting with permit and contract renewal after placement.`,
+    enqH: 'Send an enquiry', enqP: 'Tell us a little about your household. Your enquiry opens in WhatsApp, ready to send.',
+    logoAlt: 'Agensi Pekerjaan Final Choice Sdn Bhd official logo',
+  },
+  ms: {
+    title: 'Agensi Pembantu Rumah Malaysia | Indonesia & Filipina | Final Choice',
+    description: 'Agensi pembantu rumah berlesen di Kuala Lumpur. Cari pembantu rumah Indonesia dan Filipina untuk keluarga di KL dan Selangor. Lihat biodata dan WhatsApp kami.',
+    eyebrow: `Agensi pembantu rumah di Kuala Lumpur${areas ? ` · berkhidmat di ${areas}` : ''}`,
+    h1a: 'Cari ', h1b: 'Pembantu Rumah', h1c: ' yang Sesuai untuk Keluarga Anda',
+    lead: 'Pilih pembantu rumah Indonesia dan Filipina bersama Agensi Pekerjaan Final Choice. Pasukan kami membantu majikan di Malaysia memilih pembantu, mengatur temu duga, menyediakan dokumen dan menguruskan penempatan.',
+    trust1: `Lesen ${c.licence}`, trust2: 'Pembantu Indonesia & Filipina', trust3: 'Temu duga sebelum membuat keputusan',
+    heroAlt: 'Dua orang pembantu rumah mengemas katil bersama di dalam bilik tidur yang terang',
+    badgeT: 'Kontrak dua tahun', badgeX: 'Terma diterangkan dengan jelas sebelum anda menandatangani.',
+    onPage: 'Dalam halaman ini',
+    nav: ['Perkhidmatan', 'Pembantu Indonesia', 'Pembantu Filipina', 'Proses', 'Dokumen', 'Pakej', 'Ketibaan & FOMEMA', 'Soalan lazim', 'Hubungi'],
+    whyE: 'Kenapa memilih Final Choice', whyH: 'Bantuan praktikal di setiap langkah pengambilan pembantu rumah',
+    whyP: 'Mengambil pembantu rumah ialah keputusan besar bagi setiap keluarga. Kami mengutamakan padanan yang teliti, penerangan yang jelas dan susulan yang berterusan.',
+    strengths: [
+      ['users', 'Cadangan pembantu mengikut keperluan', 'Kami mendengar keperluan keluarga anda terlebih dahulu, kemudian mencadangkan calon yang pengalamannya sesuai — bukan sekadar calon seterusnya dalam senarai.'],
+      ['chat', 'Temu duga sebelum membuat keputusan', 'Berbual dengan calon pilihan anda, biasanya melalui panggilan video, supaya anda boleh memilih dengan yakin.'],
+      ['file', 'Panduan dokumen yang jelas', 'Senarai semak untuk kes anda serta bantuan menyediakan kontrak dan borang permohonan, supaya tiada yang tertinggal.'],
+      ['clipboard', 'Penempatan diuruskan langkah demi langkah', 'Kami menyelaras permohonan, susulan kelulusan, perjalanan dan ketibaan, serta sentiasa memaklumkan perkembangan kepada anda.'],
+      ['graduation', 'Orientasi sebelum penyerahan', 'Pembantu rumah menerima orientasi tentang jangkaan isi rumah dan cara kerja praktikal sebelum mula bersama anda.'],
+      ['handshake', 'Sokongan selepas penempatan', 'Kami terus berhubung selepas pembantu tiba, dan membantu pembaharuan permit serta kontrak apabila tiba masanya.'],
+    ],
+    svcE: 'Perkhidmatan pembantu rumah', svcH: 'Bantuan untuk setiap keperluan keluarga',
+    svcP: 'Daripada menjaga anak hingga menjaga orang tua dan pembaharuan permit, perkhidmatan kami merangkumi sepanjang tempoh anda mengambil pembantu rumah. Kesesuaian sebenar bergantung pada kemahiran dan pengalaman setiap calon yang telah disahkan.',
+    services: [
+      ['baby', 'Pembantu rumah jaga anak & bayi', 'Pembantu yang berpengalaman menjaga bayi, kanak-kanak kecil dan anak bersekolah.', 'childcare', ''],
+      ['elderly', 'Pembantu rumah jaga orang tua', 'Bantuan harian dan teman untuk ibu bapa atau datuk nenek di rumah.', 'elderly', ''],
+      ['sparkle', 'Kerja rumah & memasak', 'Mengemas, membasuh, menggosok pakaian dan menyediakan makanan keluarga.', 'housekeeping', ''],
+      ['home', 'Penempatan pembantu rumah', 'Pengambilan menyeluruh: padanan, temu duga, dokumen, kelulusan, ketibaan dan penyerahan.', 'process', ''],
+      ['refresh', 'Pembaharuan permit & kontrak', 'Panduan memperbaharui permit kerja dan kontrak pekerjaan pembantu rumah anda tepat pada masanya.', 'services', 'permit-renewal'],
+      ['swap', 'Bantuan penggantian', 'Pilihan jika penempatan tidak berjaya, mengikut pakej dan perjanjian perkhidmatan anda.', 'services', 'replacement'],
+    ],
+    idE: 'Agensi pembantu rumah Indonesia', idH: 'Pembantu rumah Indonesia untuk keluarga di Malaysia',
+    idP: 'Pembantu rumah Indonesia telah lama menjadi pilihan keluarga di Malaysia. Ramai yang bertutur dalam Bahasa Indonesia yang hampir sama dengan Bahasa Melayu, dan biasa dengan masakan tempatan.',
+    idL: ['Calon berpengalaman menjaga anak, menjaga orang tua dan melakukan kerja rumah', 'Penempatan mengikut prosedur semasa Malaysia–Indonesia', 'Terma pakej khusus untuk pembantu rumah Indonesia', 'Temu duga calon pilihan anda sebelum membuat keputusan'],
+    idB1: 'Pembantu rumah Indonesia', idB2: 'Tanya tentang pembantu Indonesia',
+    phE: 'Agensi pembantu rumah Filipina', phH: 'Pembantu rumah Filipina untuk keluarga berbahasa Inggeris',
+    phP: 'Pembantu rumah Filipina dihargai oleh ramai keluarga di Malaysia kerana kebolehan berkomunikasi dalam Bahasa Inggeris dan pengalaman menjaga, termasuk mereka yang pernah bekerja di luar negara.',
+    phL: ['Ramai calon fasih berkomunikasi dalam Bahasa Inggeris', 'Berpengalaman menjaga anak, menjaga warga emas dan kerja rumah', 'Dokumen dibimbing mengikut keperluan Filipina', 'Terma pakej khusus untuk pembantu rumah Filipina'],
+    phB1: 'Pembantu rumah Filipina', phB2: 'Tanya tentang pembantu Filipina',
+    bioE: 'Biodata pembantu rumah', bioH1: 'Profil pembantu rumah pilihan', bioH0: 'Minta biodata pembantu rumah terkini',
+    bioP1: 'Antara profil yang telah disiarkan. Status calon berubah dengan cepat, jadi sila sahkan status terkini dengan perunding kami.',
+    bioP0: 'Kami hanya menyiarkan profil dengan persetujuan setiap calon. Beritahu keperluan anda dan perunding kami akan berkongsi biodata yang sesuai terus kepada anda.',
+    bioEmptyH: 'Terima biodata yang sesuai melalui WhatsApp', bioEmptyP: 'Kongsikan keperluan keluarga dan warganegara pilihan anda. Kami akan menghantar profil calon yang sepadan dan mengatur temu duga dengan calon pilihan anda.',
+    procE: 'Bagaimana prosesnya', procH: 'Daripada perbualan pertama hingga penyerahan dalam tujuh langkah', procLink: 'Baca proses pengambilan pembantu rumah sepenuhnya',
+    reqE: 'Syarat majikan', reqH: 'Apa yang perlu disediakan oleh majikan',
+    reqP1: 'Majikan perlu memenuhi syarat kelayakan yang ditetapkan oleh Jabatan Imigresen Malaysia, termasuk syarat pendapatan, serta peraturan yang terpakai mengikut warganegara pembantu. Sebagai contoh, majikan beragama Islam secara amnya perlu mengambil pembantu rumah beragama Islam.',
+    reqP2: 'Keperluan dikemas kini dari semasa ke semasa, jadi kami akan mengesahkan senarai semak terkini untuk kes anda sebelum anda bermula.',
+    reqNote: 'Sila jangan hantar dokumen pengenalan diri dalam mesej WhatsApp pertama anda. Kami akan memaklumkan cara berkongsi dokumen dengan selamat.',
+    reqLink: 'Panduan penuh: dokumen untuk mengambil pembantu rumah', docsH: 'Dokumen yang biasanya diperlukan',
+    docs: [
+      ['Pengenalan diri', 'Salinan MyKad yang jelas (depan dan belakang), dan dalam sesetengah kes, MyKad pasangan anda.'],
+      ['Bukti pendapatan', 'Slip gaji terkini, borang EA atau penyata bank. Pemilik perniagaan boleh mengemukakan dokumen pendapatan perniagaan.'],
+      ['Bukti alamat', 'Bil utiliti terkini atau dokumen lain yang menunjukkan alamat rumah anda.'],
+      ['Dokumen keluarga', 'Bergantung pada kes anda, sijil nikah atau sijil kelahiran anak.'],
+    ],
+    pkgE: 'Pakej & pilihan perkhidmatan', pkgH: 'Pakej Premium, Platinum dan Diamond',
+    pkgP: 'Terma pakej berbeza antara pembantu rumah Indonesia dan Filipina. Pilih warganegara untuk membandingkan, kemudian WhatsApp kami untuk sebut harga yang tepat.',
+    arrE: 'Latihan, FOMEMA & ketibaan', arrH: 'Apa yang berlaku sebelum pembantu rumah mula bersama anda', arrP: 'Selepas kelulusan, terdapat beberapa langkah penting sebelum penyerahan. Berikut perkara yang boleh anda jangkakan.',
+    arrival: [
+      ['graduation', 'Persediaan sebelum berlepas', 'Sebelum berlepas, pembantu rumah melengkapkan persediaan dan dokumen yang diwajibkan oleh negara asal mereka.'],
+      ['plane', 'Ketibaan di Malaysia', 'Perjalanan diatur sebaik sahaja kelulusan diperoleh. Kami akan memaklumkan jangkaan tarikh ketibaan.'],
+      ['shield', 'Pemeriksaan perubatan FOMEMA', 'Selepas tiba, pembantu rumah anda perlu menjalani pemeriksaan perubatan di klinik berdaftar FOMEMA.'],
+      ['clipboard', 'Urusan pas kerja', 'Langkah pas kerja yang selebihnya diselesaikan bersama pihak berkuasa selepas keputusan pemeriksaan perubatan.'],
+      ['users', 'Orientasi oleh Final Choice', 'Sebelum penyerahan, kami memberi taklimat kepada pembantu tentang jangkaan isi rumah dan cara kerja praktikal.'],
+      ['handshake', 'Penyerahan & susulan', 'Kami menyerahkan pembantu rumah anda, menerangkan dokumen penting, dan sentiasa sedia membantu.'],
+    ],
+    arrLink: 'Apa yang berlaku selepas pembantu rumah tiba',
+    trustE: 'Kenapa keluarga mempercayai kami', trustH: 'Agensi berlesen dan berdaftar dengan pejabat sebenar',
+    trust: [
+      ['shield', 'Agensi pekerjaan berlesen', `Lesen agensi pekerjaan swasta ${c.licence}.`],
+      ['file', 'Syarikat berdaftar di Malaysia', `${c.legalName}, No. Syarikat ${c.registrationNo}.`],
+      ['pin', 'Pejabat yang boleh dikunjungi', `${c.address.street}, ${c.address.postcode} ${c.address.city}.`],
+      ['clipboard', 'Harga dipaparkan secara terbuka', 'Harga rujukan pakej disiarkan, dan terma akhir disahkan secara bertulis sebelum anda membuat keputusan.'],
+    ],
+    testiH: 'Kata majikan', reviews: 'Baca ulasan kami di Google',
+    faqE: 'Soalan lazim', faqH: 'Soalan yang sering ditanya oleh majikan',
+    ctaH: 'Bersedia mencari pembantu rumah anda?', ctaP: 'WhatsApp perunding kami dengan keperluan keluarga anda. Kami akan mencadangkan pembantu rumah yang sesuai dan menerangkan langkah seterusnya, kos dan dokumen.',
+    infoP: `Agensi pekerjaan swasta berlesen di Kuala Lumpur yang membantu keluarga${areas ? ` di ${areas}` : ''} mengambil pembantu rumah Indonesia dan Filipina, serta membantu pembaharuan permit dan kontrak selepas penempatan.`,
+    enqH: 'Hantar pertanyaan', enqP: 'Ceritakan sedikit tentang keluarga anda. Pertanyaan anda akan dibuka dalam WhatsApp, sedia untuk dihantar.',
+    logoAlt: 'Logo rasmi Agensi Pekerjaan Final Choice Sdn Bhd',
+  },
+}[lang];
+
+const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', 'requirements', 'packages', 'arrival', 'faq', 'enquire'];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'home')} alternates={routeAlternates('home')} schema={[organizationSchema(lang), websiteSchema(lang)]}>
+  <!-- 1. HERO -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div>
+        <p class="eyebrow">{C.eyebrow}</p>
+        <h1>{C.h1a}<span>{C.h1b}</span>{C.h1c}</h1>
+        <p class="lead">{C.lead}</p>
+        <div class="btn-row">
+          <a class="btn btn--primary btn--lg" href={p('maids')}>{T.btn.browseMaids} <Icon name="arrow" size={18} /></a>
+          <a class="btn btn--wa btn--lg" href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="hero_whatsapp"><Icon name="whatsapp" size={20} /> {T.btn.whatsappConsultant}</a>
+        </div>
+        <ul class="hero__trust">
+          <li><Icon name="shield" size={18} /> {C.trust1}</li>
+          <li><Icon name="check" size={18} /> {C.trust2}</li>
+          <li><Icon name="check" size={18} /> {C.trust3}</li>
+        </ul>
+      </div>
+      <div class="hero__media">
+        <div class="hero__photo">
+          <picture>
+            <source media="(max-width: 700px)" srcset={asset('images/home-helper-housekeeping-640.webp')} type="image/webp" />
+            <img src={asset('images/home-helper-housekeeping-1024.webp')} alt={C.heroAlt} width="1024" height="640" fetchpriority="high" />
+          </picture>
+        </div>
+        <div class="hero__badge">
+          <Icon name="calendar" size={28} />
+          <span><strong>{C.badgeT}</strong>{C.badgeX}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="section-nav" aria-label={C.onPage}>
+    <div class="container">
+      <ul>{sectionIds.map((id, i) => <li><a href={`#${id}`}>{C.nav[i]}</a></li>)}</ul>
+    </div>
+  </nav>
+
+  <!-- 2. WHY CHOOSE FINAL CHOICE -->
+  <section class="section section--tint" aria-labelledby="why-h" id="why">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">{C.whyE}</p>
+        <h2 id="why-h">{C.whyH}</h2>
+        <p>{C.whyP}</p>
+      </div>
+      <div class="grid grid--3">
+        {C.strengths.map(([icon, title, text]) => (
+          <div class="card">
+            <span class="card__icon"><Icon name={icon} size={24} /></span>
+            <h3>{title}</h3>
+            <p class="muted">{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. SERVICES -->
+  <section class="section" aria-labelledby="svc-h" id="services">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{C.svcE}</p>
+        <h2 id="svc-h">{C.svcH}</h2>
+        <p>{C.svcP}</p>
+      </div>
+      <div class="grid grid--3">
+        {C.services.map(([icon, title, text, key, hash]) => (
+          <div class="card card--link need-card">
+            <span class="card__icon"><Icon name={icon} size={24} /></span>
+            <div>
+              <h3><a class="stretched" href={p(key as Parameters<typeof path>[1], hash)}>{title}</a></h3>
+              <p>{text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. INDONESIAN MAID -->
+  <section class="section section--tint" aria-labelledby="indo-h" id="indonesian-maid">
+    <div class="container nat-feature">
+      <div class="nat-feature__label" aria-hidden="true"><span>ID</span>Indonesia</div>
+      <div>
+        <p class="eyebrow">{C.idE}</p>
+        <h2 id="indo-h">{C.idH}</h2>
+        <p class="lead">{C.idP}</p>
+        <ul class="ticks ticks--2col">{C.idL.map((x) => <li><Icon name="check" size={18} />{x}</li>)}</ul>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={p('indonesian')}>{C.idB1} <Icon name="arrow" size={18} /></a>
+          <a class="btn btn--wa-outline" href={whatsappLink(T.wa.indonesian)} target="_blank" rel="noopener" data-track="home_indonesian"><Icon name="whatsapp" size={18} /> {C.idB2}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. FILIPINO MAID -->
+  <section class="section" aria-labelledby="ph-h" id="filipino-maid">
+    <div class="container nat-feature nat-feature--reverse">
+      <div class="nat-feature__label" aria-hidden="true"><span>PH</span>{lang === 'ms' ? 'Filipina' : 'Philippines'}</div>
+      <div>
+        <p class="eyebrow">{C.phE}</p>
+        <h2 id="ph-h">{C.phH}</h2>
+        <p class="lead">{C.phP}</p>
+        <ul class="ticks ticks--2col">{C.phL.map((x) => <li><Icon name="check" size={18} />{x}</li>)}</ul>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={p('filipino')}>{C.phB1} <Icon name="arrow" size={18} /></a>
+          <a class="btn btn--wa-outline" href={whatsappLink(T.wa.filipino)} target="_blank" rel="noopener" data-track="home_filipino"><Icon name="whatsapp" size={18} /> {C.phB2}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured maid biodata -->
+  <section class="section section--tint" aria-labelledby="feat-h" id="biodata">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{C.bioE}</p>
+        <h2 id="feat-h">{featured.length ? C.bioH1 : C.bioH0}</h2>
+        <p>{featured.length ? C.bioP1 : C.bioP0}</p>
+      </div>
+      {featured.length > 0 ? (
+        <>
+          <div class="maid-grid">{featured.map((m) => <MaidCard maid={m} lang={lang} />)}</div>
+          <p style="margin-top:28px"><a class="btn btn--outline" href={p('maids')}>{T.btn.allBiodata} <Icon name="arrow" size={18} /></a></p>
+        </>
+      ) : (
+        <div class="empty-state">
+          <Icon name="file" size={40} />
+          <h3>{C.bioEmptyH}</h3>
+          <p>{C.bioEmptyP}</p>
+          <div class="btn-row" style="justify-content:center">
+            <a class="btn btn--wa" href={whatsappLink(T.wa.biodata)} target="_blank" rel="noopener" data-track="featured_empty"><Icon name="whatsapp" size={18} /> {T.btn.requestBiodata}</a>
+            <a class="btn btn--outline" href={p('maids')}>{T.btn.toDirectory}</a>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- 6. PROCESS -->
+  <section class="section" aria-labelledby="proc-h" id="process">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{C.procE}</p>
+        <h2 id="proc-h">{C.procH}</h2>
+      </div>
+      <ProcessSteps lang={lang} />
+      <p style="margin-top:24px"><a class="card__more" href={p('process')}>{C.procLink} <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- 7. EMPLOYER REQUIREMENTS / DOCUMENTS -->
+  <section class="section section--tint" aria-labelledby="req-h" id="requirements">
+    <div class="container split" style="align-items:start">
+      <div>
+        <p class="eyebrow">{C.reqE}</p>
+        <h2 id="req-h">{C.reqH}</h2>
+        <p class="muted">{C.reqP1}</p>
+        <p class="muted">{C.reqP2}</p>
+        <div class="callout" style="margin-top:20px">
+          <Icon name="shield" size={20} />
+          <p>{C.reqNote}</p>
+        </div>
+        <p style="margin-top:20px"><a class="card__more" href={href(withLang(lang, postPath(lang, docsGuide)))}>{C.reqLink} <Icon name="arrow" size={18} /></a></p>
+      </div>
+      <div class="doc-list">
+        <h3 class="doc-list__title">{C.docsH}</h3>
+        <ol>{C.docs.map(([title, text]) => <li><strong>{title}</strong><span>{text}</span></li>)}</ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. PACKAGES -->
+  <section class="section" aria-labelledby="pkg-h" id="packages">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">{C.pkgE}</p>
+        <h2 id="pkg-h">{C.pkgH}</h2>
+        <p>{C.pkgP}</p>
+      </div>
+      <PackageCards lang={lang} id="home-packages" />
+    </div>
+  </section>
+
+  <!-- 9. TRAINING / FOMEMA / ARRIVAL -->
+  <section class="section section--navy" aria-labelledby="arr-h" id="arrival">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{C.arrE}</p>
+        <h2 id="arr-h">{C.arrH}</h2>
+        <p>{C.arrP}</p>
+      </div>
+      <ol class="timeline">
+        {C.arrival.map(([icon, title, text], i) => (
+          <li class="timeline__item">
+            <span class="timeline__icon"><Icon name={icon} size={22} /></span>
+            <h3><span class="sr-only">{T.process.step} {i + 1}: </span>{title}</h3>
+            <p>{text}</p>
+          </li>
+        ))}
+      </ol>
+      <p style="margin-top:28px"><a class="card__more card__more--light" href={href(withLang(lang, postPath(lang, arrivalGuide)))}>{C.arrLink} <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- 10. TRUST -->
+  <section class="section" aria-labelledby="trust-h" id="trust">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">{C.trustE}</p>
+        <h2 id="trust-h">{C.trustH}</h2>
+      </div>
+      <div class="grid grid--4">
+        {C.trust.map(([icon, title, text]) => (
+          <div class="card trust-card">
+            <span class="card__icon"><Icon name={icon} size={24} /></span>
+            <h3>{title}</h3>
+            <p class="muted">{text}</p>
+          </div>
+        ))}
+      </div>
+      {testimonials.length > 0 && (
+        <div class="testimonials">
+          <h3 class="testimonials__h">{C.testiH}</h3>
+          <div class="grid grid--3">
+            {testimonials.map((x) => (
+              <figure class="card testimonial">
+                <blockquote><p>“{x.text}”</p></blockquote>
+                <figcaption>{x.name}{x.location && `, ${x.location}`}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
+      {site.social.googleBusinessProfile && (
+        <p style="text-align:center;margin-top:28px"><a class="btn btn--outline" href={site.social.googleBusinessProfile} target="_blank" rel="noopener">{C.reviews} <Icon name="arrow" size={18} /></a></p>
+      )}
+    </div>
+  </section>
+
+  <!-- 11. FAQ -->
+  <section class="section section--tint" aria-labelledby="faq-h" id="faq">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">{C.faqE}</p>
+        <h2 id="faq-h">{C.faqH}</h2>
+      </div>
+      <FaqList lang={lang} homeOnly />
+      <p style="text-align:center;margin-top:24px"><a class="card__more" href={p('faq')}>{T.btn.allQuestions} <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- 12. WHATSAPP / ENQUIRY CTA -->
+  <CtaBand lang={lang} title={C.ctaH} text={C.ctaP} headingId="cta-h" />
+
+  <!-- 13. COMPANY INFORMATION + ENQUIRY -->
+  <section class="section section--tint" aria-labelledby="contact-h" id="enquire">
+    <div class="container contact-grid">
+      <div class="info-panel info-panel--white">
+        <picture>
+          <source srcset={asset('images/logo-final-choice.webp')} type="image/webp" />
+          <img class="info-panel__logo" src={asset('images/logo-final-choice.png')} alt={C.logoAlt} width="720" height="537" loading="lazy" decoding="async" />
+        </picture>
+        <h2 id="contact-h">{c.legalName}</h2>
+        <p class="muted">{C.infoP} <a href={p('about')}>{T.btn.aboutUs}</a></p>
+        <ul class="contact-list">
+          <li><Icon name="whatsapp" size={20} /><a href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="contact_whatsapp">WhatsApp {site.contact.consultantName}: {site.contact.phoneDisplay}</a></li>
+          <li><Icon name="phone" size={20} /><a href={telLink} data-track="contact_phone">{T.btn.call} {site.contact.phoneDisplay}</a></li>
+          <li><Icon name="mail" size={20} /><a href={`mailto:${c.email}`}>{c.email}</a></li>
+          <li><Icon name="pin" size={20} /><span>{c.address.street}, {c.address.postcode} {c.address.city}<br /><a href={c.mapsUrl} target="_blank" rel="noopener">{T.btn.directions}</a></span></li>
+          <li><Icon name="clock" size={20} /><span>{hours.map((h) => <>{h.label}: {h.opens}–{h.closes}<br /></>)}</span></li>
+        </ul>
+        <div class="licence-box">
+          <span><strong>{T.footer.companyNo}</strong> {c.registrationNo}</span>
+          <span><strong>{lang === 'ms' ? 'Lesen' : 'Licence'}</strong> {c.licence}</span>
+        </div>
+      </div>
+      <div>
+        <h2 class="h3-size">{C.enqH}</h2>
+        <p class="muted">{C.enqP}</p>
+        <EnquiryForm lang={lang} idPrefix="home" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

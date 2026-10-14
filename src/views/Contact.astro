@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/config';
+import { whatsappLink, telLink } from '../lib/urls';
+import { organizationSchema } from '../lib/schema';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const c = site.company;
+const hours = c.hours.map((h) => `${T.hours[h.label] ?? h.label}: ${h.opens}–${h.closes}`);
+const C = {
+  en: {
+    title: 'Contact Final Choice | Maid Agency in Kuala Lumpur',
+    description: 'Contact Agensi Pekerjaan Final Choice in Taman Mutiara Barat, Kuala Lumpur. WhatsApp our consultant, call, email or send an enquiry about hiring a domestic helper.',
+    eyebrow: 'Contact', h1: 'Contact Final Choice', lead: 'WhatsApp is the quickest way to reach our consultant. You are also welcome to call, email or visit our office during office hours.',
+    officeH: 'Our office', labels: ['WhatsApp', 'Phone', 'Email', 'Address', 'Office hours'], enqH: 'Send an enquiry', licence: 'Licence',
+  },
+  ms: {
+    title: 'Hubungi Final Choice | Agensi Pembantu Rumah di Kuala Lumpur',
+    description: 'Hubungi Agensi Pekerjaan Final Choice di Taman Mutiara Barat, Kuala Lumpur. WhatsApp perunding kami, telefon, e-mel atau hantar pertanyaan tentang pembantu rumah.',
+    eyebrow: 'Hubungi kami', h1: 'Hubungi Final Choice', lead: 'WhatsApp ialah cara paling cepat untuk menghubungi perunding kami. Anda juga dialu-alukan untuk menelefon, menghantar e-mel atau berkunjung ke pejabat kami pada waktu pejabat.',
+    officeH: 'Pejabat kami', labels: ['WhatsApp', 'Telefon', 'E-mel', 'Alamat', 'Waktu pejabat'], enqH: 'Hantar pertanyaan', licence: 'Lesen',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'contact')} alternates={routeAlternates('contact')}
+  crumbs={[{ name: T.crumb.contact, path: path(lang, 'contact') }]} schema={[organizationSchema(lang)]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section">
+    <div class="container contact-grid">
+      <div class="info-panel">
+        <h2>{C.officeH}</h2>
+        <ul class="contact-list">
+          <li><Icon name="whatsapp" size={20} /><span><strong>{C.labels[0]}</strong><br /><a href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="contact_page_wa">{site.contact.consultantName} — {site.contact.phoneDisplay}</a></span></li>
+          <li><Icon name="phone" size={20} /><span><strong>{C.labels[1]}</strong><br /><a href={telLink} data-track="contact_page_phone">{site.contact.phoneDisplay}</a></span></li>
+          <li><Icon name="mail" size={20} /><span><strong>{C.labels[2]}</strong><br /><a href={`mailto:${c.email}`}>{c.email}</a></span></li>
+          <li><Icon name="pin" size={20} /><span><strong>{C.labels[3]}</strong><br />{c.address.street},<br />{c.address.postcode} {c.address.city}, Malaysia<br /><a href={c.mapsUrl} target="_blank" rel="noopener">{T.btn.openMaps}</a></span></li>
+          <li><Icon name="clock" size={20} /><span><strong>{C.labels[4]}</strong><br />{hours.map((h) => <>{h}<br /></>)}</span></li>
+        </ul>
+        <div class="licence-box">
+          <span><strong>{c.legalName}</strong></span>
+          <span>{T.footer.companyNo} {c.registrationNo}</span>
+          <span>{C.licence} {c.licence}</span>
+        </div>
+      </div>
+      <div>
+        <h2>{C.enqH}</h2>
+        <EnquiryForm lang={lang} idPrefix="contact" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

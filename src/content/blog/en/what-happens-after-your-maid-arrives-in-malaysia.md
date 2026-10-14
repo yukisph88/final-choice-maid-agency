@@ -4,7 +4,7 @@ h1: "What happens after your maid arrives in Malaysia"
 description: "What to expect after your domestic helper arrives in Malaysia: FOMEMA medical screening, work-pass steps, orientation, handover and a first-month plan."
 published: 2026-10-14
 primaryKeyword: "after maid arrives Malaysia"
-related: ["/maid-hiring-process/", "/services/", "/faq/"]
+related: ["process", "services", "faq"]
 ---
 
 After weeks of planning, your helper has arrived. There are still a few formal steps to complete, and the first month at home will shape the whole placement. Here is what to expect.

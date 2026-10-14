@@ -1,10 +1,10 @@
 ---
 import { href } from '../lib/urls';
 import type { Crumb } from '../lib/schema';
-interface Props { crumbs: Crumb[] }
-const { crumbs } = Astro.props;
+interface Props { crumbs: Crumb[]; label?: string }
+const { crumbs, label = 'Breadcrumb' } = Astro.props;
 ---
-<nav class="breadcrumbs container" aria-label="Breadcrumb">
+<nav class="breadcrumbs container" aria-label={label}>
   <ol>
     {crumbs.map((c, i) => (
       <li>

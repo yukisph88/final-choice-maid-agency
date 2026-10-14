@@ -4,7 +4,7 @@ h1: "How to hire a maid in Malaysia: a practical guide for employers"
 description: "A step-by-step guide to hiring a domestic helper in Malaysia: deciding what you need, choosing a nationality, interviews, documents, costs and timelines."
 published: 2026-10-14
 primaryKeyword: "hire maid Malaysia"
-related: ["/maid-hiring-process/", "/maids/", "/maid-packages/"]
+related: ["process", "maids", "packages"]
 ---
 
 Hiring a domestic helper is one of the most personal decisions a family makes. She will live in your home, care for the people you love and become part of your daily routine. Planning carefully before you start makes the whole process smoother, for your family and for her.

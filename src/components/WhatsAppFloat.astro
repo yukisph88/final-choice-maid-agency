@@ -1,10 +1,13 @@
 ---
 import Icon from './Icon.astro';
 import { whatsappLink } from '../lib/urls';
-interface Props { message: string }
-const { message } = Astro.props;
+import { t } from '../i18n/ui';
+import type { Lang } from '../i18n/routes';
+interface Props { lang: Lang; message: string }
+const { lang, message } = Astro.props;
+const T = t(lang).wa;
 ---
-<a class="wa-float" href={whatsappLink(message)} target="_blank" rel="noopener" data-track="whatsapp_float" aria-label="Chat with Final Choice on WhatsApp">
+<a class="wa-float" href={whatsappLink(message)} target="_blank" rel="noopener" data-track="whatsapp_float" aria-label={T.float}>
   <Icon name="whatsapp" size={28} />
-  <span class="wa-float__label">WhatsApp us</span>
+  <span class="wa-float__label">{T.floatLabel}</span>
 </a>

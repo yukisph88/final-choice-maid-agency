@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/urls';
+import { getPosts } from '../lib/blog';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t, formatDate } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const posts = (await getPosts()).filter((p) => p.lang === lang).sort((a, b) => +b.entry.data.published - +a.entry.data.published);
+const C = {
+  en: {
+    title: 'Employer Guides | Hiring a Maid in Malaysia | Final Choice Blog',
+    description: 'Practical guides for Malaysian employers on hiring a domestic helper: the hiring steps, documents, interviews, elderly care, and settling in after arrival.',
+    eyebrow: 'Employer guides', h1: 'Guides to hiring a domestic helper in Malaysia', lead: 'Practical, plain-language articles from our consultants to help you prepare, choose well and settle in.',
+  },
+  ms: {
+    title: 'Panduan Majikan | Mengambil Pembantu Rumah | Final Choice',
+    description: 'Panduan praktikal untuk majikan di Malaysia tentang mengambil pembantu rumah: langkah pengambilan, dokumen, temu duga, jaga orang tua dan minggu pertama selepas ketibaan.',
+    eyebrow: 'Panduan majikan', h1: 'Panduan mengambil pembantu rumah di Malaysia', lead: 'Artikel praktikal dan mudah difahami daripada perunding kami untuk membantu anda bersedia, memilih dengan bijak dan memulakan dengan baik.',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'blog')} alternates={routeAlternates('blog')}
+  crumbs={[{ name: T.crumb.blog, path: path(lang, 'blog') }]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section section--tight">
+    <div class="container grid grid--3">
+      {posts.map((p) => (
+        <article class="card card--link post-card">
+          <p class="muted" style="font-size:.85rem;margin-bottom:8px"><time datetime={p.entry.data.published.toISOString()}>{formatDate(p.entry.data.published, lang)}</time></p>
+          <h2><a class="stretched" href={href(withLang(lang, postPath(lang, p.slug)))} style="color:inherit;text-decoration:none">{p.entry.data.h1 ?? p.entry.data.title}</a></h2>
+          <p>{p.entry.data.description}</p>
+          <span class="card__more">{T.btn.readGuide} <Icon name="arrow" size={16} /></span>
+        </article>
+      ))}
+    </div>
+  </section>
+  <CtaBand lang={lang} />
+</BaseLayout>

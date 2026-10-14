@@ -7,7 +7,8 @@
 #    To hide a price and show "Request a quotation" instead, use:  price: null
 #
 #  HOW TO ADD / CHANGE AN INCLUSION
-#    Each inclusion has a "text" and "verified".
+#    Each inclusion has "text" (English), "text_ms" (Bahasa Melayu) and "verified".
+#    Prices and "verified" are shared, so both languages always show the same terms.
 #    Only inclusions with  verified: true  are shown on the website.
 #    Set verified: true ONLY after management has confirmed that term in writing.
 #
@@ -21,6 +22,12 @@ priceNote: >-
   confirmation. Your consultant will confirm the final quotation, inclusions and
   terms in writing before you commit. Warranty and replacement arrangements are
   subject to the terms of your service agreement.
+
+priceNote_ms: >-
+  Harga yang dipaparkan ialah harga rujukan pakej dalam Ringgit Malaysia dan
+  tertakluk kepada pengesahan. Perunding kami akan mengesahkan sebut harga, kandungan
+  pakej dan terma secara bertulis sebelum anda membuat keputusan. Waranti dan
+  penggantian tertakluk kepada terma perjanjian perkhidmatan anda.
 
 # Date the prices were last checked by staff (YYYY-MM-DD)
 lastReviewed: "2026-10-14"
@@ -41,32 +48,42 @@ nationalities:
   indonesian:
     label: "Indonesian Domestic Helper"
     shortLabel: "Indonesian"
+    label_ms: "Pembantu Rumah Indonesia"
+    shortLabel_ms: "Indonesia"
     packages:
       premium:
         price: 15600
         inclusions:
           - text: "90-day warranty period"
+            text_ms: "Tempoh waranti 90 hari"
             verified: true
           - text: "Replacement fee: RM3,800"
+            text_ms: "Yuran penggantian: RM3,800"
             verified: true
       platinum:
         price: 17600
         inclusions:
           - text: "180-day warranty period"
+            text_ms: "Tempoh waranti 180 hari"
             verified: true
           - text: "Replacement fee: RM3,800"
+            text_ms: "Yuran penggantian: RM3,800"
             verified: true
       diamond:
         price: 19600
         inclusions:
           - text: "180-day warranty period"
+            text_ms: "Tempoh waranti 180 hari"
             verified: true
           - text: "No replacement fee"
+            text_ms: "Tiada yuran penggantian"
             verified: true
 
   filipino:
     label: "Filipino Domestic Helper"
     shortLabel: "Filipino"
+    label_ms: "Pembantu Rumah Filipina"
+    shortLabel_ms: "Filipina"
     packages:
       premium:
         price: 15600
@@ -76,15 +93,20 @@ nationalities:
         inclusions:
           # Internal reference only — set verified: true after confirmation
           - text: "Includes SOCSO contribution"
+            text_ms: "Termasuk caruman PERKESO (SOCSO)"
             verified: false
           - text: "Includes ACC"
+            text_ms: "Termasuk ACC"
             verified: false
       diamond:
         price: 19600
         inclusions:
           - text: "Includes SOCSO contribution"
+            text_ms: "Termasuk caruman PERKESO (SOCSO)"
             verified: false
           - text: "Includes ACC"
+            text_ms: "Termasuk ACC"
             verified: false
           - text: "No replacement fee"
+            text_ms: "Tiada yuran penggantian"
             verified: false

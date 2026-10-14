@@ -1,9 +1,10 @@
 ---
 import { faq } from '../lib/config';
-interface Props { homeOnly?: boolean; headingLevel?: 'h2' | 'h3' }
-const { homeOnly = false, headingLevel = 'h3' } = Astro.props;
+import type { Lang } from '../i18n/routes';
+interface Props { lang: Lang; homeOnly?: boolean; headingLevel?: 'h2' | 'h3' }
+const { lang, homeOnly = false, headingLevel = 'h3' } = Astro.props;
 const H = headingLevel;
-const items = homeOnly ? faq.filter((f) => f.home) : faq;
+const items = (homeOnly ? faq.filter((f) => f.home) : faq).map((f) => f[lang]);
 ---
 <div class="faq">
   {items.map((f) => (

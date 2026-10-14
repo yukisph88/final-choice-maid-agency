@@ -1,22 +1,31 @@
 ---
-// Package price cards. All prices and inclusions come from src/data/packages.yaml.
+// Package price cards. Prices, inclusions and "verified" flags come from ONE file (src/data/packages.yaml)
+// for both languages, so English and Bahasa Melayu pages always show identical terms.
 // Only inclusions marked "verified: true" are displayed.
 import Icon from './Icon.astro';
 import { packages, type Nationality } from '../lib/config';
-import { whatsappLink, WA } from '../lib/urls';
-interface Props { only?: Nationality; headingLevel?: 'h2' | 'h3'; id?: string }
-const { only, headingLevel = 'h3', id = 'packages-tabs' } = Astro.props;
+import { whatsappLink } from '../lib/urls';
+import type { Lang } from '../i18n/routes';
+import { t, formatLongDate } from '../i18n/ui';
+interface Props { lang: Lang; only?: Nationality; headingLevel?: 'h2' | 'h3'; id?: string }
+const { lang, only, headingLevel = 'h3', id = 'packages-tabs' } = Astro.props;
+const T = t(lang);
+const ms = lang === 'ms';
 const H = headingLevel;
-const nats = (only ? [only] : (['indonesian', 'filipino'] as Nationality[])).map((k) => ({ key: k, ...packages.nationalities[k] }));
+const nats = (only ? [only] : (['indonesian', 'filipino'] as Nationality[])).map((k) => {
+  const n = packages.nationalities[k];
+  return { key: k, packages: n.packages, label: ms ? n.label_ms : n.label, short: ms ? n.shortLabel_ms : n.shortLabel, waNat: ms ? n.shortLabel_ms : n.shortLabel };
+});
 const rm = (n: number) => `RM${n.toLocaleString('en-MY')}`;
-const reviewed = new Date(packages.lastReviewed + 'T00:00:00+08:00').toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+const reviewed = formatLongDate(new Date(packages.lastReviewed + 'T00:00:00+08:00'), lang);
+const eyebrow = (short: string) => (ms ? `Pembantu ${short}` : `${short} helper`);
 ---
 <div class="packages" data-tabs>
   {nats.length > 1 && (
-    <div class="tabs" role="tablist" aria-label="Choose helper nationality">
+    <div class="tabs" role="tablist" aria-label={T.pkg.chooseNationality}>
       {nats.map((n, i) => (
         <button class="tab" type="button" role="tab" id={`${id}-tab-${n.key}`} aria-controls={`${id}-panel-${n.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
-          <span class="tab__long">{n.label}</span><span class="tab__short">{n.shortLabel} helper</span>
+          <span class="tab__long">{n.label}</span><span class="tab__short">{eyebrow(n.short)}</span>
         </button>
       ))}
     </div>
@@ -25,25 +34,25 @@ const reviewed = new Date(packages.lastReviewed + 'T00:00:00+08:00').toLocaleDat
   {nats.map((n, i) => (
     <div class="tab-panel" role={nats.length > 1 ? 'tabpanel' : undefined} id={`${id}-panel-${n.key}`} aria-labelledby={nats.length > 1 ? `${id}-tab-${n.key}` : undefined} hidden={i > 0 ? true : undefined}>
       <div class="package-grid">
-        {packages.tiers.map((t) => {
-          const p = n.packages[t.id];
+        {packages.tiers.map((tier) => {
+          const p = n.packages[tier.id];
           const shown = p.inclusions.filter((x) => x.verified);
           return (
-            <article class={`package-card${t.highlight ? ' package-card--highlight' : ''}`}>
-              <p class="package-card__eyebrow">{n.shortLabel} helper</p>
-              <H class="package-card__name">{t.name}</H>
+            <article class={`package-card${tier.highlight ? ' package-card--highlight' : ''}`}>
+              <p class="package-card__eyebrow">{eyebrow(n.short)}</p>
+              <H class="package-card__name">{tier.name}</H>
               <p class="package-card__price">
-                {p.price ? (<><span class="package-card__amount">{rm(p.price)}</span><span class="package-card__note">reference price*</span></>) : <span class="package-card__amount package-card__amount--quote">Request a quotation</span>}
+                {p.price ? (<><span class="package-card__amount">{rm(p.price)}</span><span class="package-card__note">{T.pkg.referencePrice}</span></>) : <span class="package-card__amount package-card__amount--quote">{T.pkg.quote}</span>}
               </p>
               {shown.length > 0 ? (
                 <ul class="ticks">
-                  {shown.map((x) => <li><Icon name="check" size={18} />{x.text}</li>)}
+                  {shown.map((x) => <li><Icon name="check" size={18} />{ms ? x.text_ms : x.text}</li>)}
                 </ul>
               ) : (
-                <p class="package-card__pending">Inclusions and terms for this package are confirmed by our consultant with your quotation.</p>
+                <p class="package-card__pending">{T.pkg.pending}</p>
               )}
-              <a class={`btn ${t.highlight ? 'btn--wa' : 'btn--wa-outline'} btn--block`} href={whatsappLink(WA.package(t.name, n.shortLabel))} target="_blank" rel="noopener" data-track={`package_${n.key}_${t.id}`}>
-                <Icon name="whatsapp" size={18} /> Enquire about {t.name}
+              <a class={`btn ${tier.highlight ? 'btn--wa' : 'btn--wa-outline'} btn--block`} href={whatsappLink(T.wa.package(tier.name, n.waNat))} target="_blank" rel="noopener" data-track={`package_${n.key}_${tier.id}`}>
+                <Icon name="whatsapp" size={18} /> {T.btn.enquirePackage} {tier.name}
               </a>
             </article>
           );
@@ -51,24 +60,24 @@ const reviewed = new Date(packages.lastReviewed + 'T00:00:00+08:00').toLocaleDat
       </div>
     </div>
   ))}
-  <p class="package-footnote">* {packages.priceNote} <span class="muted">Prices last reviewed {reviewed}.</span></p>
+  <p class="package-footnote">* {ms ? packages.priceNote_ms : packages.priceNote} <span class="muted">{T.pkg.reviewed} {reviewed}.</span></p>
 </div>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
     const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const select = (t: HTMLButtonElement) => {
+    const select = (tab: HTMLButtonElement) => {
       tabs.forEach((x) => {
-        const on = x === t;
+        const on = x === tab;
         x.setAttribute('aria-selected', String(on));
         x.tabIndex = on ? 0 : -1;
         const panel = document.getElementById(x.getAttribute('aria-controls')!);
         if (panel) panel.hidden = !on;
       });
     };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => select(t));
-      t.addEventListener('keydown', (e) => {
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
         const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
         if (!d) return;
         const n = tabs[(i + d + tabs.length) % tabs.length];

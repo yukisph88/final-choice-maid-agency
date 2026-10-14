@@ -5,18 +5,25 @@ import '@fontsource/ibm-plex-sans/600.css';
 import '@fontsource/montserrat/700.css';
 import '@fontsource/montserrat/800.css';
 import '../styles/global.css';
+// Preload the two fonts used above the fold so headings don't re-wrap when fonts arrive (layout shift).
+import fontHeading from '@fontsource/montserrat/files/montserrat-latin-800-normal.woff2?url';
+import fontBody from '@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { site } from '../lib/config';
-import { absUrl, asset, WA } from '../lib/urls';
+import { absUrl, asset } from '../lib/urls';
 import { breadcrumbSchema, type Crumb } from '../lib/schema';
+import { HTML_LANG, OG_LOCALE, LANGS, path, type Lang, type Alternates } from '../i18n/routes';
+import { t } from '../i18n/ui';
 
 interface Props {
+  lang: Lang;
   title: string;
   description: string;
-  path: string; // canonical site path, e.g. '/maids/'
+  path: string; // canonical site path including language prefix, e.g. '/ms/pembantu-rumah/'
+  alternates?: Alternates; // equivalent page in each language (for hreflang + switcher)
   ogImage?: string;
   ogType?: 'website' | 'article';
   noindex?: boolean;
@@ -25,31 +32,39 @@ interface Props {
   waMessage?: string;
 }
 
-const { title, description, path, ogImage, ogType = 'website', noindex = false, schema = [], crumbs, waMessage = WA.home } = Astro.props;
-
-const canonical = absUrl(path);
+const { lang, title, description, path: pagePath, alternates = {}, ogImage, ogType = 'website', noindex = false, schema = [], crumbs, waMessage } = Astro.props;
+const T = t(lang);
+const canonical = absUrl(pagePath); // always self-referencing — Malay pages are never canonicalised to English
 const image = new URL(asset(ogImage ?? site.seo.defaultOgImage), Astro.site).toString();
 const indexable = site.seo.indexing && !noindex;
-const allCrumbs = crumbs ? [{ name: 'Home', path: '/' }, ...crumbs] : null;
+// hreflang only between pages that genuinely exist in both languages
+const alts = { ...alternates, [lang]: pagePath } as Alternates;
+const hasBoth = LANGS.every((l) => alts[l]);
+const allCrumbs = crumbs ? [{ name: T.crumb.home, path: path(lang, 'home') }, ...crumbs] : null;
 const jsonLd = [...schema, ...(allCrumbs ? [breadcrumbSchema(allCrumbs)] : [])];
 ---
 <!doctype html>
-<html lang="en-MY">
+<html lang={HTML_LANG[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {hasBoth && LANGS.map((l) => <link rel="alternate" hreflang={HTML_LANG[l]} href={absUrl(alts[l]!)} />)}
+    {hasBoth && <link rel="alternate" hreflang="x-default" href={absUrl(alts.en!)} />}
     <meta name="robots" content={indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow'} />
     {site.seo.googleSiteVerification && <meta name="google-site-verification" content={site.seo.googleSiteVerification} />}
     <meta name="theme-color" content="#0a1a5c" />
+    <link rel="preload" href={fontHeading} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontBody} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href={asset('favicon/favicon-48.png')} sizes="48x48" type="image/png" />
     <link rel="apple-touch-icon" href={asset('favicon/apple-touch-icon.png')} />
 
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.company.brandName} />
-    <meta property="og:locale" content="en_MY" />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {hasBoth && LANGS.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -65,13 +80,13 @@ const jsonLd = [...schema, ...(allCrumbs ? [breadcrumbSchema(allCrumbs)] : [])];
     {jsonLd.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <Header currentPath={path} />
+    <a class="skip-link" href="#main">{T.nav.skip}</a>
+    <Header lang={lang} currentPath={pagePath} alternates={alts} />
     <main id="main">
-      {allCrumbs && <Breadcrumbs crumbs={allCrumbs} />}
+      {allCrumbs && <Breadcrumbs crumbs={allCrumbs} label={lang === 'ms' ? 'Laluan halaman' : 'Breadcrumb'} />}
       <slot />
     </main>
-    <Footer />
-    <WhatsAppFloat message={waMessage} />
+    <Footer lang={lang} />
+    <WhatsAppFloat lang={lang} message={waMessage ?? T.wa.home} />
   </body>
 </html>

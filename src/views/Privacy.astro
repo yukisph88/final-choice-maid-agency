@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../lib/config';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const c = site.company;
+// Approval flag and date live in src/data/site.yaml (seo.privacyPolicyApproved / privacyPolicyDate).
+const APPROVED = site.seo.privacyPolicyApproved;
+const DATE = site.seo.privacyPolicyDate;
+const contact = `${c.legalName}<br />Attn: [CONFIRM: name / designation]<br />${c.address.street}, ${c.address.postcode} ${c.address.city}, Malaysia<br />E-mail: <a href="mailto:${c.email}">${c.email}</a><br />WhatsApp: ${site.contact.consultantName} — ${site.contact.phoneDisplay}`;
+
+const C = {
+  en: {
+    title: 'Privacy Policy | Agensi Pekerjaan Final Choice Sdn Bhd',
+    description: 'How Agensi Pekerjaan Final Choice Sdn Bhd collects, uses and protects personal data of employers and domestic helper candidates under Malaysia’s PDPA 2010.',
+    h1: 'Privacy Policy', updated: `Last updated: ${DATE}`,
+    draft: '<strong>Draft for review — not yet approved.</strong> This notice is a starting point prepared under the Personal Data Protection Act 2010 (PDPA), as amended. It is not legal advice. Items marked [CONFIRM] need confirmation by Final Choice management and/or a legal adviser before public launch.',
+    body: `<p>This Privacy Policy explains how ${c.legalName} (Company No. ${c.registrationNo}) (“Final Choice”, “we”, “us”) collects, uses, discloses and protects personal data provided through this website and when you contact us by WhatsApp, telephone or email. It is issued in line with the PDPA.</p>
+<h2>1. Personal data we collect from employers</h2><p>When you make an enquiry, we may collect your name, contact number, preferred contact method, preferred helper nationality, household requirements and any other information you include in your message.</p><p>Please do not send identity documents, salary slips or other personal documents through the enquiry form or in a first WhatsApp message. If documents are needed for your application, we will tell you how to provide them securely. [CONFIRM: preferred secure method for receiving documents]</p>
+<h2>2. Domestic helper candidate information</h2><p>We publish limited biodata of domestic helper candidates only with the candidate’s consent. Published profiles use an agency reference code and may include a photograph, nationality, general work experience, skills and languages. We never publish passport or identity numbers, personal telephone numbers, home addresses, family details, medical records or immigration documents.</p><p>A candidate may ask us at any time to correct or remove her published profile. Profiles are removed or updated when a candidate is placed, withdraws or is no longer available. [CONFIRM: consent form wording and retention period]</p>
+<h2>3. Obligatory and voluntary information</h2><p>On the enquiry form, your name, contact number and agreement to this policy are obligatory. If you do not provide them, we may not be able to respond. All other fields are voluntary.</p>
+<h2>4. How the enquiry form works</h2><p>At present, the enquiry form does not store your details on any server. It opens WhatsApp with your details filled in, and your enquiry is only sent when you press Send in WhatsApp. [UPDATE THIS PARAGRAPH if an online form service is connected later]</p>
+<h2>5. Why we use personal data</h2><ul><li>to respond to your enquiry and recommend suitable domestic helpers;</li><li>to provide the recruitment, placement and renewal services you engage us for;</li><li>to prepare and submit applications to the relevant authorities when you ask us to;</li><li>to keep records of our communications; and</li><li>to comply with applicable laws and regulatory requirements.</li></ul><p>We will not use your personal data for unrelated marketing without your consent. [CONFIRM: whether marketing messages are sent]</p>
+<h2>6. Who we may disclose it to</h2><p>We do not sell personal data. We may disclose it, only as needed for the purposes above, to relevant Malaysian government agencies and source-country authorities when processing an application you have engaged us for; to service providers that support our operations, such as website hosting (GitHub Pages, operated by GitHub), email (Google) and messaging (WhatsApp, operated by Meta); to professional advisers; and where required or permitted by law. [CONFIRM / ADD: form service, analytics, other providers]</p>
+<h2>7. Transfer outside Malaysia</h2><p>Some service providers may store or process data on servers outside Malaysia. Where this happens, we take reasonable steps to ensure the data receives protection consistent with the PDPA. [LEGAL CHECK: cross-border transfer wording]</p>
+<h2>8. Retention and security</h2><p>We keep personal data only as long as needed for the purposes above or as required by law, and we take reasonable practical steps to protect it from loss, misuse and unauthorised access, including limiting access to staff who need it. [CONFIRM: retention periods and internal security practices]</p>
+<h2>9. Your rights</h2><p>Subject to the PDPA, you may request access to and correction of your personal data, withdraw consent or ask us to limit processing. We may need to verify your identity first. [CONFIRM: whether a fee is charged for access requests]</p>
+<h2>10. Cookies and analytics</h2><p>This website does not currently use advertising or analytics cookies. Your language choice (English or Bahasa Melayu) may be remembered in your browser’s local storage so the site opens in that language next time. Fonts are served from this website itself.</p>
+<h2>11. Contact us</h2><p>${contact}</p><p>[LEGAL CHECK: whether a Data Protection Officer must be appointed under the PDPA (Amendment) Act 2024 and related guidelines.]</p>
+<h2>12. Language</h2><p>This policy is available in English and Bahasa Melayu. If there is any inconsistency, [CONFIRM: which version prevails].</p>`,
+  },
+  ms: {
+    title: 'Dasar Privasi | Agensi Pekerjaan Final Choice Sdn Bhd',
+    description: 'Cara Agensi Pekerjaan Final Choice mengumpul, menggunakan dan melindungi data peribadi majikan dan calon pembantu rumah di bawah APDP 2010.',
+    h1: 'Dasar Privasi', updated: `Kemas kini terakhir: ${DATE}`,
+    draft: '<strong>Draf untuk semakan — belum diluluskan.</strong> Notis ini disediakan sebagai titik permulaan di bawah Akta Perlindungan Data Peribadi 2010 (APDP), sebagaimana dipinda. Ia bukan nasihat undang-undang. Perkara bertanda [CONFIRM] perlu disahkan oleh pihak pengurusan Final Choice dan/atau penasihat undang-undang sebelum pelancaran awam.',
+    body: `<p>Dasar Privasi ini menerangkan cara ${c.legalName} (No. Syarikat ${c.registrationNo}) (“Final Choice”, “kami”) mengumpul, menggunakan, mendedahkan dan melindungi data peribadi yang diberikan melalui laman web ini dan apabila anda menghubungi kami melalui WhatsApp, telefon atau e-mel. Dasar ini dikeluarkan selaras dengan APDP.</p>
+<h2>1. Data peribadi majikan yang kami kumpul</h2><p>Apabila anda membuat pertanyaan, kami mungkin mengumpul nama, nombor telefon, cara dihubungi, warganegara pembantu pilihan, keperluan keluarga serta maklumat lain yang anda sertakan dalam mesej anda.</p><p>Sila jangan hantar dokumen pengenalan diri, slip gaji atau dokumen peribadi lain melalui borang pertanyaan atau dalam mesej WhatsApp pertama. Jika dokumen diperlukan untuk permohonan anda, kami akan memaklumkan cara menghantarnya dengan selamat. [CONFIRM: kaedah selamat untuk menerima dokumen]</p>
+<h2>2. Maklumat calon pembantu rumah</h2><p>Kami hanya menyiarkan biodata terhad calon pembantu rumah dengan persetujuan calon tersebut. Profil yang disiarkan menggunakan kod rujukan agensi dan mungkin mengandungi gambar, warganegara, pengalaman kerja secara umum, kemahiran dan bahasa. Kami tidak sekali-kali menyiarkan nombor pasport atau pengenalan diri, nombor telefon peribadi, alamat rumah, maklumat keluarga, rekod perubatan atau dokumen imigresen.</p><p>Calon boleh meminta kami membetulkan atau membuang profilnya pada bila-bila masa. Profil akan dibuang atau dikemas kini apabila calon telah ditempatkan, menarik diri atau tidak lagi tersedia. [CONFIRM: kandungan borang persetujuan dan tempoh simpanan]</p>
+<h2>3. Maklumat wajib dan sukarela</h2><p>Dalam borang pertanyaan, nama, nombor telefon dan persetujuan terhadap dasar ini adalah wajib. Jika tidak diberikan, kami mungkin tidak dapat menjawab pertanyaan anda. Ruangan lain adalah sukarela.</p>
+<h2>4. Cara borang pertanyaan berfungsi</h2><p>Pada masa ini, borang pertanyaan tidak menyimpan maklumat anda di mana-mana pelayan. Borang ini membuka WhatsApp dengan maklumat anda, dan pertanyaan hanya dihantar apabila anda menekan Hantar dalam WhatsApp. [KEMAS KINI perenggan ini jika perkhidmatan borang dalam talian disambungkan kemudian]</p>
+<h2>5. Tujuan kami menggunakan data peribadi</h2><ul><li>untuk menjawab pertanyaan anda dan mencadangkan pembantu rumah yang sesuai;</li><li>untuk menyediakan perkhidmatan pengambilan, penempatan dan pembaharuan yang anda langgan;</li><li>untuk menyediakan dan menghantar permohonan kepada pihak berkuasa berkaitan atas permintaan anda;</li><li>untuk menyimpan rekod komunikasi; dan</li><li>untuk mematuhi undang-undang dan keperluan peraturan yang terpakai.</li></ul><p>Kami tidak akan menggunakan data peribadi anda untuk pemasaran yang tidak berkaitan tanpa persetujuan anda. [CONFIRM: sama ada mesej pemasaran dihantar]</p>
+<h2>6. Pihak yang mungkin menerima data</h2><p>Kami tidak menjual data peribadi. Kami mungkin mendedahkannya, hanya setakat yang perlu bagi tujuan di atas, kepada agensi kerajaan Malaysia dan pihak berkuasa negara asal yang berkaitan semasa memproses permohonan yang anda serahkan kepada kami; kepada penyedia perkhidmatan yang menyokong operasi kami, seperti pengehosan laman web (GitHub Pages oleh GitHub), e-mel (Google) dan pesanan (WhatsApp oleh Meta); kepada penasihat profesional; dan apabila dikehendaki atau dibenarkan oleh undang-undang. [CONFIRM / TAMBAH: perkhidmatan borang, analitik, penyedia lain]</p>
+<h2>7. Pemindahan ke luar Malaysia</h2><p>Sesetengah penyedia perkhidmatan mungkin menyimpan atau memproses data di pelayan di luar Malaysia. Dalam keadaan ini, kami mengambil langkah munasabah untuk memastikan data mendapat perlindungan yang selaras dengan APDP. [SEMAKAN UNDANG-UNDANG: kandungan pemindahan rentas sempadan]</p>
+<h2>8. Penyimpanan dan keselamatan</h2><p>Kami menyimpan data peribadi hanya selama yang diperlukan bagi tujuan di atas atau seperti yang dikehendaki oleh undang-undang, dan kami mengambil langkah praktikal yang munasabah untuk melindunginya daripada kehilangan, salah guna dan akses tanpa kebenaran, termasuk mengehadkan akses kepada kakitangan yang memerlukannya sahaja. [CONFIRM: tempoh simpanan dan amalan keselamatan dalaman]</p>
+<h2>9. Hak anda</h2><p>Tertakluk kepada APDP, anda boleh meminta akses kepada dan pembetulan data peribadi anda, menarik balik persetujuan atau meminta kami mengehadkan pemprosesan. Kami mungkin perlu mengesahkan identiti anda terlebih dahulu. [CONFIRM: sama ada fi dikenakan bagi permintaan akses]</p>
+<h2>10. Kuki dan analitik</h2><p>Laman web ini tidak menggunakan kuki pengiklanan atau analitik pada masa ini. Pilihan bahasa anda (Bahasa Inggeris atau Bahasa Melayu) mungkin diingati dalam storan tempatan pelayar supaya laman ini dibuka dalam bahasa tersebut pada kali seterusnya. Fon disediakan terus dari laman web ini.</p>
+<h2>11. Hubungi kami</h2><p>${contact}</p><p>[SEMAKAN UNDANG-UNDANG: sama ada Pegawai Perlindungan Data perlu dilantik di bawah Akta Perlindungan Data Peribadi (Pindaan) 2024 dan garis panduan berkaitan.]</p>
+<h2>12. Bahasa</h2><p>Dasar ini disediakan dalam Bahasa Inggeris dan Bahasa Melayu. Sekiranya terdapat percanggahan, [CONFIRM: versi mana yang terpakai].</p>`,
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'privacy')} alternates={routeAlternates('privacy')}
+  crumbs={[{ name: T.crumb.privacy, path: path(lang, 'privacy') }]} noindex={!APPROVED}>
+  <PageHero title={C.h1} lead={C.updated} />
+  <section class="section section--tight">
+    <div class="container prose">
+      {!APPROVED && <div class="callout callout--warn" style="margin-bottom:28px"><p set:html={C.draft} /></div>}
+      <Fragment set:html={C.body} />
+    </div>
+  </section>
+</BaseLayout>

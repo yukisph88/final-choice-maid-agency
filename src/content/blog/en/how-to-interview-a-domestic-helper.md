@@ -4,7 +4,7 @@ h1: "How to interview a domestic helper: questions that really help"
 description: "How to prepare for and run a maid interview in Malaysia, with practical questions on childcare, elderly care, cooking and housework, plus the warning signs to look for."
 published: 2026-10-14
 primaryKeyword: "how to interview a maid"
-related: ["/maids/", "/services/childcare-maid/", "/maid-hiring-process/"]
+related: ["maids", "childcare", "process"]
 ---
 
 A biodata tells you what a candidate has done. An interview helps you understand **how** she did it, and whether she will be comfortable in your home. Most interviews take place by video call and last 15–30 minutes.

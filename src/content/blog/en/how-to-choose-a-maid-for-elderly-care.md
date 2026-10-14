@@ -4,7 +4,7 @@ h1: "How to choose a maid for elderly care"
 description: "How to choose a domestic helper for an elderly parent in Malaysia: assessing care needs, the right experience, interview questions and preparing your home."
 published: 2026-10-14
 primaryKeyword: "maid for elderly care Malaysia"
-related: ["/services/elderly-care-maid/", "/maids/", "/faq/"]
+related: ["elderly", "maids", "faq"]
 ---
 
 Caring for an ageing parent at home is a labour of love, and it can also be exhausting. A domestic helper with the right experience can support your parent's daily life and give the whole family more peace of mind.

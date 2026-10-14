@@ -1,0 +1,64 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/config';
+import { href, whatsappLink } from '../lib/urls';
+import { articleSchema } from '../lib/schema';
+import type { Post } from '../lib/blog';
+import { path, postPath, withLang, ROUTES, type Lang, type RouteKey, type Alternates } from '../i18n/routes';
+import { t, formatDate } from '../i18n/ui';
+interface Props { lang: Lang; post: Post; translation?: Post }
+const { lang, post, translation } = Astro.props;
+const T = t(lang);
+const { Content } = await render(post.entry);
+const d = post.entry.data;
+const pagePath = withLang(lang, postPath(lang, post.slug));
+// hreflang only when a genuine translation exists; otherwise the switcher falls back to the other language's blog.
+const alternates: Alternates = translation ? { [translation.lang]: withLang(translation.lang, postPath(translation.lang, translation.slug)) } : {};
+const related = d.related.filter((k): k is RouteKey => k in ROUTES);
+const RELATED: Partial<Record<RouteKey, string>> = {
+  process: T.crumb.process, maids: lang === 'ms' ? 'Lihat biodata pembantu rumah' : 'Browse maid biodata', indonesian: T.crumb.indonesian,
+  filipino: T.crumb.filipino, packages: T.crumb.packages, elderly: T.footer.elderly, childcare: T.footer.childcare,
+  housekeeping: T.footer.housekeeping, services: T.footer.allServices, faq: T.crumb.faq, contact: T.crumb.contact,
+};
+---
+<BaseLayout lang={lang} title={d.title} description={d.description} path={pagePath} alternates={alternates} ogType="article"
+  crumbs={[{ name: T.crumb.blog, path: path(lang, 'blog') }, { name: d.h1 ?? d.title, path: pagePath }]}
+  schema={[articleSchema({ title: d.h1 ?? d.title, description: d.description, path: pagePath, published: d.published, updated: d.updated, lang })]}>
+  <article class="section section--tight">
+    <div class="container article-layout">
+      <div>
+        <header style="margin-bottom:28px">
+          <p class="eyebrow">{T.blog.guide}</p>
+          <h1 style="max-width:820px">{d.h1 ?? d.title}</h1>
+          <p class="article-meta">
+            {T.blog.by(site.company.brandName)} · {T.blog.published} <time datetime={d.published.toISOString()}>{formatDate(d.published, lang)}</time>
+            {d.updated && <> · {T.blog.updated} <time datetime={d.updated.toISOString()}>{formatDate(d.updated, lang)}</time></>}
+          </p>
+        </header>
+        <div class="prose">
+          <Content />
+          <div class="callout" style="margin-top:32px"><Icon name="shield" size={20} /><p>{T.blog.disclaimer}</p></div>
+        </div>
+      </div>
+      <aside class="sidebar-card">
+        <div class="info-panel">
+          <h2 style="font-size:1.15rem">{T.blog.talk}</h2>
+          <p class="muted" style="font-size:.95rem">{T.blog.talkText}</p>
+          <a class="btn btn--wa btn--block" href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track={`blog_${post.slug}`}><Icon name="whatsapp" size={18} /> {T.btn.whatsappUs}</a>
+          {related.length > 0 && (
+            <>
+              <h2 style="font-size:1rem;margin-top:24px">{T.blog.related}</h2>
+              <ul class="related-links" style="grid-template-columns:1fr">
+                {related.map((k) => <li><a href={href(path(lang, k))}>{RELATED[k] ?? k} <Icon name="arrow" size={16} /></a></li>)}
+              </ul>
+            </>
+          )}
+        </div>
+      </aside>
+    </div>
+  </article>
+  <CtaBand lang={lang} />
+</BaseLayout>

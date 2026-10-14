@@ -10,7 +10,9 @@ Everything staff normally change lives in **two folders**:
 | Maid biodata (one file per candidate) | `src/content/maids/` |
 | Approved maid photos | `public/images/maids/` |
 | Approved (redacted) biodata PDFs | `public/biodata/` |
-| Blog articles | `src/content/blog/` |
+| Blog articles | `src/content/blog/en/` (English) and `src/content/blog/ms/` (Bahasa Melayu) |
+| Buttons, menus, labels, WhatsApp messages (both languages) | `src/i18n/ui.ts` |
+| Page addresses in both languages | `src/i18n/routes.ts` |
 
 You edit these on **github.com** in the browser. There is no admin login on the website itself: GitHub *is* the secure admin, protected by your GitHub account (turn on two-factor authentication).
 
@@ -19,6 +21,21 @@ After every commit, GitHub automatically rebuilds the site (about 2 minutes). Wa
 > ⚠️ **The repository is public.** Anything you commit can be seen by anyone, including old versions in the history. Only commit information that is approved for the public website. Never commit passports, IC numbers, phone numbers of candidates, medical results, unredacted biodata, or employer documents.
 
 ---
+
+## 0. Two languages: what to edit where
+
+The website is in **English** (`/en/…`) and **Bahasa Melayu** (`/ms/…`).
+
+- **Shared data — enter once, shown in both languages:** maid codes, status, photos, skills, prices, "verified" flags,
+  contact details. You never type a price or a status twice, so the two languages cannot disagree.
+- **Text that needs both languages:**
+  - Package inclusions: `text` (English) **and** `text_ms` (BM) in `packages.yaml`.
+  - FAQ: every question has an `en:` and an `ms:` block in `faq.yaml`.
+  - Maid summary: the text below `---` is English; add an approved BM version in `summary_ms:` (optional).
+    If `summary_ms` is empty, the BM page shows the English summary with the note
+    *"Ringkasan ini disediakan dalam Bahasa Inggeris."* Never publish machine translation of candidate information without checking it.
+  - Employment history duties: `duties` (English) and optional `duties_ms`.
+- Status labels are translated automatically (Available → Tersedia, Reserved → Telah Ditempah, Placed → Telah Ditempatkan).
 
 ## 1. Add a new maid
 
@@ -92,11 +109,16 @@ Open `src/data/faq.yaml`. Each item has `q:` and `a:`. `home: true` also shows i
 
 ## 8. Write a blog article
 
-Copy an existing article in `src/content/blog/`, rename it (the file name becomes the URL, e.g. `maid-levy-explained.md` → `/blog/maid-levy-explained/`), and edit the top section:
+English articles go in `src/content/blog/en/`, Malay articles in `src/content/blog/ms/`.
+A Malay translation must include `translationKey: <file name of the English article without .md>` so the two
+versions are linked (language switcher + Google hreflang). An article without a translation is fine — the switcher
+then goes to the other language's homepage.
+
+Copy an existing article in the right folder, rename it (the file name becomes the URL, e.g. `maid-levy-explained.md` → `/blog/maid-levy-explained/`), and edit the top section:
 - `title` (max 70 characters), `description` (70–170 characters), `published` date, `primaryKeyword`.
 - `draft: true` keeps it off the website until ready.
 
-Links inside articles use relative paths like `../../maids/` (to a page) or `../other-article/` (to another article).
+Links inside articles use relative paths: `../../maids/` (English) or `../../pembantu-rumah/` (BM) to a page, or `../other-article/` to another article in the same language. `related:` uses page keys from `src/i18n/routes.ts`, e.g. `"process"`, `"packages"`.
 
 ## 9. Common build errors
 

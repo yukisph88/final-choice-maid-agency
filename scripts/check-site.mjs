@@ -33,27 +33,41 @@ const titles = new Map();
 const descs = new Map();
 const PASSPORT = /\b[A-Z]{1,2}\d{7,8}\b/; // e.g. passport-like numbers
 const MYKAD = /\b\d{6}-\d{2}-\d{4}\b/;
+const SITE = (process.env.SITE_URL ?? 'https://yukisph88.github.io').replace(/\/$/, '');
+const pages = new Map(); // absolute URL → { url, htmlLang, hreflang }
 
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8');
   const url = toUrl(f);
   const is404 = url.startsWith('/404');
-  const title = html.match(/<title>([^<]*)<\/title>/)?.[1]?.trim();
-  const desc = html.match(/<meta name="description" content="([^"]*)"/)?.[1]?.trim();
+  const isRoot = url === '/'; // language entry page: forwards to /en/ or /ms/
+  const htmlLang = html.match(/<html lang="([^"]+)"/)?.[1];
+  const canonicalHref = html.match(/rel="canonical" href="([^"]+)"/)?.[1];
+  const hreflang = Object.fromEntries([...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/g)].map((m) => [m[1], m[2]]));
+  if (!is404 && !isRoot) {
+    const own = `${SITE}${BASE}${url}`;
+    pages.set(own, { url, htmlLang, hreflang });
+    const prefix = url.split('/')[1];
+    if (!['en', 'ms'].includes(prefix)) errors.push(`${url}: page outside /en/ or /ms/`);
+    if ((prefix === 'en' && htmlLang !== 'en-MY') || (prefix === 'ms' && htmlLang !== 'ms-MY')) errors.push(`${url}: <html lang="${htmlLang}"> does not match URL language`);
+    if (canonicalHref !== own) errors.push(`${url}: canonical is not self-referencing (${canonicalHref})`);
+  }
+  const decode = (s) => s?.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+  const title = decode(html.match(/<title>([^<]*)<\/title>/)?.[1]?.trim());
+  const desc = decode(html.match(/<meta name="description" content="([^"]*)"/)?.[1]?.trim());
   const robots = html.match(/<meta name="robots" content="([^"]*)"/)?.[1] ?? '';
   if (!title) errors.push(`${url}: missing <title>`);
   if (!desc) errors.push(`${url}: missing meta description`);
   if (!html.includes('rel="canonical"')) errors.push(`${url}: missing canonical`);
-  if (!/rel="stylesheet"|<style[\s>]/.test(html)) errors.push(`${url}: no stylesheet linked (page would render unstyled)`);
+  if (!isRoot && !/rel="stylesheet"|<style[\s>]/.test(html)) errors.push(`${url}: no stylesheet linked (page would render unstyled)`);
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
-  if (h1 !== 1) errors.push(`${url}: has ${h1} <h1> elements (expected 1)`);
-  if (!is404) {
+  if (h1 !== 1 && !isRoot) errors.push(`${url}: has ${h1} <h1> elements (expected 1)`);
+  if (!is404 && !isRoot) {
     if (title) titles.set(title, [...(titles.get(title) || []), url]);
     if (desc) descs.set(desc, [...(descs.get(desc) || []), url]);
   }
   if (title && title.length > 70) warn.push(`${url}: title is ${title.length} chars`);
   if (desc && (desc.length < 70 || desc.length > 170)) warn.push(`${url}: description is ${desc.length} chars`);
-  if (robots.includes('noindex') && !is404) warn.push(`${url}: noindex (${robots})`);
 
   // Links and images
   const refs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
@@ -85,6 +99,23 @@ for (const f of htmlFiles) {
   if (MYKAD.test(text)) errors.push(`${url}: text looks like an IC number: ${text.match(MYKAD)[0]}`);
 }
 
+// hreflang: every alternate must exist, point back (reciprocal) and include x-default
+let hreflangPages = 0;
+for (const [own, pg] of pages) {
+  if (!Object.keys(pg.hreflang).length) continue;
+  hreflangPages++;
+  for (const need of ['en-MY', 'ms-MY', 'x-default']) if (!pg.hreflang[need]) errors.push(`${pg.url}: hreflang missing ${need}`);
+  if (pg.hreflang[pg.htmlLang] !== own) errors.push(`${pg.url}: hreflang for its own language does not point to itself`);
+  for (const code of ['en-MY', 'ms-MY']) {
+    const target = pages.get(pg.hreflang[code]);
+    if (!target) { errors.push(`${pg.url}: hreflang ${code} → page does not exist (${pg.hreflang[code]})`); continue; }
+    if (target.hreflang[pg.htmlLang] !== own) errors.push(`${pg.url}: hreflang ${code} target does not link back`);
+  }
+}
+const enCount = [...pages.values()].filter((p) => p.htmlLang === 'en-MY').length;
+const msCount = [...pages.values()].filter((p) => p.htmlLang === 'ms-MY').length;
+console.log(`pages: ${enCount} English, ${msCount} Bahasa Melayu, ${hreflangPages} with reciprocal hreflang`);
+
 for (const [t, urls] of titles) if (urls.length > 1) errors.push(`Duplicate title "${t}": ${urls.join(', ')}`);
 for (const [d, urls] of descs) if (urls.length > 1) errors.push(`Duplicate description on: ${urls.join(', ')}`);
 
@@ -96,12 +127,15 @@ else {
   for (const l of locs) {
     const path = new URL(l).pathname;
     const t = resolveTarget(path);
-    if (!t.ok) errors.push(`sitemap: URL has no page: ${l}`);
+    if (!t.ok) { errors.push(`sitemap: URL has no page: ${l}`); continue; }
     const page = readFileSync(join(DIST, path.slice(BASE.length), 'index.html'), 'utf8');
     const canon = page.match(/rel="canonical" href="([^"]+)"/)?.[1];
     if (canon !== l) errors.push(`sitemap: ${l} canonical mismatch (${canon})`);
   }
-  console.log(`sitemap: ${locs.length} URLs`);
+  const xml = readFileSync(sm, 'utf8');
+  const alts = [...xml.matchAll(/<xhtml:link rel="alternate" hreflang="[^"]+" href="([^"]+)"/g)].map((m) => m[1]);
+  for (const a of alts) if (!pages.has(a)) errors.push(`sitemap: hreflang alternate has no page: ${a}`);
+  console.log(`sitemap: ${locs.length} URLs, ${alts.length} hreflang alternates`);
 }
 if (!existsSync(join(DIST, 'robots.txt'))) errors.push('robots.txt missing');
 if (!existsSync(join(DIST, '404.html'))) errors.push('404.html missing');

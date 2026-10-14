@@ -4,89 +4,98 @@
 // and do not create new URLs, so filters never produce duplicate indexable pages.
 import MaidCard from './MaidCard.astro';
 import Icon from './Icon.astro';
-import { whatsappLink, WA } from '../lib/urls';
+import { whatsappLink } from '../lib/urls';
 import type { Maid } from '../lib/maids';
-interface Props { maids: Maid[]; nationality?: 'indonesian' | 'filipino'; waMessage?: string; pageSize?: number }
-const { maids, nationality, waMessage = WA.home, pageSize = 12 } = Astro.props;
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { maids: Maid[]; lang: Lang; nationality?: 'indonesian' | 'filipino'; waMessage?: string; pageSize?: number }
+const { maids, lang, nationality, waMessage, pageSize = 12 } = Astro.props;
+const T = t(lang);
+const D = T.dir;
+const wa = waMessage ?? T.wa.home;
+// Strings used by the browser script (kept in the page so the script needs no translation logic)
+const i18n = JSON.stringify({
+  profile: D.profile, profiles: D.profiles, pageOf: D.pageOf(999, 888), prev: D.prev, next: D.next,
+  prevLabel: D.prevLabel, nextLabel: D.nextLabel, pageLabel: D.pageLabel,
+});
+const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
 ---
 {maids.length === 0 ? (
   <div class="empty-state">
     <Icon name="file" size={40} />
-    <h2>New biodata are being prepared</h2>
-    <p>
-      We only publish profiles after the candidate has agreed to it, so the list may be short or empty.
-      Our consultant can share suitable biodata directly, based on your household's needs.
-    </p>
-    <a class="btn btn--wa" href={whatsappLink(waMessage)} target="_blank" rel="noopener" data-track="directory_empty">
-      <Icon name="whatsapp" size={18} /> Ask for current biodata
+    <h2>{D.emptyTitle}</h2>
+    <p>{D.emptyText}</p>
+    <a class="btn btn--wa" href={whatsappLink(wa)} target="_blank" rel="noopener" data-track="directory_empty">
+      <Icon name="whatsapp" size={18} /> {D.emptyBtn}
     </a>
   </div>
 ) : (
-  <div class="directory" data-directory data-page-size={pageSize}>
-    <form class="filters" aria-label="Filter maid profiles" data-filters onsubmit="return false">
+  <div class="directory" data-directory data-page-size={pageSize} data-i18n={i18n}>
+    <form class="filters" aria-label={D.filterLabel} data-filters onsubmit="return false">
       <div class="filters__row">
         <div class="field field--search">
-          <label for="f-code">Search reference code</label>
-          <div class="input-icon"><Icon name="search" size={18} /><input id="f-code" name="code" type="search" placeholder="e.g. FC-ID-0012" autocomplete="off" /></div>
+          <label for="f-code">{D.searchCode}</label>
+          <div class="input-icon"><Icon name="search" size={18} /><input id="f-code" name="code" type="search" placeholder="FC-ID-0012" autocomplete="off" /></div>
         </div>
         {!nationality && (
           <div class="field">
-            <label for="f-nat">Nationality</label>
+            <label for="f-nat">{D.nationality}</label>
             <select id="f-nat" name="nationality">
-              <option value="">All</option>
-              <option value="indonesian">Indonesian</option>
-              <option value="filipino">Filipino</option>
+              <option value="">{D.all}</option>
+              <option value="indonesian">{T.nationality.indonesian}</option>
+              <option value="filipino">{T.nationality.filipino}</option>
             </select>
           </div>
         )}
         <div class="field">
-          <label for="f-exp">Experience</label>
+          <label for="f-exp">{D.experience}</label>
           <select id="f-exp" name="exp">
-            <option value="0">Any</option>
-            <option value="1">1+ years</option>
-            <option value="3">3+ years</option>
-            <option value="5">5+ years</option>
+            <option value="0">{D.any}</option>
+            <option value="1">{D.yearsPlus(1)}</option>
+            <option value="3">{D.yearsPlus(3)}</option>
+            <option value="5">{D.yearsPlus(5)}</option>
           </select>
         </div>
         <div class="field">
-          <label for="f-status">Availability</label>
+          <label for="f-status">{D.availability}</label>
           <select id="f-status" name="status">
-            <option value="">All statuses</option>
-            <option value="available">Available</option>
-            <option value="interview-pending">Interview pending</option>
-            <option value="reserved">Reserved</option>
-            <option value="temporarily-unavailable">Temporarily unavailable</option>
+            <option value="">{D.allStatuses}</option>
+            <option value="available">{T.status.available}</option>
+            <option value="interview-pending">{T.status['interview-pending']}</option>
+            <option value="reserved">{T.status.reserved}</option>
+            <option value="temporarily-unavailable">{T.status['temporarily-unavailable']}</option>
           </select>
         </div>
       </div>
       <fieldset class="filters__skills">
-        <legend>Experience with</legend>
-        <label class="check"><input type="checkbox" name="childcare" /> Childcare</label>
-        <label class="check"><input type="checkbox" name="elderly" /> Elderly care</label>
-        <label class="check"><input type="checkbox" name="cooking" /> Cooking</label>
-        <label class="check"><input type="checkbox" name="housekeeping" /> Housekeeping</label>
-        <button class="link-btn" type="reset">Clear filters</button>
+        <legend>{D.experienceWith}</legend>
+        <label class="check"><input type="checkbox" name="childcare" /> {T.skill.childcare}</label>
+        <label class="check"><input type="checkbox" name="elderly" /> {T.skill.elderlyCare}</label>
+        <label class="check"><input type="checkbox" name="cooking" /> {T.skill.cooking}</label>
+        <label class="check"><input type="checkbox" name="housekeeping" /> {T.skill.housekeeping}</label>
+        <button class="link-btn" type="reset">{D.clear}</button>
       </fieldset>
     </form>
 
-    <p class="directory__count" aria-live="polite" data-count>{maids.length} profile{maids.length === 1 ? '' : 's'}</p>
+    <p class="directory__count" aria-live="polite" data-count>{count}</p>
 
     <div class="maid-grid" data-grid>
-      {maids.map((m) => <MaidCard maid={m} />)}
+      {maids.map((m) => <MaidCard maid={m} lang={lang} />)}
     </div>
 
     <div class="empty-state empty-state--inline" data-no-results hidden>
-      <h2>No profiles match these filters</h2>
-      <p>Try removing a filter, or tell us what you need. We may have suitable candidates who are not listed online yet.</p>
-      <a class="btn btn--wa" href={whatsappLink(waMessage)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> WhatsApp our consultant</a>
+      <h2>{D.noMatchTitle}</h2>
+      <p>{D.noMatchText}</p>
+      <a class="btn btn--wa" href={whatsappLink(wa)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> {T.btn.whatsappConsultant}</a>
     </div>
 
-    <nav class="pagination" aria-label="Profile pages" data-pagination hidden></nav>
+    <nav class="pagination" aria-label={D.pagesLabel} data-pagination hidden></nav>
   </div>
 )}
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-directory]').forEach((root) => {
+    const L = JSON.parse(root.dataset.i18n || '{}');
     const form = root.querySelector<HTMLFormElement>('[data-filters]')!;
     const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-maid]'));
     const count = root.querySelector<HTMLElement>('[data-count]')!;
@@ -96,7 +105,7 @@ const { maids, nationality, waMessage = WA.home, pageSize = 12 } = Astro.props;
     const size = Number(root.dataset.pageSize) || 12;
     let page = 1;
 
-    const val = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null);
+    const val = (n: string) => form.elements.namedItem(n) as HTMLInputElement | null;
 
     function matches(c: HTMLElement) {
       const d = c.dataset;
@@ -119,7 +128,8 @@ const { maids, nationality, waMessage = WA.home, pageSize = 12 } = Astro.props;
       page = Math.min(page, pages);
       cards.forEach((c) => (c.hidden = true));
       hits.slice((page - 1) * size, page * size).forEach((c) => (c.hidden = false));
-      count.textContent = `${hits.length} profile${hits.length === 1 ? '' : 's'}${pages > 1 ? ` · page ${page} of ${pages}` : ''}`;
+      const pageText = pages > 1 ? ` · ${String(L.pageOf).replace('999', String(page)).replace('888', String(pages))}` : '';
+      count.textContent = `${hits.length} ${hits.length === 1 ? L.profile : L.profiles}${pageText}`;
       empty.hidden = hits.length > 0;
       pager.hidden = pages < 2;
       pager.innerHTML = '';
@@ -134,9 +144,9 @@ const { maids, nationality, waMessage = WA.home, pageSize = 12 } = Astro.props;
           b.addEventListener('click', () => { page = p; render(true); });
           pager.appendChild(b);
         };
-        mk('‹ Prev', page - 1, { disabled: page === 1, aria: 'Previous page' });
-        for (let p = 1; p <= pages; p++) mk(String(p), p, { current: p === page, aria: `Page ${p}` });
-        mk('Next ›', page + 1, { disabled: page === pages, aria: 'Next page' });
+        mk(L.prev, page - 1, { disabled: page === 1, aria: L.prevLabel });
+        for (let p = 1; p <= pages; p++) mk(String(p), p, { current: p === page, aria: `${L.pageLabel} ${p}` });
+        mk(L.next, page + 1, { disabled: page === pages, aria: L.nextLabel });
       }
       if (scroll) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

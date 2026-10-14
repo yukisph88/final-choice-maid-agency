@@ -8,7 +8,36 @@ accurate structured data, fast mobile pages. No keyword stuffing, no doorway pag
 > competitors structure their sites). Validate with Google Search Console data after launch, or with Google
 > Keyword Planner (free with a Google Ads account).
 
-## Keyword-to-page map
+## Bilingual structure (English + Bahasa Melayu)
+
+| | English | Bahasa Melayu |
+|---|---|---|
+| URL prefix | `/en/` | `/ms/` |
+| `<html lang>` / `og:locale` | `en-MY` / `en_MY` | `ms-MY` / `ms_MY` |
+| Canonical | self-referencing | self-referencing (never canonicalised to English) |
+| hreflang | `en-MY`, `ms-MY`, `x-default` (→ English) on every page that exists in both languages | same |
+| Sitemap | every URL listed with `xhtml:link` alternates | same |
+
+- The root address `/` is a small language entry page (`noindex`). It opens the language the visitor chose before with the
+  EN | BM switch (saved in their browser), otherwise English. It **never** redirects based on browser language or user agent,
+  so Google always sees the same behaviour.
+- Localised slugs, e.g. `/en/maids/indonesian-maids/` ↔ `/ms/pembantu-rumah/indonesia/`,
+  `/en/maid-hiring-process/` ↔ `/ms/proses-pengambilan-pembantu-rumah/`. The full map is `src/i18n/routes.ts`.
+- `npm run test:site` fails the build if any hreflang is not reciprocal, a canonical is not self-referencing, or `<html lang>` does not match the URL.
+
+## Bahasa Melayu keyword-to-page map
+
+| Keyword | Landing page |
+|---|---|
+| agensi pembantu rumah Malaysia, cari pembantu rumah | `/ms/` and `/ms/pembantu-rumah/` |
+| agensi pembantu rumah Indonesia, pembantu rumah Indonesia | `/ms/pembantu-rumah/indonesia/` |
+| agensi pembantu rumah Filipina, pembantu rumah Filipina | `/ms/pembantu-rumah/filipina/` |
+| pembantu rumah untuk jaga orang tua | `/ms/perkhidmatan/pembantu-rumah-jaga-orang-tua/` (+ `/ms/blog/memilih-pembantu-rumah-jaga-orang-tua/`) |
+| pembantu rumah jaga anak | `/ms/perkhidmatan/pembantu-rumah-jaga-anak/` |
+| perkhidmatan pembantu rumah | `/ms/perkhidmatan/` |
+| permohonan pembantu rumah Malaysia | `/ms/proses-pengambilan-pembantu-rumah/` (+ `/ms/blog/cara-mengambil-pembantu-rumah-di-malaysia/`) |
+
+## English keyword-to-page map (paths below are under `/en/`)
 
 | Keyword(s) | Search intent | Competition | Opportunity | Landing page | Conversion potential |
 |---|---|---|---|---|---|
@@ -64,7 +93,7 @@ After deployment, test the homepage and an article at <https://search.google.com
    - Add property → **Domain** (verify with a DNS TXT record at your domain registrar), or **URL prefix** (verify by
      pasting the HTML-tag code into `seo.googleSiteVerification` in `site.yaml`).
    - Sitemaps → submit `sitemap.xml`.
-   - URL Inspection → request indexing for `/`, `/maids/indonesian-maids/`, `/maids/filipino-maids/`, `/maid-packages/`.
+   - URL Inspection → request indexing for `/en/`, `/ms/`, `/en/maids/indonesian-maids/`, `/ms/pembantu-rumah/indonesia/`, `/en/maid-packages/`, `/ms/pakej-pembantu-rumah/`.
 4. **Google Business Profile** (free, the most important step for "maid agency near me"): <https://business.google.com>
    - Category: *Employment agency*. Name exactly `Agensi Pekerjaan Final Choice Sdn Bhd` (or the trading name used on signage).
    - Address and phone **identical** to the website footer (consistent NAP).
@@ -78,12 +107,10 @@ After deployment, test the homepage and an article at <https://search.google.com
 Targets: LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1. Measure after deployment with PageSpeed Insights
 (<https://pagespeed.web.dev/>) for mobile, and monitor the Core Web Vitals report in Search Console once there is traffic.
 
-## Internationalisation (future)
+## Adding another language later (e.g. Simplified Chinese)
 
-The site is English (`en-MY`). To add Bahasa Malaysia or Simplified Chinese:
-- Create translated pages under `src/pages/ms/` or `src/pages/zh/` (genuine translations, not machine-only).
-- Add `<link rel="alternate" hreflang="…">` pairs only between pages that are true translations, plus `x-default`.
-- Add the new URLs to the sitemap. Do not mix languages on one page.
+Add `'zh'` to `LANGS` in `src/i18n/routes.ts` with its slugs, add a `zh` block to `src/i18n/ui.ts`, and add `zh` content
+to each view. hreflang, the sitemap and the switcher pick it up automatically. Use genuine translations only.
 
 ## Editorial plan
 

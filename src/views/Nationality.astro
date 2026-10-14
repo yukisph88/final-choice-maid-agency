@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import MaidDirectory from '../components/MaidDirectory.astro';
+import PackageCards from '../components/PackageCards.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href, whatsappLink } from '../lib/urls';
+import { getPublicMaids, DEMO } from '../lib/maids';
+import { serviceSchema } from '../lib/schema';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang; nationality: 'indonesian' | 'filipino' }
+const { lang, nationality } = Astro.props;
+const T = t(lang);
+const key = nationality;
+const maids = (await getPublicMaids()).filter((m) => m.nationality === nationality);
+const wa = T.wa[nationality];
+const post = (en: string, ms: string) => href(withLang(lang, postPath(lang, lang === 'ms' ? ms : en)));
+
+type Content = {
+  title: string; description: string; eyebrow: string; h1: string; lead: string; cta: string; profilesH: string;
+  whyH: string; why: string[]; subH: string; sub: string; howH: string; how: string; steps: string[];
+  pkgH: string; pkgP: string; related: { label: string; href: string }[]; ctaH: string; serviceName: string;
+};
+
+const CONTENT: Record<'indonesian' | 'filipino', Record<Lang, Content>> = {
+  indonesian: {
+    en: {
+      title: 'Indonesian Maid Agency Malaysia | Hire Indonesian Maid | Final Choice',
+      description: 'Hire an Indonesian maid in Malaysia with Final Choice. Browse Indonesian domestic helper biodata, arrange interviews and get guidance on documents and placement.',
+      eyebrow: 'Indonesian maid Malaysia', h1: 'Hire an Indonesian maid in Malaysia',
+      lead: 'Indonesian domestic helpers are a long-standing choice for Malaysian families. Final Choice helps you find a suitable candidate, interview her and complete the placement process step by step.',
+      cta: 'Enquire about an Indonesian maid', profilesH: 'Indonesian domestic helper profiles',
+      whyH: 'Why families choose Indonesian helpers',
+      why: [
+        'Many Indonesian helpers speak Bahasa Indonesia, which is close to Bahasa Malaysia, so day-to-day communication is often straightforward for Malaysian households. Food culture is also familiar, and many candidates are comfortable preparing Malaysian home-style meals or learning your family’s recipes.',
+        'Indonesian candidates come with a wide range of backgrounds — from first-time helpers who have completed training to experienced helpers who have worked in Malaysia or elsewhere before. We help you weigh experience against your actual needs, such as caring for a newborn, supporting an elderly parent or running a busy home.',
+      ],
+      subH: 'Religion and household considerations',
+      sub: 'Tell us about religious and dietary practices in your home. Muslim employers are generally required to hire Muslim helpers, and many families also have preferences about cooking pork or caring for pets. Sharing these early helps us recommend the right candidates.',
+      howH: 'How Indonesian maid recruitment works',
+      how: 'Recruitment of Indonesian domestic workers follows the procedures agreed between the governments of Malaysia and Indonesia, which include checks on the employer and an employment contract that sets out salary, rest days and other working conditions. These procedures can change, so we confirm the current requirements with you at the start.',
+      steps: ['Share your requirements and review suitable biodata', 'Interview your shortlisted candidate', 'Prepare your documents and the employment contract', 'Application and approvals by the relevant authorities', 'Arrival, FOMEMA medical examination and orientation', 'Handover and after-placement support'],
+      pkgH: 'Indonesian maid packages', pkgP: 'Compare Premium, Platinum and Diamond for Indonesian helpers. WhatsApp us for a confirmed quotation.',
+      related: [
+        { label: 'Filipino maids', href: href(path(lang, 'filipino')) },
+        { label: 'Indonesian vs Filipino maid', href: post('indonesian-maid-vs-filipino-maid', 'pembantu-rumah-indonesia-atau-filipina') },
+        { label: 'Elderly care maid', href: href(path(lang, 'elderly')) },
+        { label: 'Frequently asked questions', href: href(path(lang, 'faq')) },
+      ],
+      ctaH: 'Looking for an Indonesian helper?', serviceName: 'Indonesian domestic helper recruitment',
+    },
+    ms: {
+      title: 'Agensi Pembantu Rumah Indonesia di Malaysia | Final Choice',
+      description: 'Dapatkan pembantu rumah Indonesia di Malaysia bersama Final Choice. Lihat biodata, atur temu duga dan dapatkan panduan dokumen serta penempatan.',
+      eyebrow: 'Agensi pembantu rumah Indonesia', h1: 'Pembantu rumah Indonesia untuk keluarga di Malaysia',
+      lead: 'Pembantu rumah Indonesia telah lama menjadi pilihan keluarga di Malaysia. Final Choice membantu anda mencari calon yang sesuai, menemu duganya dan melengkapkan proses penempatan langkah demi langkah.',
+      cta: 'Tanya tentang pembantu Indonesia', profilesH: 'Profil pembantu rumah Indonesia',
+      whyH: 'Kenapa keluarga memilih pembantu rumah Indonesia',
+      why: [
+        'Ramai pembantu rumah Indonesia bertutur dalam Bahasa Indonesia yang hampir sama dengan Bahasa Melayu, jadi komunikasi harian biasanya mudah bagi keluarga di Malaysia. Budaya makanan juga hampir serupa, dan ramai calon selesa memasak hidangan rumah ala Malaysia atau mempelajari resipi keluarga anda.',
+        'Calon dari Indonesia datang dengan pelbagai latar belakang — daripada pembantu kali pertama yang telah menjalani latihan hingga pembantu berpengalaman yang pernah bekerja di Malaysia atau negara lain. Kami membantu anda menilai pengalaman berbanding keperluan sebenar, seperti menjaga bayi, menjaga ibu bapa yang berusia atau menguruskan rumah yang sibuk.',
+      ],
+      subH: 'Agama dan keperluan keluarga',
+      sub: 'Beritahu kami tentang amalan agama dan pemakanan di rumah anda. Majikan beragama Islam secara amnya perlu mengambil pembantu rumah beragama Islam, dan ramai keluarga juga mempunyai pilihan tersendiri tentang memasak daging babi atau menjaga haiwan peliharaan. Maklumat ini membantu kami mencadangkan calon yang tepat.',
+      howH: 'Bagaimana pengambilan pembantu rumah Indonesia dijalankan',
+      how: 'Pengambilan pekerja domestik Indonesia mengikut prosedur yang dipersetujui antara kerajaan Malaysia dan Indonesia, termasuk semakan ke atas majikan dan kontrak pekerjaan yang menetapkan gaji, hari rehat dan syarat kerja lain. Prosedur ini boleh berubah, jadi kami akan mengesahkan keperluan semasa bersama anda pada peringkat awal.',
+      steps: ['Kongsikan keperluan anda dan semak biodata yang sesuai', 'Temu duga calon pilihan anda', 'Sediakan dokumen dan kontrak pekerjaan', 'Permohonan dan kelulusan oleh pihak berkuasa berkaitan', 'Ketibaan, pemeriksaan perubatan FOMEMA dan orientasi', 'Penyerahan dan sokongan selepas penempatan'],
+      pkgH: 'Pakej pembantu rumah Indonesia', pkgP: 'Bandingkan pakej Premium, Platinum dan Diamond untuk pembantu rumah Indonesia. WhatsApp kami untuk sebut harga yang disahkan.',
+      related: [
+        { label: 'Pembantu rumah Filipina', href: href(path(lang, 'filipino')) },
+        { label: 'Pembantu Indonesia atau Filipina?', href: post('indonesian-maid-vs-filipino-maid', 'pembantu-rumah-indonesia-atau-filipina') },
+        { label: 'Pembantu rumah jaga orang tua', href: href(path(lang, 'elderly')) },
+        { label: 'Soalan lazim', href: href(path(lang, 'faq')) },
+      ],
+      ctaH: 'Mencari pembantu rumah Indonesia?', serviceName: 'Pengambilan pembantu rumah Indonesia',
+    },
+  },
+  filipino: {
+    en: {
+      title: 'Filipino Maid Agency Malaysia | Hire a Filipino Maid | Final Choice',
+      description: 'Hire a Filipino maid in Malaysia with Final Choice. Browse Filipino domestic helper biodata, interview candidates and get guidance on Philippine documentation.',
+      eyebrow: 'Filipino maid Malaysia', h1: 'Hire a Filipino maid in Malaysia',
+      lead: 'Filipino domestic helpers are valued by many Malaysian families for their English communication and caregiving experience. We help you choose, interview and place the right helper.',
+      cta: 'Enquire about a Filipino maid', profilesH: 'Filipino domestic helper profiles',
+      whyH: 'Why families choose Filipino helpers',
+      why: [
+        'English is widely spoken in the Philippines, so many Filipino helpers communicate comfortably in English. This can be helpful for families who speak English at home, for children’s routines and homework, and for following written care instructions for an elderly family member.',
+        'Many candidates have worked as domestic helpers or caregivers in other countries before. Experience varies from person to person, so we look closely at each candidate’s actual duties — for example, whether she has cared for infants, assisted an elderly person with mobility, or cooked daily family meals.',
+      ],
+      subH: 'What to discuss with us',
+      sub: 'Tell us the ages of your children or the care needs of elderly family members, the size of your home, and whether you have pets. We will also explain the salary and rest-day arrangements that apply to Filipino helpers.',
+      howH: 'How Filipino maid recruitment works',
+      how: 'Filipino domestic workers are deployed under Philippine government rules in addition to Malaysian requirements. These typically include an employment contract verified by the Philippine authorities in Malaysia and the helper’s own pre-departure documentation in the Philippines. Requirements are updated from time to time, so we confirm the current checklist with you at the start.',
+      steps: ['Share your requirements and review suitable biodata', 'Interview your shortlisted candidate', 'Prepare your documents and the employment contract', 'Contract verification and approvals', 'Helper’s departure processing, travel and arrival', 'FOMEMA medical examination, orientation and handover'],
+      pkgH: 'Filipino maid packages', pkgP: 'Compare Premium, Platinum and Diamond for Filipino helpers. Inclusions are confirmed by our consultant with your quotation.',
+      related: [
+        { label: 'Indonesian maids', href: href(path(lang, 'indonesian')) },
+        { label: 'Childcare maid', href: href(path(lang, 'childcare')) },
+        { label: 'How to interview a helper', href: post('how-to-interview-a-domestic-helper', 'cara-temu-duga-pembantu-rumah') },
+        { label: 'Frequently asked questions', href: href(path(lang, 'faq')) },
+      ],
+      ctaH: 'Looking for a Filipino helper?', serviceName: 'Filipino domestic helper recruitment',
+    },
+    ms: {
+      title: 'Agensi Pembantu Rumah Filipina di Malaysia | Final Choice',
+      description: 'Dapatkan pembantu rumah Filipina di Malaysia bersama Final Choice. Lihat biodata, temu duga calon dan dapatkan panduan dokumen yang diperlukan oleh Filipina.',
+      eyebrow: 'Agensi pembantu rumah Filipina', h1: 'Pembantu rumah Filipina untuk keluarga di Malaysia',
+      lead: 'Pembantu rumah Filipina dihargai oleh ramai keluarga di Malaysia kerana kebolehan berbahasa Inggeris dan pengalaman menjaga. Kami membantu anda memilih, menemu duga dan menempatkan pembantu yang sesuai.',
+      cta: 'Tanya tentang pembantu Filipina', profilesH: 'Profil pembantu rumah Filipina',
+      whyH: 'Kenapa keluarga memilih pembantu rumah Filipina',
+      why: [
+        'Bahasa Inggeris dituturkan secara meluas di Filipina, jadi ramai pembantu rumah Filipina selesa berkomunikasi dalam Bahasa Inggeris. Ini membantu keluarga yang bertutur dalam Bahasa Inggeris di rumah, untuk rutin dan kerja sekolah anak-anak, serta untuk mengikut arahan penjagaan bertulis bagi ahli keluarga warga emas.',
+        'Ramai calon pernah bekerja sebagai pembantu rumah atau penjaga di negara lain. Pengalaman setiap orang berbeza, jadi kami meneliti tugas sebenar setiap calon — contohnya sama ada dia pernah menjaga bayi, membantu warga emas bergerak, atau memasak hidangan keluarga setiap hari.',
+      ],
+      subH: 'Perkara untuk dibincangkan bersama kami',
+      sub: 'Beritahu kami umur anak-anak atau keperluan penjagaan ahli keluarga warga emas, saiz rumah anda, dan sama ada anda mempunyai haiwan peliharaan. Kami juga akan menerangkan gaji dan hari rehat yang terpakai untuk pembantu rumah Filipina.',
+      howH: 'Bagaimana pengambilan pembantu rumah Filipina dijalankan',
+      how: 'Pekerja domestik Filipina ditempatkan mengikut peraturan kerajaan Filipina di samping keperluan Malaysia. Ini biasanya termasuk kontrak pekerjaan yang disahkan oleh pihak berkuasa Filipina di Malaysia serta dokumen pra-pemergian pembantu di Filipina. Keperluan dikemas kini dari semasa ke semasa, jadi kami akan mengesahkan senarai semak terkini bersama anda pada peringkat awal.',
+      steps: ['Kongsikan keperluan anda dan semak biodata yang sesuai', 'Temu duga calon pilihan anda', 'Sediakan dokumen dan kontrak pekerjaan', 'Pengesahan kontrak dan kelulusan', 'Urusan pemergian, perjalanan dan ketibaan pembantu', 'Pemeriksaan perubatan FOMEMA, orientasi dan penyerahan'],
+      pkgH: 'Pakej pembantu rumah Filipina', pkgP: 'Bandingkan pakej Premium, Platinum dan Diamond untuk pembantu rumah Filipina. Kandungan pakej akan disahkan oleh perunding kami bersama sebut harga anda.',
+      related: [
+        { label: 'Pembantu rumah Indonesia', href: href(path(lang, 'indonesian')) },
+        { label: 'Pembantu rumah jaga anak', href: href(path(lang, 'childcare')) },
+        { label: 'Cara menemu duga pembantu rumah', href: post('how-to-interview-a-domestic-helper', 'cara-temu-duga-pembantu-rumah') },
+        { label: 'Soalan lazim', href: href(path(lang, 'faq')) },
+      ],
+      ctaH: 'Mencari pembantu rumah Filipina?', serviceName: 'Pengambilan pembantu rumah Filipina',
+    },
+  },
+};
+const C = CONTENT[nationality][lang];
+const pagePath = path(lang, key);
+const docsHref = post('documents-needed-to-hire-a-domestic-helper', 'dokumen-untuk-mengambil-pembantu-rumah');
+const compareHref = post('indonesian-maid-vs-filipino-maid', 'pembantu-rumah-indonesia-atau-filipina');
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={pagePath} alternates={routeAlternates(key)}
+  crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }, { name: T.crumb[key], path: pagePath }]}
+  waMessage={wa} noindex={DEMO}
+  schema={[serviceSchema({ name: C.serviceName, description: C.description, path: pagePath, lang })]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead}>
+    <div class="btn-row">
+      <a class="btn btn--wa btn--lg" href={whatsappLink(wa)} target="_blank" rel="noopener" data-track={`${key}_hero`}><Icon name="whatsapp" size={20} /> {C.cta}</a>
+      <a class="btn btn--outline btn--lg" href="#profiles">{T.btn.seeProfiles}</a>
+    </div>
+  </PageHero>
+
+  <section class="section section--tight" id="profiles" aria-labelledby="p-h">
+    <div class="container">
+      <h2 id="p-h">{C.profilesH}</h2>
+      <MaidDirectory maids={maids} lang={lang} nationality={nationality} waMessage={wa} />
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container split" style="align-items:start">
+      <div class="prose">
+        <h2>{C.whyH}</h2>
+        {C.why.map((x) => <p>{x}</p>)}
+        <h3>{C.subH}</h3>
+        <p>{C.sub}</p>
+      </div>
+      <div class="prose">
+        <h2>{C.howH}</h2>
+        <p>{C.how}</p>
+        <ol>{C.steps.map((s) => <li>{s}</li>)}</ol>
+        <p><a href={href(path(lang, 'process'))}>{T.footer.process}</a> · <a href={nationality === 'indonesian' ? docsHref : compareHref}>{nationality === 'indonesian' ? (lang === 'ms' ? 'Dokumen yang mungkin diperlukan' : 'Documents you may need') : (lang === 'ms' ? 'Pembantu Indonesia atau Filipina?' : 'Indonesian vs Filipino maid')}</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pk-h">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <h2 id="pk-h">{C.pkgH}</h2>
+        <p>{C.pkgP}</p>
+      </div>
+      <PackageCards lang={lang} only={nationality} id={`${key}-packages`} />
+    </div>
+  </section>
+
+  <section class="section section--tint section--tight">
+    <div class="container">
+      <h2 style="font-size:1.4rem">{lang === 'ms' ? 'Halaman berkaitan' : 'Related pages'}</h2>
+      <ul class="related-links">
+        {C.related.map((r) => <li><a href={r.href}>{r.label} <Icon name="arrow" size={16} /></a></li>)}
+      </ul>
+    </div>
+  </section>
+  <CtaBand lang={lang} title={C.ctaH} message={wa} />
+</BaseLayout>

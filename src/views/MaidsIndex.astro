@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import MaidDirectory from '../components/MaidDirectory.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/urls';
+import { getPublicMaids, DEMO } from '../lib/maids';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const maids = await getPublicMaids();
+const C = {
+  en: {
+    title: 'Maid Biodata Malaysia | Browse Domestic Helper Profiles | Final Choice',
+    description: 'Browse published Indonesian and Filipino domestic helper biodata. Filter by experience in childcare, elderly care, cooking and housekeeping, then request an interview.',
+    eyebrow: 'Find a maid', h1: 'Browse domestic helper biodata',
+    lead: 'Profiles of Indonesian and Filipino domestic helpers who have agreed to have their biodata published. Filter by experience, then request an interview with the candidates you like.',
+    idH: 'Indonesian maids', idP: 'How Indonesian helper recruitment works, typical strengths, and profiles currently published.', idL: 'Explore Indonesian helpers',
+    phH: 'Filipino maids', phP: 'How Filipino helper recruitment works, typical strengths, and profiles currently published.', phL: 'Explore Filipino helpers',
+  },
+  ms: {
+    title: 'Cari Pembantu Rumah | Biodata Pembantu Rumah Malaysia | Final Choice',
+    description: 'Cari pembantu rumah Indonesia dan Filipina. Tapis biodata mengikut pengalaman jaga anak, jaga orang tua, memasak dan kerja rumah, kemudian mohon temu duga.',
+    eyebrow: 'Cari pembantu rumah', h1: 'Lihat biodata pembantu rumah',
+    lead: 'Profil pembantu rumah Indonesia dan Filipina yang telah bersetuju biodata mereka disiarkan. Tapis mengikut pengalaman, kemudian mohon temu duga dengan calon pilihan anda.',
+    idH: 'Pembantu rumah Indonesia', idP: 'Cara pengambilan pembantu rumah Indonesia, kelebihan biasa, dan profil yang sedang disiarkan.', idL: 'Lihat pembantu Indonesia',
+    phH: 'Pembantu rumah Filipina', phP: 'Cara pengambilan pembantu rumah Filipina, kelebihan biasa, dan profil yang sedang disiarkan.', phL: 'Lihat pembantu Filipina',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'maids')} alternates={routeAlternates('maids')}
+  crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }]} noindex={DEMO}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section section--tight">
+    <div class="container">
+      <MaidDirectory maids={maids} lang={lang} />
+      <div class="callout" style="margin-top:32px">
+        <Icon name="clock" size={20} />
+        <p>{T.dir.availabilityNote}</p>
+      </div>
+    </div>
+  </section>
+  <section class="section section--tint section--tight">
+    <div class="container grid grid--2">
+      <a class="card card--link" href={href(path(lang, 'indonesian'))} style="text-decoration:none;color:inherit">
+        <h2 style="font-size:1.3rem">{C.idH}</h2>
+        <p class="muted">{C.idP}</p>
+        <span class="card__more">{C.idL} <Icon name="arrow" size={18} /></span>
+      </a>
+      <a class="card card--link" href={href(path(lang, 'filipino'))} style="text-decoration:none;color:inherit">
+        <h2 style="font-size:1.3rem">{C.phH}</h2>
+        <p class="muted">{C.phP}</p>
+        <span class="card__more">{C.phL} <Icon name="arrow" size={18} /></span>
+      </a>
+    </div>
+  </section>
+  <CtaBand lang={lang} />
+</BaseLayout>

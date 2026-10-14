@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import MaidCard from '../components/MaidCard.astro';
+import { asset, href, whatsappLink, telLink } from '../lib/urls';
+import { site } from '../lib/config';
+import { DEMO, languageName, countryName, type Maid } from '../lib/maids';
+import { path, profilePath, withLang, type Lang } from '../i18n/routes';
+import { t, formatDate } from '../i18n/ui';
+
+interface Props { lang: Lang; maid: Maid; all: Maid[] }
+const { lang, maid: m, all } = Astro.props;
+const T = t(lang);
+const P = T.profile;
+const ms = lang === 'ms';
+const nat = T.nationality[m.nationality];
+const catKey = m.nationality === 'indonesian' ? 'indonesian' : 'filipino';
+const skills = (Object.keys(m.skills) as (keyof Maid['skills'])[]).filter((k) => m.skills[k] !== 'none');
+const related = all.filter((x) => x.slug !== m.slug && x.nationality === m.nationality && x.status === 'available').slice(0, 3);
+const skillList = skills.slice(0, 3).map((k) => T.skill[k].toLowerCase()).join(', ');
+const title = ms
+  ? `Pembantu Rumah ${nat} ${m.code} – ${m.experienceYears === 0 ? 'Pembantu Baharu' : `Pengalaman ${m.experienceYears} Tahun`} | Final Choice`
+  : `${nat} Maid ${m.code} – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`} | Final Choice`;
+const description = (ms
+  ? `Biodata pembantu rumah ${nat} ${m.code}: ${m.experienceYears === 0 ? 'pembantu baharu' : `${m.experienceYears} tahun pengalaman`}${skillList ? `, kemahiran ${skillList}` : ''}. Mohon temu duga bersama Final Choice.`
+  : `Biodata of ${nat.toLowerCase()} domestic helper ${m.code}: ${m.experienceYears === 0 ? 'new helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'} of experience`}${skillList ? `, skills in ${skillList}` : ''}. Request an interview with Final Choice.`
+).slice(0, 165);
+// Approved BM summary if staff provided one; otherwise the English summary with a clear note (never machine-invented).
+const summary = ms && m.summary_ms ? m.summary_ms : m.summary;
+const summaryIsEnglishFallback = ms && !m.summary_ms && Boolean(m.summary);
+const paragraphs = summary.split(/\n\s*\n/).filter(Boolean);
+const pagePath = withLang(lang, profilePath(lang, m.slug));
+const alternates = { en: withLang('en', profilePath('en', m.slug)), ms: withLang('ms', profilePath('ms', m.slug)) };
+const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms : m.interviewAvailability;
+---
+<BaseLayout lang={lang} title={title} description={description} path={pagePath} alternates={alternates}
+  crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }, { name: T.crumb[catKey], path: path(lang, catKey) }, { name: m.code, path: pagePath }]}
+  waMessage={T.wa.profile(m.code)} noindex={DEMO}>
+  <section class="section section--tight">
+    <div class="container profile">
+      <aside class="profile__aside">
+        <div class="profile__photo">
+          {m.photo ? (
+            <img src={asset(m.photo)} alt={P.photoAlt(m.code)} width="720" height="900" fetchpriority="high" />
+          ) : (
+            <span class="maid-card__placeholder"><Icon name="users" size={64} /><span>{T.card.photoOnRequest}</span></span>
+          )}
+          {m.demo && <span class="demo-ribbon">{T.card.demo}</span>}
+        </div>
+        <div class="card">
+          <p style="margin-bottom:8px"><span class={`status status--${m.status}`}>{T.status[m.status]}</span></p>
+          <p class="muted" style="font-size:.9rem">{P.recorded(formatDate(m.statusUpdated, lang))}</p>
+          <div style="display:grid;gap:10px">
+            <a class="btn btn--wa btn--block" href={whatsappLink(T.wa.interview(m.code))} target="_blank" rel="noopener" data-track={`profile_interview_${m.code}`}><Icon name="whatsapp" size={18} /> {T.btn.requestInterview}</a>
+            <a class="btn btn--outline btn--block" href={whatsappLink(T.wa.profile(m.code))} target="_blank" rel="noopener" data-track={`profile_enquire_${m.code}`}>{T.btn.askAbout} {m.code}</a>
+            {m.biodataPdf && <a class="btn btn--outline btn--block" href={asset(m.biodataPdf)} download><Icon name="download" size={18} /> {T.btn.downloadBiodata}</a>}
+            <a class="btn btn--outline btn--block" href={telLink}><Icon name="phone" size={18} /> {T.btn.call} {site.contact.phoneDisplay}</a>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <p class="eyebrow">{ms ? `Pembantu rumah ${nat}` : `${nat} domestic helper`}</p>
+        <h1>{m.displayName ? `${m.displayName} — ` : ''}{P.reference} {m.code}</h1>
+        {paragraphs.map((x) => <p class="lead" lang={summaryIsEnglishFallback ? 'en-MY' : undefined}>{x}</p>)}
+        {summaryIsEnglishFallback && <p class="muted" style="font-size:.9rem">{P.summaryInEnglish}</p>}
+
+        <div class="card" style="margin:28px 0">
+          <h2 style="font-size:1.25rem">{P.details}</h2>
+          <dl class="facts">
+            <dt>{P.code}</dt><dd>{m.code}</dd>
+            <dt>{P.nationality}</dt><dd>{nat}</dd>
+            {m.publication.showAge && m.age && (<><dt>{T.card.age}</dt><dd>{m.age}</dd></>)}
+            {m.religion && (<><dt>{T.card.religion}</dt><dd>{m.religion}</dd></>)}
+            {m.maritalStatus && (<><dt>{P.maritalStatus}</dt><dd>{m.maritalStatus}</dd></>)}
+            <dt>{P.workExperience}</dt><dd>{m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` ${P.includingOverseas}` : ''}</dd>
+            {interview && (<><dt>{P.interview}</dt><dd>{interview}</dd></>)}
+          </dl>
+        </div>
+
+        {skills.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">{P.skills}</h2>
+            <table class="skill-table">
+              <thead><tr><th scope="col">{P.area}</th><th scope="col">{P.levelCol}</th></tr></thead>
+              <tbody>{skills.map((k) => <tr><td>{T.skill[k]}</td><td>{T.level[m.skills[k]]}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+
+        {m.employmentHistory.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">{P.history}</h2>
+            <table class="skill-table">
+              <thead><tr><th scope="col">{P.country}</th><th scope="col">{P.duration}</th><th scope="col">{P.duties}</th></tr></thead>
+              <tbody>{m.employmentHistory.map((e) => <tr><td>{countryName(e.country, lang)}</td><td>{e.duration}</td><td>{ms && e.duties_ms ? e.duties_ms : e.duties}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+
+        {m.languages.length > 0 && (
+          <div class="card" style="margin-bottom:28px">
+            <h2 style="font-size:1.25rem">{P.languages}</h2>
+            <ul class="chips">{m.languages.map((l) => <li>{languageName(l.language, lang)} · {T.langLevel[l.level]}</li>)}</ul>
+          </div>
+        )}
+
+        <div class="callout">
+          <Icon name="shield" size={20} />
+          <p>{P.declared}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section section--tint section--tight">
+      <div class="container">
+        <h2 style="font-size:1.5rem">{P.others(nat)}</h2>
+        <div class="maid-grid">{related.map((r) => <MaidCard maid={r} lang={lang} />)}</div>
+        <p style="margin-top:24px"><a class="card__more" href={href(path(lang, catKey))}>{P.allOf(nat)} <Icon name="arrow" size={18} /></a></p>
+      </div>
+    </section>
+  )}
+</BaseLayout>

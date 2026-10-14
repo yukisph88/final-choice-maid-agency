@@ -1,17 +1,28 @@
 ---
+// GitHub Pages serves this one file for every unknown address, in either language, so it is bilingual.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import { href } from '../lib/urls';
+import { path } from '../i18n/routes';
 ---
-<BaseLayout title="Page not found | Final Choice" description="The page you were looking for could not be found. Browse maid biodata or contact Final Choice." path="/404/" noindex>
+<BaseLayout lang="en" title="Page not found · Halaman tidak dijumpai | Final Choice" description="The page you were looking for could not be found. Halaman yang anda cari tidak dijumpai." path="/404/" noindex>
   <section class="section">
     <div class="container empty-state" style="border:0">
       <p class="eyebrow">Error 404</p>
       <h1>Page not found</h1>
       <p>The page may have moved, or a profile may no longer be available.</p>
       <div class="btn-row" style="justify-content:center">
-        <a class="btn btn--primary" href={href('/')}>Go to homepage</a>
-        <a class="btn btn--outline" href={href('/maids/')}>Browse maid biodata <Icon name="arrow" size={18} /></a>
+        <a class="btn btn--primary" href={href(path('en', 'home'))}>Go to homepage</a>
+        <a class="btn btn--outline" href={href(path('en', 'maids'))}>Browse maid biodata <Icon name="arrow" size={18} /></a>
+      </div>
+      <hr style="margin:32px auto;max-width:200px;border:0;border-top:1px solid var(--border)" />
+      <div lang="ms-MY">
+        <p class="h3-size" style="font-family:var(--font-head);font-weight:800;color:var(--navy)">Halaman tidak dijumpai</p>
+        <p>Halaman ini mungkin telah dipindahkan, atau profil tidak lagi tersedia.</p>
+        <div class="btn-row" style="justify-content:center">
+          <a class="btn btn--primary" href={href(path('ms', 'home'))}>Ke laman utama</a>
+          <a class="btn btn--outline" href={href(path('ms', 'maids'))}>Lihat biodata pembantu rumah <Icon name="arrow" size={18} /></a>
+        </div>
       </div>
     </div>
   </section>

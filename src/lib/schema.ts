@@ -2,11 +2,18 @@
 // No Review/AggregateRating (no verified reviews) and no JobPosting (these are not vacancies).
 import { site } from './config';
 import { absUrl, asset } from './urls';
+import { HTML_LANG, path, type Lang } from '../i18n/routes';
 
 const ORG_ID = () => absUrl('/#organization');
 const WEBSITE_ID = () => absUrl('/#website');
+const img = (p: string) => new URL(asset(p), import.meta.env.SITE).toString();
 
-export function organizationSchema() {
+const DESCRIPTION: Record<Lang, string> = {
+  en: 'Licensed Malaysian employment agency assisting employers with Indonesian and Filipino domestic helper recruitment, placement and permit renewal.',
+  ms: 'Agensi pekerjaan berlesen di Malaysia yang membantu majikan mengambil, menempatkan dan memperbaharui permit pembantu rumah Indonesia dan Filipina.',
+};
+
+export function organizationSchema(lang: Lang) {
   const c = site.company;
   const sameAs = Object.values(site.social).filter(Boolean);
   return {
@@ -15,11 +22,10 @@ export function organizationSchema() {
     '@id': ORG_ID(),
     name: c.brandName,
     legalName: c.legalName,
-    url: absUrl('/'),
-    logo: new URL(asset('images/logo-final-choice.png'), import.meta.env.SITE).toString(),
-    image: new URL(asset(site.seo.defaultOgImage), import.meta.env.SITE).toString(),
-    description:
-      'Licensed Malaysian employment agency assisting employers with Indonesian and Filipino domestic helper recruitment, placement and permit renewal.',
+    url: absUrl(path(lang, 'home')),
+    logo: img('images/logo-final-choice.png'),
+    image: img(site.seo.defaultOgImage),
+    description: DESCRIPTION[lang],
     telephone: `+${site.contact.whatsappNumber}`,
     email: c.email,
     address: {
@@ -31,25 +37,21 @@ export function organizationSchema() {
       addressCountry: c.address.country,
     },
     areaServed: c.serviceAreas.length ? c.serviceAreas.map((a) => ({ '@type': 'AdministrativeArea', name: a })) : { '@type': 'Country', name: 'Malaysia' },
-    openingHoursSpecification: c.hours.map((h) => ({
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: h.days,
-      opens: h.opens,
-      closes: h.closes,
-    })),
+    openingHoursSpecification: c.hours.map((h) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: h.days, opens: h.opens, closes: h.closes })),
     identifier: [{ '@type': 'PropertyValue', propertyID: 'SSM', value: c.registrationNo }],
+    knowsLanguage: ['en-MY', 'ms-MY'],
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
 
-export function websiteSchema() {
+export function websiteSchema(lang: Lang) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': WEBSITE_ID(),
     name: site.company.brandName,
-    url: absUrl('/'),
-    inLanguage: 'en-MY',
+    url: absUrl(path(lang, 'home')),
+    inLanguage: HTML_LANG[lang],
     publisher: { '@id': ORG_ID() },
   };
 }
@@ -64,7 +66,7 @@ export function breadcrumbSchema(crumbs: Crumb[]) {
   };
 }
 
-export function articleSchema(a: { title: string; description: string; path: string; published: Date; updated?: Date }) {
+export function articleSchema(a: { title: string; description: string; path: string; published: Date; updated?: Date; lang: Lang }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -73,20 +75,21 @@ export function articleSchema(a: { title: string; description: string; path: str
     mainEntityOfPage: absUrl(a.path),
     datePublished: a.published.toISOString(),
     dateModified: (a.updated ?? a.published).toISOString(),
-    author: { '@type': 'Organization', name: site.company.legalName, url: absUrl('/about-us/') },
+    author: { '@type': 'Organization', name: site.company.legalName, url: absUrl(path(a.lang, 'about')) },
     publisher: { '@id': ORG_ID() },
-    image: new URL(asset(site.seo.defaultOgImage), import.meta.env.SITE).toString(),
-    inLanguage: 'en-MY',
+    image: img(site.seo.defaultOgImage),
+    inLanguage: HTML_LANG[a.lang],
   };
 }
 
-export function serviceSchema(s: { name: string; description: string; path: string }) {
+export function serviceSchema(s: { name: string; description: string; path: string; lang: Lang }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: s.name,
     description: s.description,
     url: absUrl(s.path),
+    inLanguage: HTML_LANG[s.lang],
     provider: { '@id': ORG_ID() },
     areaServed: { '@type': 'Country', name: 'Malaysia' },
   };

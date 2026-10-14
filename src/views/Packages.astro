@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import PackageCards from '../components/PackageCards.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { href } from '../lib/urls';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const C = {
+  en: {
+    title: 'Maid Packages Malaysia | Premium, Platinum, Diamond | Final Choice',
+    description: 'Compare Final Choice Premium, Platinum and Diamond maid packages for Indonesian and Filipino helpers, with reference prices and a WhatsApp quotation.',
+    eyebrow: 'Maid packages', h1: 'Maid packages and reference prices',
+    lead: 'Three package levels for Indonesian and Filipino domestic helpers. Terms are set separately for each nationality — select one to compare, then request a confirmed quotation.',
+    beforeH: 'Before you choose a package',
+    before: ['Your consultant confirms the final price, inclusions and terms in writing before you commit.', 'Warranty and replacement arrangements apply according to your service agreement.', 'Government fees, levies, insurance and other statutory costs may apply. Ask us which are included in your quotation.', 'Package terms for Indonesian and Filipino helpers are different. Do not assume one applies to the other.'],
+    quoteH: 'What a quotation covers',
+    quoteP: 'When you WhatsApp us about a package, tell us your preferred nationality and your household’s needs. We will send a quotation that lists what is included, what is not, and the payment schedule, so you can compare clearly.',
+    links: ['See the hiring process', 'Read the FAQ'], ctaH: 'Get an accurate quotation', ctaP: 'WhatsApp our consultant with your preferred package and nationality.',
+  },
+  ms: {
+    title: 'Pakej Pembantu Rumah | Premium, Platinum, Diamond | Final Choice',
+    description: 'Bandingkan pakej pembantu rumah Premium, Platinum dan Diamond untuk pembantu Indonesia dan Filipina, dengan harga rujukan dan sebut harga melalui WhatsApp.',
+    eyebrow: 'Pakej pembantu rumah', h1: 'Pakej dan harga rujukan pembantu rumah',
+    lead: 'Tiga tahap pakej untuk pembantu rumah Indonesia dan Filipina. Terma ditetapkan secara berasingan bagi setiap warganegara — pilih satu untuk membandingkan, kemudian minta sebut harga yang disahkan.',
+    beforeH: 'Sebelum anda memilih pakej',
+    before: ['Perunding kami akan mengesahkan harga akhir, kandungan pakej dan terma secara bertulis sebelum anda membuat keputusan.', 'Waranti dan penggantian terpakai mengikut perjanjian perkhidmatan anda.', 'Yuran kerajaan, levi, insurans dan kos berkanun lain mungkin dikenakan. Tanya kami yang mana termasuk dalam sebut harga anda.', 'Terma pakej untuk pembantu rumah Indonesia dan Filipina adalah berbeza. Jangan anggap terma satu pakej terpakai untuk yang lain.'],
+    quoteH: 'Apa yang dinyatakan dalam sebut harga',
+    quoteP: 'Apabila anda WhatsApp kami tentang sesuatu pakej, beritahu warganegara pilihan dan keperluan keluarga anda. Kami akan menghantar sebut harga yang menyenaraikan perkara yang termasuk, yang tidak termasuk, dan jadual bayaran, supaya anda boleh membandingkan dengan jelas.',
+    links: ['Lihat proses pengambilan', 'Baca soalan lazim'], ctaH: 'Dapatkan sebut harga yang tepat', ctaP: 'WhatsApp perunding kami dengan pakej dan warganegara pilihan anda.',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'packages')} alternates={routeAlternates('packages')}
+  crumbs={[{ name: T.crumb.packages, path: path(lang, 'packages') }]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section"><div class="container"><PackageCards lang={lang} id="pkg-page" headingLevel="h2" /></div></section>
+  <section class="section section--tint">
+    <div class="container split" style="align-items:start">
+      <div class="prose"><h2>{C.beforeH}</h2><ul>{C.before.map((x) => <li>{x}</li>)}</ul></div>
+      <div class="prose">
+        <h2>{C.quoteH}</h2>
+        <p>{C.quoteP}</p>
+        <p><a href={href(path(lang, 'process'))}>{C.links[0]}</a> · <a href={href(path(lang, 'faq'))}>{C.links[1]}</a></p>
+      </div>
+    </div>
+  </section>
+  <CtaBand lang={lang} title={C.ctaH} text={C.ctaP} />
+</BaseLayout>

@@ -1,0 +1,60 @@
+---
+// Generates every page in English (/en/...) and Bahasa Melayu (/ms/...) at build time.
+// URLs come from src/i18n/routes.ts; page content lives in src/views/.
+import Home from '../../views/Home.astro';
+import MaidsIndex from '../../views/MaidsIndex.astro';
+import Nationality from '../../views/Nationality.astro';
+import Profile from '../../views/Profile.astro';
+import ServicesIndex from '../../views/ServicesIndex.astro';
+import ServiceDetail from '../../views/ServiceDetail.astro';
+import Process from '../../views/Process.astro';
+import Packages from '../../views/Packages.astro';
+import About from '../../views/About.astro';
+import Contact from '../../views/Contact.astro';
+import Faq from '../../views/Faq.astro';
+import BlogIndex from '../../views/BlogIndex.astro';
+import BlogPost from '../../views/BlogPost.astro';
+import Privacy from '../../views/Privacy.astro';
+import { LANGS, ROUTES, profilePath, postPath, otherLang, type Lang, type RouteKey } from '../../i18n/routes';
+import { getPublicMaids } from '../../lib/maids';
+import { getPosts, translationOf } from '../../lib/blog';
+
+export async function getStaticPaths() {
+  // Strip leading/trailing slashes for Astro's rest parameter ('' = language home).
+  const slugOf = (p: string) => p.replace(/^\/|\/$/g, '') || undefined;
+  const maids = await getPublicMaids();
+  const posts = await getPosts();
+  const paths: { params: { lang: Lang; slug: string | undefined }; props: Record<string, unknown> }[] = [];
+  for (const lang of LANGS) {
+    for (const key of Object.keys(ROUTES) as RouteKey[]) {
+      paths.push({ params: { lang, slug: slugOf(ROUTES[key][lang]) }, props: { view: key, lang } });
+    }
+    for (const maid of maids) {
+      paths.push({ params: { lang, slug: slugOf(profilePath(lang, maid.slug)) }, props: { view: 'profile', lang, maid, all: maids } });
+    }
+    for (const post of posts.filter((p) => p.lang === lang)) {
+      paths.push({ params: { lang, slug: slugOf(postPath(lang, post.slug)) }, props: { view: 'post', lang, post, translation: translationOf(posts, post, otherLang(lang)) } });
+    }
+  }
+  return paths;
+}
+
+const { view, lang, maid, all, post, translation } = Astro.props as any;
+---
+{view === 'home' && <Home lang={lang} />}
+{view === 'maids' && <MaidsIndex lang={lang} />}
+{view === 'indonesian' && <Nationality lang={lang} nationality="indonesian" />}
+{view === 'filipino' && <Nationality lang={lang} nationality="filipino" />}
+{view === 'profile' && <Profile lang={lang} maid={maid} all={all} />}
+{view === 'services' && <ServicesIndex lang={lang} />}
+{view === 'elderly' && <ServiceDetail lang={lang} service="elderly" />}
+{view === 'childcare' && <ServiceDetail lang={lang} service="childcare" />}
+{view === 'housekeeping' && <ServiceDetail lang={lang} service="housekeeping" />}
+{view === 'process' && <Process lang={lang} />}
+{view === 'packages' && <Packages lang={lang} />}
+{view === 'about' && <About lang={lang} />}
+{view === 'contact' && <Contact lang={lang} />}
+{view === 'faq' && <Faq lang={lang} />}
+{view === 'blog' && <BlogIndex lang={lang} />}
+{view === 'post' && <BlogPost lang={lang} post={post} translation={translation} />}
+{view === 'privacy' && <Privacy lang={lang} />}

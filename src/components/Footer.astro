@@ -1,7 +1,13 @@
 ---
 import Icon from './Icon.astro';
 import { site } from '../lib/config';
-import { href, asset, whatsappLink, telLink, WA } from '../lib/urls';
+import { href, asset, whatsappLink, telLink } from '../lib/urls';
+import { path, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const F = T.footer;
 const c = site.company;
 const year = new Date().getFullYear();
 const socials = [
@@ -9,11 +15,13 @@ const socials = [
   { key: 'instagram', label: 'Instagram', url: site.social.instagram },
   { key: 'tiktok', label: 'TikTok', url: site.social.tiktok },
 ].filter((s) => s.url);
+const hours = c.hours.map((h) => `${T.hours[h.label] ?? h.label}: ${h.opens}–${h.closes}`).join(' · ');
+const p = (k: Parameters<typeof path>[1], hash = '') => href(path(lang, k, hash));
 ---
 <footer class="site-footer">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
-      <a href={href('/')} class="footer-logo" aria-label="Final Choice — home">
+      <a href={p('home')} class="footer-logo" aria-label={`Final Choice — ${T.nav.home}`}>
         <picture>
           <source srcset={asset('images/logo-final-choice.webp')} type="image/webp" />
           <img src={asset('images/logo-final-choice.png')} alt="Agensi Pekerjaan Final Choice Sdn Bhd logo" width="720" height="537" loading="lazy" decoding="async" />
@@ -21,64 +29,64 @@ const socials = [
       </a>
       <p class="site-footer__legal">
         <strong>{c.legalName}</strong><br />
-        Company No. {c.registrationNo}<br />
-        Private Employment Agency Licence: {c.licence}
+        {F.companyNo} {c.registrationNo}<br />
+        {F.licence}: {c.licence}
       </p>
     </div>
 
     <div>
-      <h2 class="site-footer__h">Find a Maid</h2>
+      <h2 class="site-footer__h">{F.findMaid}</h2>
       <ul class="site-footer__links">
-        <li><a href={href('/maids/')}>All maid biodata</a></li>
-        <li><a href={href('/maids/indonesian-maids/')}>Indonesian maids</a></li>
-        <li><a href={href('/maids/filipino-maids/')}>Filipino maids</a></li>
-        <li><a href={href('/maid-packages/')}>Maid packages</a></li>
-        <li><a href={href('/maid-hiring-process/')}>Hiring process</a></li>
+        <li><a href={p('maids')}>{F.allBiodata}</a></li>
+        <li><a href={p('indonesian')}>{F.indonesian}</a></li>
+        <li><a href={p('filipino')}>{F.filipino}</a></li>
+        <li><a href={p('packages')}>{F.packages}</a></li>
+        <li><a href={p('process')}>{F.process}</a></li>
       </ul>
     </div>
 
     <div>
-      <h2 class="site-footer__h">Services</h2>
+      <h2 class="site-footer__h">{F.services}</h2>
       <ul class="site-footer__links">
-        <li><a href={href('/services/childcare-maid/')}>Childcare maid</a></li>
-        <li><a href={href('/services/elderly-care-maid/')}>Elderly care maid</a></li>
-        <li><a href={href('/services/housekeeping-maid/')}>Housekeeping maid</a></li>
-        <li><a href={href('/services/#permit-renewal')}>Permit &amp; contract renewal</a></li>
-        <li><a href={href('/services/')}>All services</a></li>
+        <li><a href={p('childcare')}>{F.childcare}</a></li>
+        <li><a href={p('elderly')}>{F.elderly}</a></li>
+        <li><a href={p('housekeeping')}>{F.housekeeping}</a></li>
+        <li><a href={p('services', 'permit-renewal')}>{F.renewal}</a></li>
+        <li><a href={p('services')}>{F.allServices}</a></li>
       </ul>
     </div>
 
     <div>
-      <h2 class="site-footer__h">Company</h2>
+      <h2 class="site-footer__h">{F.company}</h2>
       <ul class="site-footer__links">
-        <li><a href={href('/about-us/')}>About us</a></li>
-        <li><a href={href('/faq/')}>FAQ</a></li>
-        <li><a href={href('/blog/')}>Employer guides</a></li>
-        <li><a href={href('/contact/')}>Contact</a></li>
-        <li><a href={href('/privacy-policy/')}>Privacy policy</a></li>
+        <li><a href={p('about')}>{F.about}</a></li>
+        <li><a href={p('faq')}>{F.faq}</a></li>
+        <li><a href={p('blog')}>{F.guides}</a></li>
+        <li><a href={p('contact')}>{F.contactLink}</a></li>
+        <li><a href={p('privacy')}>{F.privacy}</a></li>
       </ul>
     </div>
 
     <div class="site-footer__contact">
-      <h2 class="site-footer__h">Contact</h2>
+      <h2 class="site-footer__h">{F.contact}</h2>
       <ul class="contact-list">
-        <li><Icon name="whatsapp" size={18} /><a href={whatsappLink(WA.home)} target="_blank" rel="noopener" data-track="whatsapp_footer">WhatsApp {site.contact.consultantName}: {site.contact.phoneDisplay}</a></li>
+        <li><Icon name="whatsapp" size={18} /><a href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="whatsapp_footer">WhatsApp {site.contact.consultantName}: {site.contact.phoneDisplay}</a></li>
         <li><Icon name="phone" size={18} /><a href={telLink} data-track="phone_footer">{site.contact.phoneDisplay}</a></li>
         <li><Icon name="mail" size={18} /><a href={`mailto:${c.email}`}>{c.email}</a></li>
         <li><Icon name="pin" size={18} /><a href={c.mapsUrl} target="_blank" rel="noopener">{c.address.street}, {c.address.postcode} {c.address.city}</a></li>
-        <li><Icon name="clock" size={18} /><span>{c.hours.map((h) => `${h.label}: ${h.opens}–${h.closes}`).join(' · ')}</span></li>
+        <li><Icon name="clock" size={18} /><span>{hours}</span></li>
       </ul>
       {socials.length > 0 && (
         <ul class="socials">
-          {socials.map((s) => <li><a href={s.url} target="_blank" rel="noopener" aria-label={`Final Choice on ${s.label}`}><Icon name={s.key} size={20} /></a></li>)}
+          {socials.map((s) => <li><a href={s.url} target="_blank" rel="noopener" aria-label={F.onSocial(s.label)}><Icon name={s.key} size={20} /></a></li>)}
         </ul>
       )}
     </div>
   </div>
   <div class="site-footer__bottom">
     <div class="container">
-      <p>© {year} {c.legalName}. All rights reserved.</p>
-      <p>Approval times are set by the relevant authorities and cannot be guaranteed by any agency.</p>
+      <p>© {year} {c.legalName}. {F.rights}</p>
+      <p>{F.disclaimer}</p>
     </div>
   </div>
 </footer>

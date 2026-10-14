@@ -93,18 +93,26 @@ ul, ol { padding-left: 1.25em; }
 /* ---------- Header ---------- */
 .site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.96); backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--border); }
 .site-header__inner { display: flex; align-items: center; gap: 16px; height: var(--header-h); }
+.brand { flex-shrink: 0; }
+.main-nav__cta, .header-wa { white-space: nowrap; flex-shrink: 0; }
 .brand img { height: 56px; width: auto; }
 .main-nav { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .main-nav ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
-.main-nav ul a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--navy); text-decoration: none; font-weight: 500; font-size: .95rem; white-space: nowrap; }
+.main-nav ul a { display: block; padding: 8px 8px; border-radius: 8px; color: var(--navy); text-decoration: none; font-weight: 500; font-size: .93rem; white-space: nowrap; }
 .main-nav ul a:hover { background: var(--blue-soft); color: var(--blue); }
 .main-nav ul a[aria-current='page'] { color: var(--blue); box-shadow: inset 0 -2px 0 var(--blue); border-radius: 0; }
 .header-wa, .nav-toggle { display: none; }
+.lang-switch { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--border-strong); border-radius: 999px; font: 700 .82rem/1 var(--font-body); flex-shrink: 0; }
+.lang-switch__item { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 30px; padding: 0 8px; border-radius: 999px; color: var(--muted); text-decoration: none; letter-spacing: .04em; }
+a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
+.lang-switch__item.is-current { background: var(--navy); color: #fff; }
+.lang-switch__sep { display: none; }
 .nav-toggle { background: none; border: 1px solid var(--border-strong); border-radius: 10px; width: 46px; height: 46px; align-items: center; justify-content: center; color: var(--navy); cursor: pointer; }
 .nav-toggle__close { display: none; }
 
-@media (max-width: 1180px) {
-  .header-wa { display: inline-flex; margin-left: auto; }
+@media (max-width: 1240px) {
+  .lang-switch { margin-left: auto; }
+  .header-wa { display: inline-flex; }
   .nav-toggle { display: inline-flex; }
   .main-nav {
     position: fixed; inset: var(--header-h) 0 auto 0; max-height: calc(100dvh - var(--header-h)); overflow-y: auto;

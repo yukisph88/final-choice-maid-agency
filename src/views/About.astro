@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/config';
+import { href, asset } from '../lib/urls';
+import { organizationSchema } from '../lib/schema';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const c = site.company;
+const hours = c.hours.map((h) => `${T.hours[h.label] ?? h.label}: ${h.opens}–${h.closes}`);
+const C = {
+  en: {
+    title: 'About Final Choice | Licensed Maid Agency in Kuala Lumpur',
+    description: 'Agensi Pekerjaan Final Choice is a licensed private employment agency in Kuala Lumpur placing Indonesian and Filipino domestic helpers with families.',
+    eyebrow: 'About us', h1: 'About Agensi Pekerjaan Final Choice', lead: 'A licensed Malaysian private employment agency helping families find, interview and employ domestic helpers.',
+    whoH: 'Who we are',
+    who: [
+      `${c.legalName} is a private employment agency based in Taman Mutiara Barat, Kuala Lumpur. We assist Malaysian employers with the recruitment and placement of Indonesian and Filipino domestic helpers, and with work permit and contract renewal after placement.`,
+      'Our consultants guide families through each stage: understanding what the household needs, sharing suitable biodata, arranging interviews, preparing documentation, following up on approvals, and handing over the helper after her arrival, medical screening and orientation.',
+      'We also assist Malaysian companies with foreign worker recruitment in other sectors through a separate service.',
+    ],
+    howH: 'How we work',
+    values: [['chat', 'Honest guidance', 'We explain costs, terms and realistic timelines up front, including what we cannot promise.'], ['users', 'Careful matching', 'We recommend candidates based on your household’s real needs and each candidate’s confirmed experience.'], ['shield', 'Respect for privacy', 'Candidate biodata is published only with consent, and personal documents are never placed online.'], ['handshake', 'Support after placement', 'We stay available to employers and helpers after handover, and help with renewals later.']],
+    detailsH: 'Company details', labels: ['Company name', 'Company No.', 'Agency licence', 'Office', 'Email', 'Phone / WhatsApp', 'Office hours'],
+    logoAlt: 'Agensi Pekerjaan Final Choice Sdn Bhd official logo',
+  },
+  ms: {
+    title: 'Tentang Final Choice | Agensi Pembantu Rumah Berlesen di Kuala Lumpur',
+    description: 'Agensi Pekerjaan Final Choice ialah agensi pekerjaan swasta berlesen di Kuala Lumpur yang menempatkan pembantu rumah Indonesia dan Filipina bersama keluarga.',
+    eyebrow: 'Tentang kami', h1: 'Tentang Agensi Pekerjaan Final Choice', lead: 'Agensi pekerjaan swasta berlesen di Malaysia yang membantu keluarga mencari, menemu duga dan mengambil pembantu rumah.',
+    whoH: 'Siapa kami',
+    who: [
+      `${c.legalName} ialah agensi pekerjaan swasta yang beroperasi di Taman Mutiara Barat, Kuala Lumpur. Kami membantu majikan di Malaysia mengambil dan menempatkan pembantu rumah Indonesia dan Filipina, serta membantu pembaharuan permit kerja dan kontrak selepas penempatan.`,
+      'Perunding kami membimbing keluarga di setiap peringkat: memahami keperluan keluarga, berkongsi biodata yang sesuai, mengatur temu duga, menyediakan dokumen, membuat susulan kelulusan, dan menyerahkan pembantu selepas ketibaan, pemeriksaan perubatan dan orientasi.',
+      'Kami juga membantu syarikat di Malaysia mengambil pekerja asing dalam sektor lain melalui perkhidmatan yang berasingan.',
+    ],
+    howH: 'Cara kami bekerja',
+    values: [['chat', 'Panduan yang jujur', 'Kami menerangkan kos, terma dan anggaran masa yang realistik sejak awal, termasuk perkara yang tidak dapat kami janjikan.'], ['users', 'Padanan yang teliti', 'Kami mencadangkan calon berdasarkan keperluan sebenar keluarga anda dan pengalaman calon yang telah disahkan.'], ['shield', 'Menghormati privasi', 'Biodata calon hanya disiarkan dengan persetujuan, dan dokumen peribadi tidak sekali-kali diletakkan dalam talian.'], ['handshake', 'Sokongan selepas penempatan', 'Kami sentiasa sedia membantu majikan dan pembantu selepas penyerahan, serta membantu pembaharuan kemudian.']],
+    detailsH: 'Maklumat syarikat', labels: ['Nama syarikat', 'No. Syarikat', 'Lesen agensi', 'Pejabat', 'E-mel', 'Telefon / WhatsApp', 'Waktu pejabat'],
+    logoAlt: 'Logo rasmi Agensi Pekerjaan Final Choice Sdn Bhd',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'about')} alternates={routeAlternates('about')}
+  crumbs={[{ name: T.crumb.about, path: path(lang, 'about') }]} schema={[organizationSchema(lang)]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section">
+    <div class="container split">
+      <div class="prose"><h2>{C.whoH}</h2>{C.who.map((x) => <p>{x}</p>)}</div>
+      <div class="logo-panel">
+        <picture>
+          <source srcset={asset('images/logo-final-choice.webp')} type="image/webp" />
+          <img src={asset('images/logo-final-choice.png')} alt={C.logoAlt} width="720" height="537" loading="lazy" decoding="async" />
+        </picture>
+      </div>
+    </div>
+  </section>
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head"><h2>{C.howH}</h2></div>
+      <div class="grid grid--4">
+        {C.values.map(([icon, title, text]) => (
+          <div class="card"><span class="card__icon"><Icon name={icon} size={24} /></span><h3>{title}</h3><p class="muted">{text}</p></div>
+        ))}
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container" style="max-width:820px">
+      <h2>{C.detailsH}</h2>
+      <div class="info-panel">
+        <dl class="facts">
+          <dt>{C.labels[0]}</dt><dd>{c.legalName}</dd>
+          <dt>{C.labels[1]}</dt><dd>{c.registrationNo}</dd>
+          <dt>{C.labels[2]}</dt><dd>{c.licence}</dd>
+          <dt>{C.labels[3]}</dt><dd>{c.address.street}, {c.address.postcode} {c.address.city}</dd>
+          <dt>{C.labels[4]}</dt><dd><a href={`mailto:${c.email}`}>{c.email}</a></dd>
+          <dt>{C.labels[5]}</dt><dd>{site.contact.phoneDisplay}</dd>
+          <dt>{C.labels[6]}</dt><dd>{hours.map((h) => <>{h}<br /></>)}</dd>
+        </dl>
+      </div>
+      <p style="margin-top:24px"><a class="btn btn--outline" href={href(path(lang, 'contact'))}>{T.btn.contactUs} <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+  <CtaBand lang={lang} />
+</BaseLayout>

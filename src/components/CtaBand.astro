@@ -1,26 +1,25 @@
 ---
 import Icon from './Icon.astro';
 import { site } from '../lib/config';
-import { whatsappLink, telLink, WA } from '../lib/urls';
-interface Props { title?: string; text?: string; message?: string }
-const {
-  title = 'Talk to a consultant about your household',
-  text = 'Tell us what your family needs. We will recommend suitable helpers and explain the next steps, costs and documents.',
-  message = WA.home,
-} = Astro.props;
+import { whatsappLink, telLink } from '../lib/urls';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang; title?: string; text?: string; message?: string; headingId?: string }
+const { lang, title, text, message, headingId } = Astro.props;
+const T = t(lang);
 ---
-<section class="cta-band">
+<section class="cta-band" aria-labelledby={headingId}>
   <div class="container cta-band__inner">
     <div>
-      <h2>{title}</h2>
-      <p>{text}</p>
+      <h2 id={headingId}>{title ?? T.cta.title}</h2>
+      <p>{text ?? T.cta.text}</p>
     </div>
     <div class="cta-band__actions">
-      <a class="btn btn--wa btn--lg" href={whatsappLink(message)} target="_blank" rel="noopener" data-track="cta_band">
+      <a class="btn btn--wa btn--lg" href={whatsappLink(message ?? T.wa.home)} target="_blank" rel="noopener" data-track="cta_band">
         <Icon name="whatsapp" size={20} /> WhatsApp {site.contact.consultantName}
       </a>
       <a class="btn btn--ghost-light btn--lg" href={telLink} data-track="cta_band_call">
-        <Icon name="phone" size={18} /> Call {site.contact.phoneDisplay}
+        <Icon name="phone" size={18} /> {T.btn.call} {site.contact.phoneDisplay}
       </a>
     </div>
   </div>

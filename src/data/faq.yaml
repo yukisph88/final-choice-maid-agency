@@ -1,91 +1,167 @@
 # =====================================================================
-#  FINAL CHOICE — FREQUENTLY ASKED QUESTIONS
+#  FINAL CHOICE — FREQUENTLY ASKED QUESTIONS (English + Bahasa Melayu)
+#  Each item has the same question in both languages, so they always match.
 #  "home: true" also shows the question on the homepage (keep 5–8 there).
 #  Keep answers factual. Regulatory details change — check before editing.
 # =====================================================================
 
-- q: "How do I hire an Indonesian maid in Malaysia?"
-  home: true
-  a: >-
-    Start by telling our consultant about your household: who needs care, the main duties,
-    your preferred language and any religious or dietary considerations. We then share
-    suitable Indonesian helper biodata, arrange an interview with your shortlisted candidate,
-    and guide you through the employment contract, the application to the relevant authorities
-    and the helper's arrival, medical screening and handover. Indonesian placements follow the
-    procedures agreed between Malaysia and Indonesia, so your consultant will explain the
-    current steps and eligibility checks that apply to your application.
+- home: true
+  en:
+    q: "How do I hire an Indonesian maid in Malaysia?"
+    a: >-
+      Start by telling our consultant about your household: who needs care, the main duties, your preferred
+      language and any religious or dietary considerations. We then share suitable Indonesian helper biodata,
+      arrange an interview with your shortlisted candidate, and guide you through the employment contract, the
+      application to the relevant authorities and the helper's arrival, medical screening and handover.
+      Indonesian placements follow the procedures agreed between Malaysia and Indonesia, so your consultant will
+      explain the current steps and eligibility checks that apply to your application.
+  ms:
+    q: "Bagaimana cara mendapatkan pembantu rumah Indonesia di Malaysia?"
+    a: >-
+      Mulakan dengan memberitahu perunding kami tentang keluarga anda: siapa yang perlu dijaga, tugas utama,
+      bahasa pilihan serta keperluan agama atau pemakanan. Kami kemudian akan berkongsi biodata pembantu rumah
+      Indonesia yang sesuai, mengatur temu duga dengan calon pilihan anda, dan membimbing anda melalui kontrak
+      pekerjaan, permohonan kepada pihak berkuasa berkaitan, serta ketibaan, pemeriksaan perubatan dan penyerahan
+      pembantu. Pengambilan pembantu rumah Indonesia mengikut prosedur yang dipersetujui antara Malaysia dan
+      Indonesia, jadi perunding kami akan menerangkan langkah dan syarat kelayakan semasa untuk permohonan anda.
 
-- q: "What documents are needed to hire a domestic helper?"
-  home: true
-  a: >-
-    Employers are usually asked for a copy of their MyKad, proof of income (such as recent
-    salary slips, an EA form or bank statements) and proof of address. Depending on your
-    household and the helper's nationality, other documents such as a marriage certificate or
-    children's birth certificates may be requested. Because requirements are set by the
-    authorities and can change, we give you an up-to-date checklist for your specific case
-    before you start.
+- home: true
+  en:
+    q: "What documents are needed to hire a domestic helper?"
+    a: >-
+      Employers are usually asked for a copy of their MyKad, proof of income (such as recent salary slips, an EA
+      form or bank statements) and proof of address. Depending on your household and the helper's nationality,
+      other documents such as a marriage certificate or children's birth certificates may be requested. Because
+      requirements are set by the authorities and can change, we give you an up-to-date checklist for your
+      specific case before you start.
+  ms:
+    q: "Apakah dokumen yang diperlukan untuk mengambil pembantu rumah?"
+    a: >-
+      Majikan biasanya perlu menyediakan salinan MyKad, bukti pendapatan (seperti slip gaji terkini, borang EA
+      atau penyata bank) dan bukti alamat. Bergantung pada keadaan keluarga dan warganegara pembantu, dokumen lain
+      seperti sijil nikah atau sijil kelahiran anak mungkin diperlukan. Oleh sebab keperluan ditetapkan oleh pihak
+      berkuasa dan boleh berubah, kami akan memberikan senarai semak terkini untuk kes anda sebelum anda bermula.
 
-- q: "Can I interview the maid before hiring?"
-  home: true
-  a: >-
-    Yes. After you shortlist a candidate from her biodata, we can arrange an interview, usually
-    by video call. It is a good opportunity to ask about her past duties, experience with
-    children or elderly people, cooking and her expectations. Your consultant can suggest
-    useful questions and help with translation where needed.
+- home: true
+  en:
+    q: "Can I interview the maid before hiring?"
+    a: >-
+      Yes. After you shortlist a candidate from her biodata, we can arrange an interview, usually by video call.
+      It is a good opportunity to ask about her past duties, experience with children or elderly people, cooking
+      and her expectations. Your consultant can suggest useful questions and help with translation where needed.
+  ms:
+    q: "Bolehkah saya menemu duga pembantu rumah sebelum mengambilnya?"
+    a: >-
+      Boleh. Selepas anda memilih calon daripada biodatanya, kami boleh mengatur temu duga, biasanya melalui
+      panggilan video. Ini peluang yang baik untuk bertanya tentang tugas lepas, pengalaman menjaga kanak-kanak
+      atau warga emas, memasak dan jangkaannya. Perunding kami boleh mencadangkan soalan yang berguna dan membantu
+      menterjemah jika perlu.
 
-- q: "How long does the recruitment process take?"
-  home: true
-  a: >-
-    Timing varies from case to case. It depends on how quickly documents are completed,
-    government and embassy approvals, the helper's own travel documents and flight
-    arrangements. We will give you an estimated timeline for your application and keep you
-    updated, but approval times and arrival dates cannot be guaranteed by any agency.
+- home: true
+  en:
+    q: "How long does the recruitment process take?"
+    a: >-
+      Timing varies from case to case. It depends on how quickly documents are completed, government and embassy
+      approvals, the helper's own travel documents and flight arrangements. We will give you an estimated timeline
+      for your application and keep you updated, but approval times and arrival dates cannot be guaranteed by any agency.
+  ms:
+    q: "Berapa lama proses pengambilan pembantu rumah?"
+    a: >-
+      Tempohnya berbeza mengikut kes. Ia bergantung pada kelengkapan dokumen, kelulusan kerajaan dan kedutaan,
+      dokumen perjalanan pembantu serta urusan penerbangan. Kami akan memberikan anggaran masa untuk permohonan
+      anda dan sentiasa memaklumkan perkembangannya, tetapi tempoh kelulusan dan tarikh ketibaan tidak boleh
+      dijamin oleh mana-mana agensi.
 
-- q: "What happens after my maid arrives?"
-  home: true
-  a: >-
-    After arrival, the helper must complete a medical examination at a FOMEMA-registered
-    clinic, and the remaining work-pass formalities are completed. We provide an orientation
-    before handover, covering household expectations and basic working arrangements, and we
-    remain available to both employer and helper for follow-up questions after placement.
+- home: true
+  en:
+    q: "What happens after my maid arrives?"
+    a: >-
+      After arrival, the helper must complete a medical examination at a FOMEMA-registered clinic, and the
+      remaining work-pass formalities are completed. We provide an orientation before handover, covering household
+      expectations and basic working arrangements, and we remain available to both employer and helper for
+      follow-up questions after placement.
+  ms:
+    q: "Apa yang berlaku selepas pembantu rumah saya tiba?"
+    a: >-
+      Selepas tiba, pembantu rumah perlu menjalani pemeriksaan perubatan di klinik berdaftar FOMEMA, dan urusan
+      pas kerja yang selebihnya akan diselesaikan. Kami menyediakan sesi orientasi sebelum penyerahan, merangkumi
+      jangkaan isi rumah dan cara kerja asas, dan kami sentiasa sedia membantu majikan serta pembantu selepas penempatan.
 
-- q: "Do you provide maid replacement assistance?"
-  home: true
-  a: >-
-    Replacement assistance depends on the package you choose and the terms of your service
-    agreement, including the warranty period and any replacement fee. Your consultant will
-    explain these terms clearly before you sign, so you know exactly what applies.
+- home: true
+  en:
+    q: "Do you provide maid replacement assistance?"
+    a: >-
+      Replacement assistance depends on the package you choose and the terms of your service agreement, including
+      the warranty period and any replacement fee. Your consultant will explain these terms clearly before you sign,
+      so you know exactly what applies.
+  ms:
+    q: "Adakah anda menyediakan bantuan penggantian pembantu rumah?"
+    a: >-
+      Bantuan penggantian bergantung pada pakej yang anda pilih dan terma perjanjian perkhidmatan, termasuk tempoh
+      waranti dan sebarang yuran penggantian. Perunding kami akan menerangkan terma ini dengan jelas sebelum anda
+      menandatangani perjanjian, supaya anda tahu dengan tepat apa yang terpakai.
 
-- q: "Can Final Choice assist with maid permit renewal?"
-  home: true
-  a: >-
-    Yes. We can guide you through renewing your helper's work permit and employment contract,
-    including the documents you need to prepare and the timing. Start the renewal well before
-    the current permit expires — contact us early so there is enough time to complete it.
+- home: true
+  en:
+    q: "Can Final Choice assist with maid permit renewal?"
+    a: >-
+      Yes. We can guide you through renewing your helper's work permit and employment contract, including the
+      documents you need to prepare and the timing. Start the renewal well before the current permit expires —
+      contact us early so there is enough time to complete it.
+  ms:
+    q: "Bolehkah Final Choice membantu pembaharuan permit pembantu rumah?"
+    a: >-
+      Boleh. Kami boleh membimbing anda memperbaharui permit kerja dan kontrak pekerjaan pembantu rumah, termasuk
+      dokumen yang perlu disediakan dan masa yang sesuai. Mulakan pembaharuan lebih awal sebelum permit semasa
+      tamat tempoh — hubungi kami awal supaya ada masa yang mencukupi.
 
-- q: "What is the difference between Indonesian and Filipino helpers?"
-  home: true
-  a: >-
-    Both are popular choices for Malaysian families, and each helper is an individual, so
-    experience and personality matter more than nationality. In general, many Indonesian
-    helpers communicate in Bahasa Indonesia, which is close to Bahasa Malaysia, while many
-    Filipino helpers communicate in English. Recruitment procedures, documentation and package
-    terms also differ between the two nationalities. Our consultant can compare both options
-    for your household.
+- home: true
+  en:
+    q: "What is the difference between Indonesian and Filipino helpers?"
+    a: >-
+      Both are popular choices for Malaysian families, and each helper is an individual, so experience and
+      personality matter more than nationality. In general, many Indonesian helpers communicate in Bahasa
+      Indonesia, which is close to Bahasa Malaysia, while many Filipino helpers communicate in English. Recruitment
+      procedures, documentation and package terms also differ between the two nationalities. Our consultant can
+      compare both options for your household.
+  ms:
+    q: "Apakah perbezaan antara pembantu rumah Indonesia dan Filipina?"
+    a: >-
+      Kedua-duanya menjadi pilihan popular dalam kalangan keluarga di Malaysia, dan setiap pembantu mempunyai
+      keperibadian tersendiri, jadi pengalaman dan sikap lebih penting daripada warganegara. Secara umumnya, ramai
+      pembantu rumah Indonesia bertutur dalam Bahasa Indonesia yang hampir sama dengan Bahasa Melayu, manakala
+      ramai pembantu rumah Filipina bertutur dalam Bahasa Inggeris. Prosedur pengambilan, dokumen dan terma pakej
+      juga berbeza antara kedua-dua warganegara. Perunding kami boleh membandingkan kedua-dua pilihan untuk keluarga anda.
 
-- q: "How long is the employment contract?"
-  a: >-
-    Final Choice generally arranges a two-year employment contract for domestic helpers. Your
-    consultant will explain the contract terms, salary and rest-day arrangements that apply to
-    your helper's nationality before you sign.
+- en:
+    q: "How long is the employment contract?"
+    a: >-
+      Final Choice generally arranges a two-year employment contract for domestic helpers. Your consultant will
+      explain the contract terms, salary and rest-day arrangements that apply to your helper's nationality before you sign.
+  ms:
+    q: "Berapa lama tempoh kontrak pekerjaan?"
+    a: >-
+      Final Choice biasanya mengatur kontrak pekerjaan selama dua tahun untuk pembantu rumah. Perunding kami akan
+      menerangkan terma kontrak, gaji dan hari rehat yang terpakai mengikut warganegara pembantu sebelum anda menandatanganinya.
 
-- q: "Is the biodata on the website up to date?"
-  a: >-
-    We review published profiles regularly, and each profile shows the date its status was
-    last updated. Availability can change quickly, so please contact us to confirm a
-    candidate's current status before making plans.
+- en:
+    q: "Is the biodata on the website up to date?"
+    a: >-
+      We review published profiles regularly, and each profile shows the date its status was last updated.
+      Availability can change quickly, so please contact us to confirm a candidate's current status before making plans.
+  ms:
+    q: "Adakah biodata di laman web ini terkini?"
+    a: >-
+      Kami menyemak profil yang disiarkan secara berkala, dan setiap profil memaparkan tarikh statusnya dikemas kini.
+      Status calon boleh berubah dengan cepat, jadi sila hubungi kami untuk pengesahan sebelum membuat perancangan.
 
-- q: "How do you handle my personal information?"
-  a: >-
-    We use the information you share only to respond to your enquiry and to process your
-    application. Please read our privacy policy for details.
+- en:
+    q: "How do you handle my personal information?"
+    a: >-
+      We use the information you share only to respond to your enquiry and to process your application. Please
+      read our privacy policy for details.
+  ms:
+    q: "Bagaimanakah maklumat peribadi saya dikendalikan?"
+    a: >-
+      Kami menggunakan maklumat yang anda kongsi hanya untuk menjawab pertanyaan anda dan memproses permohonan anda.
+      Sila baca dasar privasi kami untuk maklumat lanjut.

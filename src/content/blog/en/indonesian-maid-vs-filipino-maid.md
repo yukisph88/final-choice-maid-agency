@@ -4,7 +4,7 @@ h1: "Indonesian maid vs Filipino maid in Malaysia: how to choose"
 description: "Indonesian vs Filipino domestic helpers for Malaysian families: language, experience, household fit, procedures and package terms, and why the person matters most."
 published: 2026-10-14
 primaryKeyword: "Indonesian maid vs Filipino maid"
-related: ["/maids/indonesian-maids/", "/maids/filipino-maids/", "/maid-packages/"]
+related: ["indonesian", "filipino", "packages"]
 ---
 
 "Should we hire an Indonesian or a Filipino helper?" is one of the first questions families ask us. The honest answer is that **the individual matters more than the nationality**. A caring, experienced helper is a good choice whatever her passport says.

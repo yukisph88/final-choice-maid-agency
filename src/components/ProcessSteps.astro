@@ -1,33 +1,27 @@
 ---
 import Icon from './Icon.astro';
-interface Props { detailed?: boolean; headingLevel?: 'h2' | 'h3' }
-const { detailed = false, headingLevel = 'h3' } = Astro.props;
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang; detailed?: boolean; headingLevel?: 'h2' | 'h3' }
+const { lang, detailed = false, headingLevel = 'h3' } = Astro.props;
+const P = t(lang).process;
 const H = headingLevel;
-
-const STEPS = [
-  { icon: 'chat', title: 'Tell us your requirements', text: 'Share who needs care, the main duties, your preferred nationality and language, and any household considerations.', more: 'A short WhatsApp or phone conversation is enough to start. We ask about the ages of children or elderly family members, cooking expectations, the size of your home, pets, and religious or dietary needs, so that we only recommend suitable candidates.' },
-  { icon: 'file', title: 'Review suitable maid biodata', text: 'We share biodata of candidates whose experience and skills fit your needs.', more: 'Each biodata summarises the candidate’s work experience, skills and languages. Ask us about anything that is unclear — we would rather you choose carefully than quickly.' },
-  { icon: 'users', title: 'Arrange an interview', text: 'Speak with your shortlisted candidate, usually by video call, before you decide.', more: 'We help schedule the interview and can suggest questions. If the candidate is not the right fit, we continue the search with you.' },
-  { icon: 'clipboard', title: 'Complete recruitment documentation', text: 'We guide you through the employment contract and the documents your application needs.', more: 'You receive a checklist for your specific case. Requirements depend on the helper’s nationality and the current rules of the Malaysian authorities and the source country.' },
-  { icon: 'shield', title: 'Process applications and approvals', text: 'Your application is submitted to the relevant authorities and followed up by our team.', more: 'Processing times depend on government and embassy approvals and on how quickly documents are completed. We keep you updated, but no agency can guarantee approval or a specific date.' },
-  { icon: 'plane', title: 'Arrival, medical screening and orientation', text: 'After arrival, the helper completes her FOMEMA medical examination and an orientation.', more: 'Travel is arranged once approvals are in place. The orientation covers household expectations and practical working arrangements before she joins your family.' },
-  { icon: 'handshake', title: 'Handover and follow-up', text: 'We hand over your helper and stay available for questions after placement.', more: 'After-placement assistance includes guidance on settling in, and later on permit and contract renewal. Replacement terms depend on your package and service agreement.' },
-];
+const ICONS = ['chat', 'file', 'users', 'clipboard', 'shield', 'plane', 'handshake'];
 ---
 <ol class={`process${detailed ? ' process--detailed' : ''}`}>
-  {STEPS.map((s, i) => (
+  {P.steps.map((s, i) => (
     <li class="process__step">
       <span class="process__num" aria-hidden="true">{i + 1}</span>
       <div class="process__body">
-        <H class="process__title"><span class="sr-only">Step {i + 1}: </span>{s.title}</H>
+        <H class="process__title"><span class="sr-only">{P.step} {i + 1}: </span>{s.title}</H>
         <p>{s.text}</p>
         {detailed && <p class="muted">{s.more}</p>}
       </div>
-      <span class="process__icon"><Icon name={s.icon} size={22} /></span>
+      <span class="process__icon"><Icon name={ICONS[i]} size={22} /></span>
     </li>
   ))}
 </ol>
 <p class="process__note">
   <Icon name="clock" size={18} />
-  Processing time varies with documentation, government and embassy approvals, travel arrangements and other requirements. Timelines we share are estimates, not guarantees.
+  {P.note}
 </p>

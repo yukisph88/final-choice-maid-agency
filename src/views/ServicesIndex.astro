@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href, whatsappLink } from '../lib/urls';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const ms = lang === 'ms';
+const P = (k: Parameters<typeof path>[1]) => href(path(lang, k));
+const docs = href(withLang(lang, postPath(lang, ms ? 'dokumen-untuk-mengambil-pembantu-rumah' : 'documents-needed-to-hire-a-domestic-helper')));
+
+const C = {
+  en: {
+    title: 'Maid Services Malaysia | Recruitment & Renewal | Final Choice',
+    description: 'Maid recruitment and placement, maid permit and contract renewal, replacement assistance and documentation guidance for Malaysian employers.',
+    eyebrow: 'Our services', h1: 'Maid services for Malaysian employers',
+    lead: 'From finding the right domestic helper to renewing her permit years later, Final Choice supports employers through each stage of employing a helper.',
+    recH: 'Recruitment and placement', recP: 'Find and place a domestic helper whose experience matches your household.',
+    rec: [
+      ['globe', 'Indonesian maid recruitment', 'Selection, interview and placement of Indonesian domestic helpers under current Malaysia–Indonesia procedures.', 'indonesian'],
+      ['globe', 'Filipino maid recruitment', 'Selection, interview and placement of Filipino domestic helpers, with guidance on Philippine documentation.', 'filipino'],
+      ['baby', 'Childcare helpers', 'Helpers experienced with babies, toddlers and school-going children.', 'childcare'],
+      ['elderly', 'Elderly care helpers', 'Daily support and companionship for elderly family members at home.', 'elderly'],
+      ['sparkle', 'Housekeeping helpers', 'Cleaning, laundry, ironing and cooking for a well-kept home.', 'housekeeping'],
+      ['home', 'Domestic helper placement', 'End-to-end placement: matching, documentation, approvals follow-up, arrival and handover.', 'process'],
+    ],
+    afterH: 'After placement', afterP: 'Support that continues after your helper has joined your family.',
+    permitH: 'Maid work permit renewal', permitP: 'Your helper’s work pass must be renewed before it expires. We guide you on the documents and timing, and help you prepare the renewal. Please contact us well before the expiry date so there is enough time to complete it.', permitB: 'Ask about renewal',
+    contractH: 'Maid contract renewal', contractP: 'When the employment contract ends, you may wish to continue with the same helper. We explain the renewal steps and the terms that apply, including any changes to salary or conditions required for her nationality.', contractB: 'Ask about contract renewal',
+    replH: 'Maid replacement assistance', replP: 'If a placement does not work out, we discuss the options with you. Replacement assistance, warranty period and any replacement fee depend on your package and the terms of your service agreement. See', replL: 'maid packages',
+    docH: 'Employer documentation guidance', docP: 'Clear guidance on the documents employers usually need to prepare — for new applications, renewals and changes — so that applications are complete the first time. Read', docL: 'documents needed to hire a domestic helper',
+    note: 'Final Choice provides guidance and assistance. Approvals and processing times are decided by the relevant authorities and cannot be guaranteed by any agency.',
+  },
+  ms: {
+    title: 'Perkhidmatan Pembantu Rumah Malaysia | Final Choice',
+    description: 'Perkhidmatan pengambilan dan penempatan pembantu rumah, pembaharuan permit dan kontrak, bantuan penggantian serta panduan dokumen untuk majikan di Malaysia.',
+    eyebrow: 'Perkhidmatan kami', h1: 'Perkhidmatan pembantu rumah untuk majikan di Malaysia',
+    lead: 'Daripada mencari pembantu rumah yang sesuai hingga memperbaharui permitnya bertahun-tahun kemudian, Final Choice menyokong majikan di setiap peringkat.',
+    recH: 'Pengambilan dan penempatan', recP: 'Cari dan tempatkan pembantu rumah yang pengalamannya sesuai dengan keluarga anda.',
+    rec: [
+      ['globe', 'Pengambilan pembantu rumah Indonesia', 'Pemilihan, temu duga dan penempatan pembantu rumah Indonesia mengikut prosedur semasa Malaysia–Indonesia.', 'indonesian'],
+      ['globe', 'Pengambilan pembantu rumah Filipina', 'Pemilihan, temu duga dan penempatan pembantu rumah Filipina, dengan panduan dokumen yang diperlukan oleh Filipina.', 'filipino'],
+      ['baby', 'Pembantu jaga anak', 'Pembantu yang berpengalaman menjaga bayi, kanak-kanak kecil dan anak bersekolah.', 'childcare'],
+      ['elderly', 'Pembantu jaga orang tua', 'Bantuan harian dan teman untuk ahli keluarga warga emas di rumah.', 'elderly'],
+      ['sparkle', 'Pembantu kerja rumah', 'Mengemas, membasuh, menggosok pakaian dan memasak untuk rumah yang terurus.', 'housekeeping'],
+      ['home', 'Penempatan pembantu rumah', 'Penempatan menyeluruh: padanan, dokumen, susulan kelulusan, ketibaan dan penyerahan.', 'process'],
+    ],
+    afterH: 'Selepas penempatan', afterP: 'Sokongan yang berterusan selepas pembantu rumah mula bersama keluarga anda.',
+    permitH: 'Pembaharuan permit kerja pembantu rumah', permitP: 'Pas kerja pembantu rumah perlu diperbaharui sebelum tamat tempoh. Kami membimbing anda tentang dokumen dan masa yang sesuai, serta membantu menyediakan pembaharuan. Sila hubungi kami lebih awal sebelum tarikh tamat supaya ada masa yang mencukupi.', permitB: 'Tanya tentang pembaharuan',
+    contractH: 'Pembaharuan kontrak pembantu rumah', contractP: 'Apabila kontrak pekerjaan tamat, anda mungkin ingin meneruskan dengan pembantu yang sama. Kami menerangkan langkah pembaharuan dan terma yang terpakai, termasuk sebarang perubahan gaji atau syarat yang diwajibkan mengikut warganegaranya.', contractB: 'Tanya tentang pembaharuan kontrak',
+    replH: 'Bantuan penggantian pembantu rumah', replP: 'Jika penempatan tidak berjaya, kami akan berbincang tentang pilihan yang ada bersama anda. Bantuan penggantian, tempoh waranti dan sebarang yuran penggantian bergantung pada pakej dan terma perjanjian perkhidmatan anda. Lihat', replL: 'pakej pembantu rumah',
+    docH: 'Panduan dokumen untuk majikan', docP: 'Panduan jelas tentang dokumen yang biasanya perlu disediakan oleh majikan — untuk permohonan baharu, pembaharuan dan perubahan — supaya permohonan lengkap sejak awal. Baca', docL: 'dokumen untuk mengambil pembantu rumah',
+    note: 'Final Choice memberikan panduan dan bantuan. Kelulusan dan tempoh pemprosesan ditentukan oleh pihak berkuasa berkaitan dan tidak boleh dijamin oleh mana-mana agensi.',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'services')} alternates={routeAlternates('services')}
+  crumbs={[{ name: T.crumb.services, path: path(lang, 'services') }]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section">
+    <div class="container">
+      <div class="section-head"><h2>{C.recH}</h2><p>{C.recP}</p></div>
+      <div class="grid grid--3">
+        {C.rec.map(([icon, title, text, key]) => (
+          <div class="card card--link">
+            <span class="card__icon"><Icon name={icon} size={24} /></span>
+            <h3><a class="stretched" href={P(key as Parameters<typeof path>[1])} style="color:inherit;text-decoration:none">{title}</a></h3>
+            <p class="muted">{text}</p>
+            <span class="card__more">{T.btn.learnMore} <Icon name="arrow" size={16} /></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head"><h2>{C.afterH}</h2><p>{C.afterP}</p></div>
+      <div class="grid grid--2">
+        <article class="card" id="permit-renewal">
+          <span class="card__icon"><Icon name="refresh" size={24} /></span>
+          <h3>{C.permitH}</h3>
+          <p class="muted">{C.permitP}</p>
+          <a class="btn btn--wa-outline btn--sm" href={whatsappLink(T.wa.renewal)} target="_blank" rel="noopener" data-track="svc_renewal"><Icon name="whatsapp" size={16} /> {C.permitB}</a>
+        </article>
+        <article class="card" id="contract-renewal">
+          <span class="card__icon"><Icon name="file" size={24} /></span>
+          <h3>{C.contractH}</h3>
+          <p class="muted">{C.contractP}</p>
+          <a class="btn btn--wa-outline btn--sm" href={whatsappLink(T.wa.renewal)} target="_blank" rel="noopener" data-track="svc_contract"><Icon name="whatsapp" size={16} /> {C.contractB}</a>
+        </article>
+        <article class="card" id="replacement">
+          <span class="card__icon"><Icon name="swap" size={24} /></span>
+          <h3>{C.replH}</h3>
+          <p class="muted">{C.replP} <a href={P('packages')}>{C.replL}</a>.</p>
+        </article>
+        <article class="card" id="documentation">
+          <span class="card__icon"><Icon name="clipboard" size={24} /></span>
+          <h3>{C.docH}</h3>
+          <p class="muted">{C.docP} <a href={docs}>{C.docL}</a>.</p>
+        </article>
+      </div>
+      <div class="callout" style="margin-top:28px"><Icon name="shield" size={20} /><p>{C.note}</p></div>
+    </div>
+  </section>
+  <CtaBand lang={lang} />
+</BaseLayout>

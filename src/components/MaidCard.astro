@@ -1,13 +1,16 @@
 ---
 import Icon from './Icon.astro';
-import { href, asset, whatsappLink, WA } from '../lib/urls';
-import { STATUS_LABEL, NATIONALITY_LABEL, experiencedSkills, formatDate, type Maid } from '../lib/maids';
-interface Props { maid: Maid; headingLevel?: 'h2' | 'h3' }
-const { maid: m, headingLevel = 'h3' } = Astro.props;
+import { href, asset, whatsappLink } from '../lib/urls';
+import { experiencedSkills, type Maid } from '../lib/maids';
+import { profilePath, withLang, type Lang } from '../i18n/routes';
+import { t, formatDate } from '../i18n/ui';
+interface Props { maid: Maid; lang: Lang; headingLevel?: 'h2' | 'h3' }
+const { maid: m, lang, headingLevel = 'h3' } = Astro.props;
+const T = t(lang);
 const H = headingLevel;
 const has = (k: keyof Maid['skills']) => (m.skills[k] === 'experienced' || m.skills[k] === 'some-experience' ? '1' : '0');
-const skills = experiencedSkills(m);
-const profile = href(`/maids/${m.slug}/`);
+const skills = experiencedSkills(m, lang);
+const profile = href(withLang(lang, profilePath(lang, m.slug)));
 const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
 ---
 <article
@@ -26,31 +29,31 @@ const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
     {m.photo ? (
       <img src={asset(m.photo)} alt="" width="480" height="600" loading="lazy" decoding="async" />
     ) : (
-      <span class="maid-card__placeholder"><Icon name="users" size={48} /><span>Photo available on request</span></span>
+      <span class="maid-card__placeholder"><Icon name="users" size={48} /><span>{T.card.photoOnRequest}</span></span>
     )}
-    {m.demo && <span class="demo-ribbon">DEMO – not a real candidate</span>}
+    {m.demo && <span class="demo-ribbon">{T.card.demo}</span>}
   </a>
   <div class="maid-card__body">
     <div class="maid-card__top">
-      <span class={`status status--${m.status}`}>{STATUS_LABEL[m.status]}</span>
-      <span class="maid-card__nat">{NATIONALITY_LABEL[m.nationality]}</span>
+      <span class={`status status--${m.status}`}>{T.status[m.status]}</span>
+      <span class="maid-card__nat">{T.nationality[m.nationality]}</span>
     </div>
     <H class="maid-card__title"><a href={profile}>{title}</a></H>
     <dl class="maid-card__facts">
-      {m.publication.showAge && m.age && (<div><dt>Age</dt><dd>{m.age}</dd></div>)}
-      <div><dt>Experience</dt><dd>{m.experienceYears === 0 ? 'New helper' : `${m.experienceYears} yr${m.experienceYears === 1 ? '' : 's'}`}{m.overseasExperience ? ' · overseas' : ''}</dd></div>
-      {m.religion && (<div><dt>Religion</dt><dd>{m.religion}</dd></div>)}
+      {m.publication.showAge && m.age && (<div><dt>{T.card.age}</dt><dd>{m.age}</dd></div>)}
+      <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>
+      {m.religion && (<div><dt>{T.card.religion}</dt><dd>{m.religion}</dd></div>)}
     </dl>
     {skills.length > 0 && (
-      <ul class="chips" aria-label="Experience in">
+      <ul class="chips" aria-label={T.card.experienceIn}>
         {skills.slice(0, 4).map((s) => <li>{s}</li>)}
       </ul>
     )}
-    <p class="maid-card__updated">Status updated {formatDate(m.statusUpdated)}</p>
+    <p class="maid-card__updated">{T.card.updated} {formatDate(m.statusUpdated, lang)}</p>
     <div class="maid-card__actions">
-      <a class="btn btn--outline btn--sm" href={profile}>View Profile</a>
-      <a class="btn btn--wa btn--sm" href={whatsappLink(WA.interview(m.code))} target="_blank" rel="noopener" data-track={`interview_${m.code}`}>
-        <Icon name="whatsapp" size={16} /> Request Interview
+      <a class="btn btn--outline btn--sm" href={profile}>{T.btn.viewProfile}</a>
+      <a class="btn btn--wa btn--sm" href={whatsappLink(T.wa.interview(m.code))} target="_blank" rel="noopener" data-track={`interview_${m.code}`}>
+        <Icon name="whatsapp" size={16} /> {T.btn.requestInterview}
       </a>
     </div>
   </div>

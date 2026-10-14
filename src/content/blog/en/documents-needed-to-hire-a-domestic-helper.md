@@ -4,7 +4,7 @@ h1: "Documents needed to hire a domestic helper in Malaysia"
 description: "Which documents Malaysian employers are usually asked to prepare when hiring a maid, why they are needed, and tips for getting your application right the first time."
 published: 2026-10-14
 primaryKeyword: "documents to hire maid Malaysia"
-related: ["/maid-hiring-process/", "/services/", "/faq/"]
+related: ["process", "services", "faq"]
 ---
 
 Incomplete or unclear documents are one of the most common reasons an application takes longer than expected. Preparing early saves time and stress.

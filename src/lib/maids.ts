@@ -1,34 +1,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { t } from '../i18n/ui';
+import type { Lang } from '../i18n/routes';
 
+// One shared record per candidate. Both language versions read exactly the same data
+// (code, status, photo, skills), so English and Bahasa Melayu pages cannot disagree.
 export type Maid = CollectionEntry<'maids'>['data'] & { slug: string; summary: string; demo: boolean };
 
 export const DEMO = import.meta.env.PUBLIC_DEMO_CANDIDATES === 'true';
-
-export const STATUS_LABEL: Record<Maid['status'], string> = {
-  available: 'Available',
-  'interview-pending': 'Interview Pending',
-  reserved: 'Reserved',
-  placed: 'Placed',
-  'temporarily-unavailable': 'Temporarily Unavailable',
-};
-
-export const SKILL_LABEL: Record<keyof Maid['skills'], string> = {
-  childcare: 'Childcare',
-  newborn: 'Newborn care',
-  elderlyCare: 'Elderly care',
-  cooking: 'Cooking',
-  housekeeping: 'Housekeeping',
-  petCare: 'Pet care',
-};
-
-export const LEVEL_LABEL = {
-  experienced: 'Experienced',
-  'some-experience': 'Some experience',
-  'willing-to-learn': 'Willing to learn',
-  none: '',
-} as const;
-
-export const NATIONALITY_LABEL = { indonesian: 'Indonesian', filipino: 'Filipino' } as const;
 
 /**
  * Candidates that may appear publicly. A profile must be published, have recorded consent,
@@ -46,12 +24,22 @@ function statusRank(s: Maid['status']) {
   return ['available', 'interview-pending', 'reserved', 'temporarily-unavailable', 'placed'].indexOf(s);
 }
 
-export function experiencedSkills(m: Maid): string[] {
+export function experiencedSkills(m: Maid, lang: Lang): string[] {
+  const L = t(lang).skill;
   return (Object.keys(m.skills) as (keyof Maid['skills'])[])
     .filter((k) => m.skills[k] === 'experienced' || m.skills[k] === 'some-experience')
-    .map((k) => SKILL_LABEL[k]);
+    .map((k) => L[k]);
 }
 
-export function formatDate(d: Date): string {
-  return d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kuala_Lumpur' });
-}
+/** Common language names in candidate records, translated for the BM pages. Unknown names are shown as entered. */
+const LANGUAGE_NAMES_MS: Record<string, string> = {
+  English: 'Bahasa Inggeris', 'Bahasa Indonesia': 'Bahasa Indonesia', 'Bahasa Malaysia': 'Bahasa Melayu', 'Bahasa Melayu': 'Bahasa Melayu',
+  Malay: 'Bahasa Melayu', Mandarin: 'Bahasa Mandarin', Cantonese: 'Kantonis', Hokkien: 'Hokkien', Tagalog: 'Tagalog', Filipino: 'Filipino',
+  Javanese: 'Bahasa Jawa', Tamil: 'Bahasa Tamil', Arabic: 'Bahasa Arab',
+};
+const COUNTRY_NAMES_MS: Record<string, string> = {
+  Malaysia: 'Malaysia', Singapore: 'Singapura', 'Hong Kong': 'Hong Kong', Taiwan: 'Taiwan', 'Saudi Arabia': 'Arab Saudi',
+  'United Arab Emirates': 'Emiriah Arab Bersatu', Kuwait: 'Kuwait', Qatar: 'Qatar', Indonesia: 'Indonesia', Philippines: 'Filipina', Brunei: 'Brunei',
+};
+export const languageName = (name: string, lang: Lang) => (lang === 'ms' ? LANGUAGE_NAMES_MS[name] ?? name : name);
+export const countryName = (name: string, lang: Lang) => (lang === 'ms' ? COUNTRY_NAMES_MS[name] ?? name : name);

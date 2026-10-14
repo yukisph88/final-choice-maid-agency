@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FaqList from '../components/FaqList.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { path, routeAlternates, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const C = {
+  en: {
+    title: 'Maid Hiring FAQ Malaysia | Final Choice',
+    description: 'Answers to common questions about hiring a maid in Malaysia: documents, interviews, timelines, arrival, replacement assistance, permit renewal and choosing a nationality.',
+    eyebrow: 'FAQ', h1: 'Frequently asked questions about hiring a maid', lead: 'Clear answers to the questions Malaysian employers ask us most. If your question is not here, WhatsApp our consultant.', cta: 'Still have questions?',
+  },
+  ms: {
+    title: 'Soalan Lazim Pembantu Rumah Malaysia | Final Choice',
+    description: 'Jawapan kepada soalan lazim tentang pengambilan pembantu rumah di Malaysia: dokumen, temu duga, tempoh, ketibaan, penggantian, pembaharuan permit dan pilihan warganegara.',
+    eyebrow: 'Soalan lazim', h1: 'Soalan lazim tentang pengambilan pembantu rumah', lead: 'Jawapan yang jelas kepada soalan yang paling kerap ditanya oleh majikan di Malaysia. Jika soalan anda tiada di sini, WhatsApp perunding kami.', cta: 'Masih ada soalan?',
+  },
+}[lang];
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'faq')} alternates={routeAlternates('faq')}
+  crumbs={[{ name: T.crumb.faq, path: path(lang, 'faq') }]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section section--tight"><div class="container"><FaqList lang={lang} headingLevel="h2" /></div></section>
+  <CtaBand lang={lang} title={C.cta} />
+</BaseLayout>

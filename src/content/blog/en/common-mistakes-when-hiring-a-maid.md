@@ -4,7 +4,7 @@ h1: "Common mistakes when hiring a maid (and how to avoid them)"
 description: "Avoid the most common mistakes Malaysian employers make when hiring a domestic helper — from unclear expectations to unverified agencies and starting too late."
 published: 2026-10-14
 primaryKeyword: "mistakes hiring maid Malaysia"
-related: ["/maid-hiring-process/", "/maid-packages/", "/maids/"]
+related: ["process", "packages", "maids"]
 ---
 
 Most difficulties between families and helpers can be traced back to a few avoidable decisions made at the start. Here are the most common mistakes we see, and how to avoid them.

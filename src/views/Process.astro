@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/urls';
+import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const ms = lang === 'ms';
+const post = (en: string, m: string) => href(withLang(lang, postPath(lang, ms ? m : en)));
+const C = {
+  en: {
+    title: 'Maid Hiring Process in Malaysia | Step-by-Step Guide | Final Choice',
+    description: 'How hiring a domestic helper in Malaysia works with Final Choice: requirements, biodata, interview, documents, approvals, arrival, FOMEMA screening and handover.',
+    eyebrow: 'Maid hiring process', h1: 'How the maid hiring process works in Malaysia',
+    lead: 'Seven clear steps, from your first conversation with our consultant to handover and follow-up. Here is what happens at each stage, and what we need from you.',
+    timeH: 'What affects how long it takes',
+    time: [['Your documents.', 'Complete, clear documents avoid back-and-forth.'], ['Government and embassy approvals.', 'Processing times are set by the authorities and vary.'], ['The helper’s own documents.', 'Passport, training and pre-departure requirements in her home country.'], ['Travel arrangements.', 'Flight availability and arrival scheduling.'], ['Medical screening.', 'The FOMEMA examination after arrival must be completed before the process can finish.']],
+    timeP: 'We will give you an estimate for your case and keep you updated. We cannot guarantee approval or a specific arrival date.',
+    conH: 'Contract, salary and rest days',
+    con1: 'Final Choice generally arranges a two-year employment contract. The contract sets out the helper’s salary, rest day, working arrangements and other terms. Requirements differ between Indonesian and Filipino helpers, and are set by Malaysian law and the agreements and rules of each source country.',
+    con2: 'Your consultant will explain the terms that apply to your helper before you sign. Employer eligibility requirements, such as income criteria, are separate from the helper’s salary.',
+    docsL: 'Documents you may need', guidesH: 'Helpful guides',
+    guides: [['How to hire a maid in Malaysia', post('how-to-hire-a-maid-in-malaysia', '')], ['How to interview a helper', post('how-to-interview-a-domestic-helper', '')], ['After your maid arrives', post('what-happens-after-your-maid-arrives-in-malaysia', '')], ['Maid packages', href(path(lang, 'packages'))]],
+    ctaH: 'Ready to start?', ctaP: 'Tell us your requirements and we will share suitable biodata.',
+  },
+  ms: {
+    title: 'Proses Pengambilan Pembantu Rumah di Malaysia | Final Choice',
+    description: 'Cara permohonan pembantu rumah di Malaysia bersama Final Choice: keperluan, biodata, temu duga, dokumen, kelulusan, ketibaan, pemeriksaan FOMEMA dan penyerahan.',
+    eyebrow: 'Permohonan pembantu rumah Malaysia', h1: 'Proses pengambilan pembantu rumah di Malaysia',
+    lead: 'Tujuh langkah yang jelas, daripada perbualan pertama dengan perunding kami hingga penyerahan dan susulan. Berikut apa yang berlaku di setiap peringkat, dan apa yang kami perlukan daripada anda.',
+    timeH: 'Faktor yang mempengaruhi tempoh',
+    time: [['Dokumen anda.', 'Dokumen yang lengkap dan jelas mengelakkan kelewatan.'], ['Kelulusan kerajaan dan kedutaan.', 'Tempoh pemprosesan ditetapkan oleh pihak berkuasa dan berbeza-beza.'], ['Dokumen pembantu sendiri.', 'Pasport, latihan dan keperluan pra-pemergian di negara asalnya.'], ['Urusan perjalanan.', 'Kekosongan penerbangan dan jadual ketibaan.'], ['Pemeriksaan perubatan.', 'Pemeriksaan FOMEMA selepas ketibaan perlu diselesaikan sebelum proses dapat dimuktamadkan.']],
+    timeP: 'Kami akan memberikan anggaran untuk kes anda dan sentiasa memaklumkan perkembangannya. Kami tidak boleh menjamin kelulusan atau tarikh ketibaan tertentu.',
+    conH: 'Kontrak, gaji dan hari rehat',
+    con1: 'Final Choice biasanya mengatur kontrak pekerjaan selama dua tahun. Kontrak tersebut menetapkan gaji, hari rehat, cara kerja dan terma lain pembantu rumah. Keperluan berbeza antara pembantu Indonesia dan Filipina, dan ditetapkan oleh undang-undang Malaysia serta perjanjian dan peraturan setiap negara asal.',
+    con2: 'Perunding kami akan menerangkan terma yang terpakai untuk pembantu anda sebelum anda menandatangani. Syarat kelayakan majikan, seperti syarat pendapatan, adalah berasingan daripada gaji pembantu rumah.',
+    docsL: 'Dokumen yang mungkin diperlukan', guidesH: 'Panduan berguna',
+    guides: [['Cara mengambil pembantu rumah di Malaysia', post('', 'cara-mengambil-pembantu-rumah-di-malaysia')], ['Cara menemu duga pembantu rumah', post('', 'cara-temu-duga-pembantu-rumah')], ['Selepas pembantu rumah tiba', post('', 'selepas-pembantu-rumah-tiba-di-malaysia')], ['Pakej pembantu rumah', href(path(lang, 'packages'))]],
+    ctaH: 'Bersedia untuk bermula?', ctaP: 'Beritahu kami keperluan anda dan kami akan berkongsi biodata yang sesuai.',
+  },
+}[lang];
+const docs = post('documents-needed-to-hire-a-domestic-helper', 'dokumen-untuk-mengambil-pembantu-rumah');
+---
+<BaseLayout lang={lang} title={C.title} description={C.description} path={path(lang, 'process')} alternates={routeAlternates('process')}
+  crumbs={[{ name: T.crumb.process, path: path(lang, 'process') }]}>
+  <PageHero eyebrow={C.eyebrow} title={C.h1} lead={C.lead} />
+  <section class="section">
+    <div class="container" style="max-width:920px"><ProcessSteps lang={lang} detailed headingLevel="h2" /></div>
+  </section>
+  <section class="section section--tint">
+    <div class="container split" style="align-items:start">
+      <div class="prose">
+        <h2>{C.timeH}</h2>
+        <ul>{C.time.map(([b, x]) => <li><strong>{b}</strong> {x}</li>)}</ul>
+        <p>{C.timeP}</p>
+      </div>
+      <div class="prose">
+        <h2>{C.conH}</h2>
+        <p>{C.con1}</p>
+        <p>{C.con2}</p>
+        <p><a href={docs}>{C.docsL}</a> · <a href={href(path(lang, 'faq'))}>{T.crumb.faq}</a></p>
+      </div>
+    </div>
+  </section>
+  <section class="section section--tight">
+    <div class="container">
+      <h2 style="font-size:1.4rem">{C.guidesH}</h2>
+      <ul class="related-links">{C.guides.map(([label, url]) => <li><a href={url}>{label} <Icon name="arrow" size={16} /></a></li>)}</ul>
+    </div>
+  </section>
+  <CtaBand lang={lang} title={C.ctaH} text={C.ctaP} />
+</BaseLayout>
