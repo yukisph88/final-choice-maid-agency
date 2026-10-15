@@ -9,6 +9,8 @@
 //   npm run maids:archive                Move placed + withdrawn candidates off the website into private-biodata/archive/
 //   npm run maids:list                   Show every candidate on the website with status
 //   npm run maids:preview                Build a PRIVATE local review site from staging drafts (never deployed)
+//   npm run maids:approvals              Apply private-biodata/approval/Maid_Approval_Checklist.xlsx:
+//                                        update records, re-import, publish READY rows, withdraw the rest
 //
 // Nothing in private-biodata/ is ever committed to Git (see .gitignore). Only files copied by
 // "publish" into src/content/maids, public/images/maids and public/biodata become public.
@@ -96,6 +98,7 @@ function toMarkdown(m) {
   L.push(`  consentDate: ${m.publication.consentDate}`);
   L.push(`  photoConsent: ${m.publication.photoConsent}`);
   L.push(`  showAge: ${m.publication.showAge}`);
+  L.push(`  showReligion: ${m.publication.showReligion}`);
   L.push(`  approvedBy: ${s(m.publication.approvedBy)}`);
   L.push('---');
   L.push(m.summary || '');
@@ -158,7 +161,7 @@ function fromRow(r) {
     experienceYears: exp, overseasExperience: yes(r.overseasExperience), skills, languages, employmentHistory,
     status, statusUpdated: today(), interviewAvailability: r.interviewAvailability, interviewAvailability_ms: r.interviewAvailability_ms,
     summary: r.summary, summary_ms: r.summary_ms, featured: yes(r.featured), published: false,
-    publication: { consentRecorded, consentDate: consentDate || today(), photoConsent: yes(r.photoConsent), showAge: yes(r.showAge), approvedBy: (r.approvedBy || 'XX').slice(0, 10) },
+    publication: { consentRecorded, consentDate: consentDate || today(), photoConsent: yes(r.photoConsent), showAge: yes(r.showAge), showReligion: yes(r.showReligion), approvedBy: (r.approvedBy || 'XX').slice(0, 10) },
     pdfApproved: yes(r.biodataPdfApproved),
   };
   return { m, errors, warnings, priv };
@@ -298,6 +301,84 @@ async function preview() {
   console.log('Review site ready in private-biodata/review-site/ — open: python -m http.server 4330 -d private-biodata/review-site');
 }
 
+// ---------- approvals (from the staff Excel checklist) ----------
+const STATUS_FROM_LABEL = { available: 'available', 'interview pending': 'interview-pending', reserved: 'reserved', processing: 'processing', placed: 'placed', unavailable: 'unavailable', withdrawn: 'withdrawn' };
+const cellText = (v) => {
+  if (v == null) return '';
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  if (typeof v === 'object' && 'result' in v) return cellText(v.result);
+  if (typeof v === 'object' && 'richText' in v) return v.richText.map((t) => t.text).join('');
+  if (typeof v === 'object' && 'text' in v) return String(v.text);
+  return String(v).trim();
+};
+const toIsoDate = (t) => {
+  if (!t) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+  const m = t.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/); // DD/MM/YYYY
+  return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : 'INVALID';
+};
+function writeCsv(path, rows) {
+  const head = Object.keys(rows[0]);
+  const q = (v) => (/[",\n\r]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  writeFileSync(path, '\uFEFF' + [head.join(','), ...rows.map((r) => head.map((h) => q(r[h] ?? '')).join(','))].join('\r\n') + '\r\n');
+}
+async function approvals() {
+  const xlsx = join(PRIV, 'approval', 'Maid_Approval_Checklist.xlsx');
+  if (!existsSync(xlsx)) die('Not found: private-biodata/approval/Maid_Approval_Checklist.xlsx');
+  // read-excel-file reads cell values only (ignores the photo thumbnails)
+  const { readSheet } = await import('read-excel-file/node');
+  const sheet = await readSheet(xlsx, 'Checklist').catch(() => die('The workbook has no "Checklist" sheet'));
+  const col = {}; sheet[0].forEach((v, i) => { col[cellText(v)] = i; });
+  const need = ['Reference code', 'Current availability', 'Publication consent', 'Consent date', 'Photo consent', 'Name display (Full / First / None)', 'Show age', 'Show religion', 'Discrepancies resolved', 'Approved for website', 'Approved by (initials)'];
+  for (const n of need) if (col[n] === undefined) die(`Checklist column missing: "${n}" — do not rename the column headings`);
+
+  const csvPath = join(IMPORT, 'maids.csv');
+  const rows = parseCsv(readFileSync(csvPath, 'utf8'));
+  const byCode = Object.fromEntries(rows.map((r) => [r.code.toUpperCase(), r]));
+  for (const k of ['showReligion']) for (const r of rows) if (!(k in r)) r[k] = 'no';
+
+  const ready = []; const problems = []; let seen = 0;
+  sheet.slice(1).forEach((row) => {
+    const g = (name) => cellText(row[col[name]]);
+    const code = g('Reference code').toUpperCase(); if (!code || code.startsWith('EXAMPLE')) return;
+    const r = byCode[code]; if (!r) { problems.push(`${code}: not in the imported records`); return; } seen++;
+    const status = STATUS_FROM_LABEL[g('Current availability').toLowerCase()];
+    if (!status) { problems.push(`${code}: unknown availability "${g('Current availability')}"`); return; }
+    const date = toIsoDate(g('Consent date'));
+    if (date === 'INVALID') { problems.push(`${code}: consent date "${g('Consent date')}" — use DD/MM/YYYY`); return; }
+    const Y = (name) => (g(name).toLowerCase() === 'yes' ? 'yes' : 'no');
+    Object.assign(r, {
+      status, consentRecorded: Y('Publication consent'), consentDate: date, photoConsent: Y('Photo consent'),
+      nameConsent: (g('Name display (Full / First / None)') || 'none').toLowerCase(), showAge: Y('Show age'), showReligion: Y('Show religion'),
+      approvedBy: g('Approved by (initials)').slice(0, 10),
+    });
+    const ok = Y('Approved for website') === 'yes' && r.consentRecorded === 'yes' && date && Y('Discrepancies resolved') === 'yes' && r.approvedBy;
+    if (ok && !['placed', 'unavailable', 'withdrawn'].includes(status)) ready.push(code);
+  });
+  if (problems.length) { problems.forEach((p) => console.error('✗ ' + p)); die('Fix the checklist and run again — nothing was changed.'); }
+
+  ensure(join(IMPORT, 'backups'));
+  copyFileSync(csvPath, join(IMPORT, 'backups', `maids-${today()}-${Date.now()}.csv`));
+  writeCsv(csvPath, rows);
+  console.log(`Checklist read: ${seen} candidate(s). Records updated (backup in private-biodata/import/backups/).\n`);
+
+  await importCsv();
+
+  // Website = exactly the READY rows. Withdraw anything published earlier that is no longer approved.
+  ensure(CONTENT);
+  const readySlugs = new Set(ready.map((c) => c.toLowerCase()));
+  for (const f of readdirSync(CONTENT).filter((x) => x.endsWith('.md') && !x.startsWith('_'))) {
+    const slug = f.replace(/\.md$/, '');
+    if (readySlugs.has(slug)) continue;
+    rmSync(join(CONTENT, f));
+    for (const p of [join(PHOTOS, `${slug}.webp`), join(PDFS, `${slug}.pdf`)]) if (existsSync(p)) rmSync(p);
+    console.log(`– ${slug.toUpperCase()} removed from the website files (no longer approved)`);
+  }
+  console.log(`\n${ready.length} candidate(s) READY TO PUBLISH${ready.length ? ': ' + ready.join(', ') : ''}`);
+  if (ready.length) publish(ready);
+  console.log('\nNothing has been pushed or deployed. Review locally first: npm run build && npm run preview');
+}
+
 // ---------- list ----------
 function list() {
   const files = existsSync(CONTENT) ? readdirSync(CONTENT).filter((x) => x.endsWith('.md') && !x.startsWith('_')) : [];
@@ -310,6 +391,6 @@ function list() {
   }
 }
 
-const run = { import: importCsv, preview, publish: () => publish(args), status: () => setStatus(args[0], args[1]), feature: () => setFeatured(args[0], args[1]), archive, list }[cmd];
+const run = { import: importCsv, preview, approvals, publish: () => publish(args), status: () => setStatus(args[0], args[1]), feature: () => setFeatured(args[0], args[1]), archive, list }[cmd];
 if (!run) die('Commands: import | publish CODE… | status CODE STATUS | feature CODE on|off | archive | list');
 await run();

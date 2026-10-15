@@ -53,6 +53,7 @@ const maidSchema = z
       consentDate: z.coerce.date(),
       photoConsent: z.boolean().default(false),
       showAge: z.boolean().default(false),
+      showReligion: z.boolean().default(false), // religion is sensitive data under the PDPA — explicit consent only
       approvedBy: z.string().max(10), // staff initials
     }),
   })

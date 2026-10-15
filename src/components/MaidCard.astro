@@ -44,7 +44,7 @@ const name = (REVIEW ? m.reviewName : undefined) ?? m.displayName;
     <dl class="maid-card__facts">
       {m.publication.showAge && m.age && (<div><dt>{T.card.age}</dt><dd>{m.age}</dd></div>)}
       <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>
-      {m.religion && (<div><dt>{T.card.religion}</dt><dd>{m.religion}</dd></div>)}
+      {m.religion && (REVIEW || m.publication.showReligion) && (<div><dt>{T.card.religion}</dt><dd>{m.religion}</dd></div>)}
     </dl>
     {skills.length > 0 && (
       <ul class="chips" aria-label={T.card.experienceIn}>

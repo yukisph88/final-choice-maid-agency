@@ -73,7 +73,7 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
             <dt>{P.code}</dt><dd>{m.code}</dd>
             <dt>{P.nationality}</dt><dd>{nat}</dd>
             {m.publication.showAge && m.age && (<><dt>{T.card.age}</dt><dd>{m.age}</dd></>)}
-            {m.religion && (<><dt>{T.card.religion}</dt><dd>{m.religion}</dd></>)}
+            {m.religion && (REVIEW || m.publication.showReligion) && (<><dt>{T.card.religion}</dt><dd>{m.religion}</dd></>)}
             {m.maritalStatus && (<><dt>{P.maritalStatus}</dt><dd>{m.maritalStatus}</dd></>)}
             <dt>{P.workExperience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` ${P.includingOverseas}` : ''}</dd>
             {interview && (<><dt>{P.interview}</dt><dd>{interview}</dd></>)}
