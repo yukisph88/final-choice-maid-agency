@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t } from '../i18n/ui';
-import type { Lang } from '../i18n/routes';
+import { RESERVED_PROFILE_SLUGS, type Lang } from '../i18n/routes';
+import { DB_SOURCE, fetchPublicMaids, publicPhotoUrl, type PublicMaidRow } from './db';
 
 // One shared record per candidate. Both language versions read exactly the same data
 // (code, status, photo, skills), so English and Bahasa Melayu pages cannot disagree.
@@ -18,12 +19,32 @@ export const HIDDEN_STATUSES: Maid['status'][] = ['placed', 'unavailable', 'with
  * (available, interview pending, reserved or processing). Everything else is excluded from
  * pages, listings and the sitemap automatically.
  */
+let dbCache: Promise<Maid[]> | undefined;
 export async function getPublicMaids(): Promise<Maid[]> {
-  const entries = DEMO ? await getCollection('demoMaids') : await getCollection('maids');
-  return entries
-    .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO || REVIEW }))
+  // Database source (PUBLIC_MAIDS_SOURCE=supabase): approved profiles come from Supabase public_maids(),
+  // which already applies consent, name/age/religion/photo permissions and hides placed/unavailable/withdrawn.
+  const list = DB_SOURCE && !DEMO && !REVIEW
+    ? await (dbCache ??= fetchPublicMaids().then((rows) => rows.filter((r) => !RESERVED_PROFILE_SLUGS.includes(r.code.toLowerCase())).map(fromDb)))
+    : (DEMO ? await getCollection('demoMaids') : await getCollection('maids'))
+        .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO || REVIEW }));
+  return list
     .filter((m) => (REVIEW || (m.published && m.publication.consentRecorded)) && !HIDDEN_STATUSES.includes(m.status))
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || +b.statusUpdated - +a.statusUpdated);
+}
+
+function fromDb(r: PublicMaidRow): Maid {
+  const opt = <T,>(v: T | null | undefined) => (v === null || v === '' ? undefined : v ?? undefined);
+  return {
+    code: r.code, slug: r.code.toLowerCase(), demo: false,
+    displayName: opt(r.display_name), nationality: r.nationality, age: opt(r.age), religion: opt(r.religion), maritalStatus: opt(r.marital_status),
+    experienceYears: r.experience_years === null ? undefined : Number(r.experience_years), overseasExperience: r.overseas_experience,
+    skills: r.skills as Maid['skills'], languages: r.languages as Maid['languages'], employmentHistory: r.employment_history,
+    status: r.status as Maid['status'], statusUpdated: new Date(r.status_updated_at), statusRecorded: r.status_recorded, statusConfirmed: true,
+    interviewAvailability: opt(r.interview_availability_en), interviewAvailability_ms: opt(r.interview_availability_ms),
+    summary: r.summary_en, summary_ms: opt(r.summary_ms), photo: r.photo_path ? publicPhotoUrl(r.photo_path) : undefined,
+    featured: r.featured, published: true,
+    publication: { consentRecorded: true, consentDate: new Date(r.status_updated_at), photoConsent: Boolean(r.photo_path), showAge: r.age !== null, showReligion: r.religion !== null, approvedBy: 'DB' },
+  };
 }
 
 /** Status shown to visitors: the status set by staff, or "to be confirmed" when no status has been recorded. */

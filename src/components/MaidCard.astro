@@ -38,7 +38,7 @@ const st = shownStatus(m);
   </a>
   <div class="maid-card__body">
     <div class="maid-card__top">
-      <span class={`status status--${st}`}>{T.status[st]}</span>
+      <span class={`status status--${st}`} data-live-status={m.code}>{T.status[st]}</span>
       <span class="maid-card__nat">{T.nationality[m.nationality]}</span>
     </div>
     <H class="maid-card__title"><a href={profile}>{name ?? m.code}</a></H>

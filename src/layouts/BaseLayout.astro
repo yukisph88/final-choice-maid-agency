@@ -12,6 +12,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
+import LiveStatus from '../components/LiveStatus.astro';
 import { site } from '../lib/config';
 import { absUrl, asset } from '../lib/urls';
 import { breadcrumbSchema, type Crumb } from '../lib/schema';
@@ -88,5 +89,6 @@ const jsonLd = [...schema, ...(allCrumbs ? [breadcrumbSchema(allCrumbs)] : [])];
     </main>
     <Footer lang={lang} />
     <WhatsAppFloat lang={lang} message={waMessage ?? T.wa.home} />
+    <LiveStatus lang={lang} />
   </body>
 </html>

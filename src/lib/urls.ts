@@ -16,6 +16,7 @@ export function absUrl(path: string): string {
 
 /** Asset inside /public, e.g. asset('images/logo.png'). */
 export function asset(path: string): string {
+  if (/^https:\/\//.test(path)) return path; // approved photos served from the database's public photo bucket
   return href(path.replace(/^\//, ''));
 }
 

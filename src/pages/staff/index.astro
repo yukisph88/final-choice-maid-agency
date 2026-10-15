@@ -1,0 +1,244 @@
+---
+// PRIVATE staff dashboard for maid records (Supabase). Not linked from the website, not in the sitemap, noindex.
+// Security does not depend on this page being hidden: every read and write is checked by the database
+// (Row Level Security) against the signed-in staff member's role. Without a staff account nothing loads.
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/montserrat/700.css';
+import { DB_URL, DB_KEY, DB_ENABLED } from '../../lib/db';
+import { href, asset } from '../../lib/urls';
+---
+<!doctype html>
+<html lang="en-MY">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Staff — Maid records | Final Choice</title>
+  <meta name="description" content="Private Final Choice staff dashboard for maid biodata records. Authorised staff only." />
+  <link rel="canonical" href={new URL(href('staff/'), Astro.site).href} />
+  <link rel="icon" href={asset('favicon/favicon-48.png')} />
+  <style is:global>
+    :root { --ink:#141c2e; --muted:#4f5d73; --line:#dde5f0; --bg:#f6f8fb; --navy:#1f3a93; --blue:#2563eb; --green:#0e7a40; --amber:#a15c00; --red:#b42318; --r:12px; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 'IBM Plex Sans', system-ui, Segoe UI, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+    h1, h2, h3 { font-family: Montserrat, 'IBM Plex Sans', sans-serif; margin: 0; }
+    button, input, select, textarea { font: inherit; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+    .topbar { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+    .topbar .wrap { display: flex; align-items: center; gap: 14px; min-height: 64px; flex-wrap: wrap; }
+    .topbar img { height: 34px; }
+    .topbar h1 { font-size: 1.1rem; flex: 1; }
+    .who { color: var(--muted); font-size: .9rem; }
+    .btn { border: 1px solid var(--navy); background: var(--navy); color: #fff; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .btn--ghost { background: #fff; color: var(--navy); }
+    .btn--danger { background: #fff; color: var(--red); border-color: var(--red); }
+    .btn--sm { padding: 5px 10px; font-size: .88rem; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: var(--r); }
+    .center { max-width: 420px; margin: 10vh auto; padding: 28px; }
+    .center h2 { font-size: 1.3rem; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin: 12px 0 4px; }
+    .hint { color: var(--muted); font-size: .84rem; font-weight: 400; margin: 2px 0 0; }
+    input[type=text], input[type=email], input[type=password], input[type=number], input[type=date], input[type=search], select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #b9c4d6; border-radius: 8px; background: #fff; }
+    textarea { min-height: 80px; resize: vertical; }
+    input:disabled, select:disabled, textarea:disabled { background: #f1f3f7; color: #555; }
+    .check { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; margin: 10px 0; }
+    .check input { margin-top: 4px; }
+    .toolbar { display: grid; grid-template-columns: 2fr repeat(3, 1fr) auto; gap: 10px; align-items: end; margin: 18px 0 10px; }
+    .toolbar label { margin-top: 0; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    @media (max-width: 900px) { .toolbar { grid-template-columns: 1fr 1fr; } .toolbar .grow { grid-column: 1 / -1; } }
+    .count { color: var(--muted); margin: 6px 0 10px; }
+    .list { display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: 56px 1.8fr 1fr 1.2fr 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; }
+    .row img, .thumb { width: 56px; height: 70px; object-fit: cover; border-radius: 8px; background: #eef1f6; display: block; }
+    .row .name { font-weight: 600; } .row .code { color: var(--muted); font-size: .85rem; }
+    @media (max-width: 760px) { .row { grid-template-columns: 56px 1fr; } .row > :nth-child(n+3) { grid-column: 2; } }
+    .pill { display: inline-block; border-radius: 99px; padding: 2px 10px; font-size: .8rem; font-weight: 700; background: #eef1f6; color: #4a5468; }
+    .pill--available { background: #e8f6ee; color: var(--green); } .pill--interview-pending { background: #fff4e0; color: var(--amber); }
+    .pill--reserved { background: #e6efff; color: var(--navy); } .pill--processing { background: #efeafc; color: #5b3fb0; }
+    .pill--pub { background: #e8f6ee; color: var(--green); } .pill--priv { background: #f1f3f7; color: var(--muted); }
+    dialog { border: 0; border-radius: 16px; padding: 0; width: min(960px, 96vw); max-height: 92vh; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+    dialog::backdrop { background: rgba(20, 28, 46, .45); }
+    .dlg-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 2; }
+    .dlg-head h2 { font-size: 1.15rem; flex: 1; }
+    .dlg-body { padding: 4px 20px 20px; overflow: auto; }
+    .dlg-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 20px; border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff; flex-wrap: wrap; }
+    .tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 12px 0 4px; border-bottom: 1px solid var(--line); }
+    .tabs button { border: 0; background: none; padding: 8px 12px; border-radius: 8px 8px 0 0; font-weight: 600; color: var(--muted); cursor: pointer; }
+    .tabs button[aria-selected=true] { color: var(--navy); background: #eef3ff; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; } .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 16px; }
+    @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+    .note { background: #fff8e6; border: 1px solid #f3dfa8; border-radius: 10px; padding: 10px 12px; margin: 12px 0; font-size: .9rem; }
+    .err { background: #fdecea; border: 1px solid #f5c2bd; color: var(--red); border-radius: 10px; padding: 10px 12px; margin: 12px 0; white-space: pre-line; }
+    .ok { background: #e8f6ee; border: 1px solid #b6e2c6; color: var(--green); border-radius: 10px; padding: 10px 12px; margin: 12px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; } td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px; z-index: 50; max-width: 92vw; }
+    .photo-box { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; } .photo-box img { width: 180px; height: 225px; object-fit: cover; border-radius: 12px; background: #eef1f6; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="cfg" data-url={DB_URL} data-key={DB_KEY} hidden></div>
+
+  <section id="v-noconfig" class="card center" hidden={DB_ENABLED}>
+    <h2>Database not connected</h2>
+    <p class="hint">This build has no Supabase project configured. See supabase/README.md.</p>
+  </section>
+
+  <section id="v-login" class="card center" hidden>
+    <img src={asset('images/logo-final-choice.png')} alt="Final Choice" style="height:44px" />
+    <h2 style="margin-top:14px">Staff sign in</h2>
+    <p class="hint">Maid records — authorised Final Choice staff only.</p>
+    <form id="f-login">
+      <label for="l-email">E-mail</label><input id="l-email" type="email" autocomplete="username" required />
+      <label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password" required />
+      <div id="l-msg"></div>
+      <button class="btn" type="submit" style="margin-top:16px;width:100%">Sign in</button>
+    </form>
+    <p class="hint" style="margin-top:14px"><a href="#" id="l-forgot">Forgot password?</a> Enter your e-mail above first.</p>
+  </section>
+
+  <section id="v-denied" class="card center" hidden>
+    <h2>No access</h2>
+    <p class="hint">You are signed in, but this account is not an active Final Choice staff account. Ask the administrator to add you.</p>
+    <button class="btn btn--ghost" data-signout type="button" style="margin-top:12px">Sign out</button>
+  </section>
+
+  <div id="v-app" hidden>
+    <header class="topbar"><div class="wrap">
+      <img src={asset('images/logo-final-choice.png')} alt="Final Choice" />
+      <h1>Maid records</h1>
+      <span class="who" id="who"></span>
+      <button class="btn btn--ghost btn--sm" data-signout type="button">Sign out</button>
+    </div></header>
+    <main class="wrap">
+      <div class="toolbar">
+        <div class="grow"><label for="q">Search</label><input id="q" type="search" placeholder="Name or reference code" autocomplete="off" /></div>
+        <div><label for="fn">Nationality</label><select id="fn"><option value="">All</option><option value="indonesian">Indonesian</option><option value="filipino">Filipino</option></select></div>
+        <div><label for="fs">Status</label><select id="fs"><option value="">All</option></select></div>
+        <div><label for="fp">Website</label><select id="fp"><option value="">All</option><option value="pub">Published</option><option value="priv">Not published</option></select></div>
+        <div class="actions">
+          <button class="btn" id="b-add" type="button" data-edit>+ Add maid</button>
+          <button class="btn btn--ghost" id="b-import" type="button" data-edit>Import CSV</button>
+          <button class="btn btn--ghost" id="b-history" type="button">History</button>
+        </div>
+      </div>
+      <p class="count" id="count"></p>
+      <div class="list" id="list"></div>
+    </main>
+  </div>
+
+  <dialog id="d-edit"><form id="f-edit" method="dialog">
+    <div class="dlg-head"><h2 id="e-title">Maid</h2><button class="btn btn--ghost btn--sm" type="button" data-close>Close</button></div>
+    <div class="dlg-body">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="t-details" aria-selected="true">Details</button>
+        <button type="button" role="tab" data-tab="t-skills">Experience &amp; skills</button>
+        <button type="button" role="tab" data-tab="t-text">Profile text</button>
+        <button type="button" role="tab" data-tab="t-status">Availability &amp; website</button>
+        <button type="button" role="tab" data-tab="t-files">Photo &amp; files</button>
+        <button type="button" role="tab" data-tab="t-hist">History</button>
+      </div>
+      <div id="e-msg"></div>
+      <div data-panel="t-details">
+        <div class="grid2">
+          <div><label for="e-code">Reference code</label><input id="e-code" name="code" type="text" required pattern="[A-Za-z0-9][A-Za-z0-9-]{2,29}" /><p class="hint">Cannot be changed after saving.</p></div>
+          <div><label for="e-nat">Nationality</label><select id="e-nat" name="nationality"><option value="indonesian">Indonesian</option><option value="filipino">Filipino</option></select></div>
+          <div><label for="e-full">Full name (reading order)</label><input id="e-full" name="full_name" type="text" /><p class="hint">e.g. Maria Santos Dela Cruz. Private unless name consent is "Full".</p></div>
+          <div><label for="e-first">First name</label><input id="e-first" name="first_name" type="text" /><p class="hint">Shown when name consent is "First name only".</p></div>
+          <div><label for="e-nc">Name shown on website</label><select id="e-nc" name="name_consent"><option value="none">None — reference code only</option><option value="first">First name only</option><option value="full">Full name</option></select></div>
+          <div><label for="e-dn">Website name override (optional)</label><input id="e-dn" name="display_name_override" type="text" /><p class="hint">e.g. "Mary Rose" for a two-part first name.</p></div>
+        </div>
+        <div class="grid3">
+          <div><label for="e-age">Age</label><input id="e-age" name="age" type="number" min="21" max="60" /><label class="check"><input type="checkbox" name="show_age" /> Show age on website</label></div>
+          <div><label for="e-rel">Religion</label><input id="e-rel" name="religion" type="text" /><label class="check"><input type="checkbox" name="show_religion" /> Show religion (explicit consent only)</label></div>
+          <div><label for="e-ms">Marital status</label><input id="e-ms" name="marital_status" type="text" /></div>
+        </div>
+      </div>
+      <div data-panel="t-skills" hidden>
+        <div class="grid2">
+          <div><label for="e-exp">Years of experience</label><input id="e-exp" name="experience_years" type="number" min="0" max="40" step="0.5" /><p class="hint">Leave empty if the biodata does not say.</p></div>
+          <div><label class="check" style="margin-top:34px"><input type="checkbox" name="overseas_experience" /> Has overseas experience</label></div>
+        </div>
+        <div class="grid3" id="e-skills"></div>
+        <label for="e-lang">Languages</label><input id="e-lang" name="languages" type="text" placeholder="English: fluent; Bahasa Indonesia" />
+        <p class="hint">Separate with ";". Level (optional): basic, conversational, fluent or native.</p>
+        <label for="e-hist">Work history — one job per line</label><textarea id="e-hist" name="employment_history" placeholder="Saudi Arabia | 2021 – 2023 | Household chores and childcare | Kerja rumah dan menjaga kanak-kanak"></textarea>
+        <p class="hint">Country | Duration | Main duties (English) | Main duties (BM). No employer names or addresses.</p>
+      </div>
+      <div data-panel="t-text" hidden>
+        <div class="grid2">
+          <div><label for="e-sen">Profile summary — English</label><textarea id="e-sen" name="summary_en" maxlength="800" style="min-height:140px"></textarea></div>
+          <div><label for="e-sms">Profile summary — Bahasa Melayu</label><textarea id="e-sms" name="summary_ms" maxlength="800" style="min-height:140px"></textarea></div>
+          <div><label for="e-ien">Interview availability — English</label><input id="e-ien" name="interview_availability_en" type="text" maxlength="120" /></div>
+          <div><label for="e-ims">Interview availability — BM</label><input id="e-ims" name="interview_availability_ms" type="text" maxlength="120" /></div>
+        </div>
+        <p class="hint">Write the same facts in both languages. Never include passport, IC or phone numbers, addresses, medical details or family health details.</p>
+      </div>
+      <div data-panel="t-status" hidden>
+        <div class="grid3">
+          <div><label for="e-st">Availability</label><select id="e-st" name="status"></select><p class="hint">Placed, Unavailable and Withdrawn are removed from the website automatically.</p></div>
+          <div><label for="e-sb">Status set by (initials)</label><input id="e-sb" name="status_set_by" type="text" maxlength="20" /></div>
+          <div><label class="check" style="margin-top:34px"><input type="checkbox" name="status_confirmed" /> Confirmed with candidate / supplier</label></div>
+        </div>
+        <h3 style="font-size:1rem;margin-top:22px">Website publication</h3>
+        <div class="note">Publish only after the candidate's written consent is on file. The database refuses to publish without consent, consent date and approver.</div>
+        <div class="grid3">
+          <div><label class="check"><input type="checkbox" name="consent_recorded" /> Written publication consent on file</label></div>
+          <div><label for="e-cd">Consent date</label><input id="e-cd" name="consent_date" type="date" /></div>
+          <div><label for="e-ab">Approved by (initials)</label><input id="e-ab" name="approved_by" type="text" maxlength="10" /></div>
+          <div><label class="check"><input type="checkbox" name="photo_consent" /> Photo consent (photo may be shown)</label></div>
+          <div><label class="check"><input type="checkbox" name="featured" /> Feature on homepage</label></div>
+          <div><label class="check"><input type="checkbox" name="published" id="e-pub" /> <b>Published on website</b></label></div>
+        </div>
+        <label for="e-notes">Internal notes (staff only — never shown on the website)</label><textarea id="e-notes" name="internal_notes"></textarea>
+        <label for="e-src">Source file (staff only)</label><input id="e-src" name="source_file" type="text" />
+      </div>
+      <div data-panel="t-files" hidden>
+        <div class="photo-box">
+          <img id="e-photo" alt="Maid photo (private)" />
+          <div style="flex:1;min-width:240px">
+            <label for="e-file">Upload or replace photo</label><input id="e-file" type="file" accept="image/jpeg,image/png,image/webp" />
+            <p class="hint">Cropped automatically to 720×900 (top-anchored so the face is kept) and saved as a small WebP in the PRIVATE store. It is copied to the website only while the maid is published with photo consent.</p>
+            <p class="hint" id="e-photo-state"></p>
+            <label for="e-pdf" style="margin-top:20px">Biodata PDF (private, optional)</label><input id="e-pdf" type="file" accept="application/pdf" />
+            <p class="hint">Stored privately for staff. Never published. Do not upload passports, medical reports or other identity documents.</p>
+            <p id="e-pdf-state" class="hint"></p>
+          </div>
+        </div>
+      </div>
+      <div data-panel="t-hist" hidden><div id="e-history"><p class="hint">Loading…</p></div></div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn--danger" type="button" id="e-del" hidden>Delete record</button>
+      <span style="flex:1"></span>
+      <button class="btn btn--ghost" type="button" data-close>Cancel</button>
+      <button class="btn" type="submit" id="e-save" data-edit>Save</button>
+    </div>
+  </form></dialog>
+
+  <dialog id="d-import"><div>
+    <div class="dlg-head"><h2>Import maids from CSV</h2><button class="btn btn--ghost btn--sm" type="button" data-close>Close</button></div>
+    <div class="dlg-body">
+      <p>Use the same columns as the office maid list (private-biodata/import/maids.csv). Save from Excel as <b>CSV UTF-8</b>.</p>
+      <ul class="hint"><li>Maids are matched by reference code — existing records are updated, never duplicated.</li><li>Imported maids are never published automatically.</li><li>Photos are added in each maid's "Photo &amp; files" tab.</li></ul>
+      <input type="file" id="i-file" accept=".csv,text/csv" />
+      <div id="i-out"></div>
+    </div>
+    <div class="dlg-foot"><button class="btn btn--ghost" type="button" data-close>Cancel</button><button class="btn" type="button" id="i-apply" disabled>Apply import</button></div>
+  </div></dialog>
+
+  <dialog id="d-history"><div>
+    <div class="dlg-head"><h2>Recent changes</h2><button class="btn btn--ghost btn--sm" type="button" data-close>Close</button></div>
+    <div class="dlg-body" id="h-out"><p class="hint">Loading…</p></div>
+  </div></dialog>
+
+  <div class="toast" id="toast" hidden></div>
+  <script>
+    import './../../staff/dashboard.ts';
+  </script>
+</body>
+</html>

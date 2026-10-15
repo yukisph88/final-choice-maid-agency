@@ -6,6 +6,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Daily rebuild at 06:00 Malaysia time, so profiles newly published or edited in the staff dashboard
+  # appear without a manual push (availability changes already show live). Also keeps the free database active.
+  schedule:
+    - cron: '0 22 * * *'
 
 permissions:
   contents: read
@@ -26,6 +30,11 @@ env:
   # Before publishing the first real approved profiles, set repository variable PUBLIC_DEMO_CANDIDATES=false
   # (Settings → Secrets and variables → Actions → Variables) or change the default below to 'false'.
   PUBLIC_DEMO_CANDIDATES: ${{ vars.PUBLIC_DEMO_CANDIDATES || 'true' }}
+  # Supabase database (optional). Only the PUBLIC project URL and anon key — never the service role key.
+  # Set them as repository VARIABLES. PUBLIC_MAIDS_SOURCE=supabase builds profiles from the database.
+  PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL || '' }}
+  PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY || '' }}
+  PUBLIC_MAIDS_SOURCE: ${{ vars.PUBLIC_MAIDS_SOURCE || 'files' }}
 
 jobs:
   build:

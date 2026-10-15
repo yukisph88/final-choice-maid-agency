@@ -41,10 +41,11 @@ for (const f of htmlFiles) {
   const url = toUrl(f);
   const is404 = url.startsWith('/404');
   const isRoot = url === '/'; // language entry page: forwards to /en/ or /ms/
+  const isStaff = url.startsWith('/staff/'); // private staff dashboard: no language versions, noindex, not in sitemap
   const htmlLang = html.match(/<html lang="([^"]+)"/)?.[1];
   const canonicalHref = html.match(/rel="canonical" href="([^"]+)"/)?.[1];
   const hreflang = Object.fromEntries([...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/g)].map((m) => [m[1], m[2]]));
-  if (!is404 && !isRoot) {
+  if (!is404 && !isRoot && !isStaff) {
     const own = `${SITE}${BASE}${url}`;
     pages.set(own, { url, htmlLang, hreflang });
     const prefix = url.split('/')[1];
@@ -136,6 +137,14 @@ else {
   const alts = [...xml.matchAll(/<xhtml:link rel="alternate" hreflang="[^"]+" href="([^"]+)"/g)].map((m) => m[1]);
   for (const a of alts) if (!pages.has(a)) errors.push(`sitemap: hreflang alternate has no page: ${a}`);
   console.log(`sitemap: ${locs.length} URLs, ${alts.length} hreflang alternates`);
+}
+// Secrets: a Supabase SERVICE ROLE key must never be in the website (it bypasses all database security)
+for (const f of files.filter((x) => /\.(html|js|json|txt|xml)$/.test(x))) {
+  const text = readFileSync(f, 'utf8');
+  for (const jwt of text.match(/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g) || []) {
+    try { if (JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString()).role !== 'anon') errors.push(`${relative(DIST, f)}: contains a non-public Supabase key — remove it`); } catch { /* not a key */ }
+  }
+  if (/sb_secret_[A-Za-z0-9_-]{10,}/.test(text)) errors.push(`${relative(DIST, f)}: contains a Supabase SECRET key — remove it`);
 }
 if (!existsSync(join(DIST, 'robots.txt'))) errors.push('robots.txt missing');
 if (!existsSync(join(DIST, '404.html'))) errors.push('404.html missing');

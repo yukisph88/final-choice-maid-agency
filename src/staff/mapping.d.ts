@@ -1,0 +1,21 @@
+// Types for mapping.js (shared by the browser dashboard and the Node scripts)
+type Row = Record<string, any>;
+export const NATIONALITIES: string[];
+export const LEVELS: string[];
+export const LANG_LEVELS: string[];
+export const STATUSES: string[];
+export const HIDDEN: string[];
+export const SKILLS: string[];
+export const STATUS_LABEL: Record<string, string>;
+export const SKILL_LABEL: Record<string, string>;
+export const LEVEL_LABEL: Record<string, string>;
+export const COMPARE_FIELDS: string[];
+export function parseCsv(text: string): Row[];
+export function splitName(raw: string): { fullName: string; firstName: string };
+export function parseLanguages(s: string): { language: string; level?: string }[];
+export function formatLanguages(arr: { language: string; level?: string }[] | undefined): string;
+export function parseHistory(s: string): { country: string; duration: string; duties: string; duties_ms?: string }[];
+export function formatHistory(arr: Row[] | undefined): string;
+export function validateRow(row: Row): { errors: string[]; warnings: string[] };
+export function csvRowToDb(r: Row): Row;
+export function changedFields(existing: Row, row: Row): string[];

@@ -50,7 +50,8 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
           {m.demo && <span class="demo-ribbon">{REVIEW ? T.card.review : T.card.demo}</span>}
         </div>
         <div class="card">
-          <p style="margin-bottom:8px"><span class={`status status--${st}`}>{T.status[st]}</span></p>
+          <p style="margin-bottom:8px"><span class={`status status--${st}`} data-live-status={m.code}>{T.status[st]}</span></p>
+          <p class="live-gone" data-live-gone hidden>{P.goneNote}</p>
           <p class="muted" style="font-size:.9rem">{REVIEW && m.statusRecorded && !m.statusConfirmed && <strong>{T.card.initialStatus}. </strong>}{m.statusRecorded ? P.recorded(formatDate(m.statusUpdated, lang)) : P.unconfirmedNote}</p>
           <div style="display:grid;gap:10px">
             <a class="btn btn--wa btn--block" href={whatsappLink(T.wa.interview(m.code))} target="_blank" rel="noopener" data-track={`profile_interview_${m.code}`}><Icon name="whatsapp" size={18} /> {T.btn.requestInterview}</a>

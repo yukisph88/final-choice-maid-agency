@@ -110,6 +110,7 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
 
     function matches(c: HTMLElement) {
       const d = c.dataset;
+      if (d.gone) return false; // placed / unavailable / withdrawn since the last website build (live status)
       const code = (val('code')?.value || '').trim().toLowerCase();
       if (code && !d.code!.includes(code) && !(d.name || '').includes(code)) return false; // reference code or shown name
       const nat = val('nationality')?.value;
@@ -153,6 +154,7 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
     }
 
     form.addEventListener('input', () => { page = 1; render(); });
+    document.addEventListener('maids:live-status', () => render());
     form.addEventListener('reset', () => setTimeout(() => { page = 1; render(); }));
     render();
   });

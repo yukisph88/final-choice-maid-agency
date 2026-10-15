@@ -22,7 +22,12 @@
     "maids:approvals": "node scripts/maids.mjs approvals",
     "maids:status-sheet": "node scripts/maids.mjs status-sheet",
     "maids:status-apply": "node scripts/maids.mjs status-apply",
-    "maids:staff": "node scripts/maids-staff.mjs"
+    "maids:staff": "node scripts/maids-staff.mjs",
+    "db:test": "node scripts/db-test.mjs",
+    "db:check": "node scripts/db-check.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:backup": "node scripts/db-backup.mjs",
+    "db:restore": "node scripts/db-restore.mjs"
   },
   "engines": {
     "node": ">=22.12"
@@ -30,11 +35,13 @@
   "dependencies": {
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@fontsource/montserrat": "^5.3.0",
+    "@supabase/supabase-js": "^2.117.2",
     "astro": "^7.3.8",
     "js-yaml": "^5.4.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@electric-sql/pglite": "^0.5.8",
     "@types/js-yaml": "^4.0.9",
     "cross-env": "^10.1.0",
     "exceljs": "^4.4.0",
