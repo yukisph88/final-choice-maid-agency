@@ -14,13 +14,14 @@ const T = t(lang);
 const P = T.profile;
 const ms = lang === 'ms';
 const nat = T.nationality[m.nationality];
+const name = (REVIEW ? m.reviewName : undefined) ?? m.displayName;
 const catKey = m.nationality === 'indonesian' ? 'indonesian' : 'filipino';
 const skills = (Object.keys(m.skills) as (keyof Maid['skills'])[]).filter((k) => m.skills[k] !== 'none');
 const related = all.filter((x) => x.slug !== m.slug && x.nationality === m.nationality && x.status === 'available').slice(0, 3);
 const skillList = skills.slice(0, 3).map((k) => T.skill[k].toLowerCase()).join(', ');
 const title = ms
-  ? `Pembantu Rumah ${nat} ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'Pembantu Baharu' : `Pengalaman ${m.experienceYears} Tahun`}`} | Final Choice`
-  : `${nat} Maid ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`}`} | Final Choice`;
+  ? `${name ? `${name} – ` : ''}Pembantu Rumah ${nat} ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'Pembantu Baharu' : `Pengalaman ${m.experienceYears} Tahun`}`} | Final Choice`
+  : `${name ? `${name} – ` : ''}${nat} Maid ${m.code}${m.experienceYears === undefined ? '' : ` – ${m.experienceYears === 0 ? 'New Helper' : `${m.experienceYears} Yrs Experience`}`} | Final Choice`;
 const description = (ms
   ? `Biodata pembantu rumah ${nat} ${m.code}: ${m.experienceYears === undefined ? 'pengalaman kerja rumah' : m.experienceYears === 0 ? 'pembantu baharu' : `${m.experienceYears} tahun pengalaman`}${skillList ? `, kemahiran ${skillList}` : ''}. Mohon temu duga bersama Final Choice.`
   : `Biodata of ${nat.toLowerCase()} domestic helper ${m.code}: ${m.experienceYears === undefined ? 'household experience' : m.experienceYears === 0 ? 'new helper' : `${m.experienceYears} year${m.experienceYears === 1 ? '' : 's'} of experience`}${skillList ? `, skills in ${skillList}` : ''}. Request an interview with Final Choice.`
@@ -34,14 +35,14 @@ const alternates = { en: withLang('en', profilePath('en', m.slug)), ms: withLang
 const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms : m.interviewAvailability;
 ---
 <BaseLayout lang={lang} title={title} description={description} path={pagePath} alternates={alternates}
-  crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }, { name: T.crumb[catKey], path: path(lang, catKey) }, { name: m.code, path: pagePath }]}
+  crumbs={[{ name: T.crumb.maids, path: path(lang, 'maids') }, { name: T.crumb[catKey], path: path(lang, catKey) }, { name: name ?? m.code, path: pagePath }]}
   waMessage={T.wa.profile(m.code)} noindex={DEMO || REVIEW}>
   <section class="section section--tight">
     <div class="container profile">
       <aside class="profile__aside">
         <div class="profile__photo">
           {m.photo ? (
-            <img src={asset(m.photo)} alt={P.photoAlt(m.code)} width="720" height="900" fetchpriority="high" />
+            <img src={asset(m.photo)} alt={P.photoAlt(name ? `${name} (${m.code})` : m.code)} width="720" height="900" fetchpriority="high" />
           ) : (
             <span class="maid-card__placeholder"><Icon name="users" size={64} /><span>{T.card.photoOnRequest}</span></span>
           )}
@@ -61,7 +62,8 @@ const interview = ms && m.interviewAvailability_ms ? m.interviewAvailability_ms 
 
       <div>
         <p class="eyebrow">{ms ? `Pembantu rumah ${nat}` : `${nat} domestic helper`}</p>
-        <h1>{m.displayName ? `${m.displayName} — ` : ''}{P.reference} {m.code}</h1>
+        <h1 class="profile__name">{name ?? `${P.reference} ${m.code}`}</h1>
+        {name && <p class="profile__ref">{T.card.ref}: <strong>{m.code}</strong></p>}
         {paragraphs.map((x) => <p class="lead" lang={summaryIsEnglishFallback ? 'en-MY' : undefined}>{x}</p>)}
         {summaryIsEnglishFallback && <p class="muted" style="font-size:.9rem">{P.summaryInEnglish}</p>}
 

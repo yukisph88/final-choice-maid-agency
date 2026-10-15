@@ -69,6 +69,7 @@ function toMarkdown(m) {
   L.push('---');
   L.push(`code: ${s(m.code)}`);
   if (m.displayName) L.push(`displayName: ${s(m.displayName)}`);
+  if (m.reviewName) L.push(`reviewName: ${s(m.reviewName)}`);
   L.push(`nationality: ${m.nationality}`);
   if (m.age) L.push(`age: ${m.age}`);
   if (m.religion) L.push(`religion: ${s(m.religion)}`);
@@ -134,6 +135,13 @@ function fromRow(r) {
     if (duties.length > 200) errors.push('employmentHistory duties must be 200 characters or fewer');
     return { country, duration, duties, ...(duties_ms ? { duties_ms } : {}) };
   });
+  // Names: full name from the biodata (private). Public display depends on nameConsent: full | first | none (default).
+  const fullName = titleName(r.internalName || '');
+  const nameConsent = (r.nameConsent || 'none').toLowerCase();
+  if (!['full', 'first', 'none'].includes(nameConsent)) errors.push('nameConsent must be full, first or none');
+  if (!fullName) warnings.push('NAME MISSING on the biodata — card will show the reference code');
+  const publicName = r.displayName || (nameConsent === 'full' ? fullName : nameConsent === 'first' ? fullName.split(' ')[0] : '');
+  if (fullName && nameConsent === 'none') warnings.push('Name consent not recorded — the public site will show the reference code instead of the name');
   const consentRecorded = yes(r.consentRecorded);
   const consentDate = r.consentDate || '';
   if (consentRecorded && !/^\d{4}-\d{2}-\d{2}$/.test(consentDate)) errors.push('consentDate must be YYYY-MM-DD');
@@ -146,7 +154,7 @@ function fromRow(r) {
   if (MYKAD.test(allText)) errors.push('Text looks like an IC number — remove it');
   if (PHONE.test(allText)) errors.push('Text looks like a phone number — remove it');
   const m = {
-    code, displayName: r.displayName, nationality, age, religion: r.religion, maritalStatus: r.maritalStatus,
+    code, displayName: publicName, reviewName: fullName, nationality, age, religion: r.religion, maritalStatus: r.maritalStatus,
     experienceYears: exp, overseasExperience: yes(r.overseasExperience), skills, languages, employmentHistory,
     status, statusUpdated: today(), interviewAvailability: r.interviewAvailability, interviewAvailability_ms: r.interviewAvailability_ms,
     summary: r.summary, summary_ms: r.summary_ms, featured: yes(r.featured), published: false,
@@ -154,6 +162,11 @@ function fromRow(r) {
     pdfApproved: yes(r.biodataPdfApproved),
   };
   return { m, errors, warnings, priv };
+}
+
+// e.g. "ANA BINTI ALI" → "Ana Binti Ali"; keeps Malay/Batak particles readable (Bt, Bin, Br, Binti)
+function titleName(n) {
+  return n.trim().replace(/\s+/g, ' ').toLowerCase().replace(/(^|[\s'-])([a-z])/g, (_, p, c) => p + c.toUpperCase());
 }
 
 const findFile = (dir, code, exts) => {
@@ -197,7 +210,7 @@ img{width:120px;border-radius:8px}.e{color:#b42318;font-weight:600}.w{color:#a15
 <code>npm run maids:publish -- ${report.filter((x) => !x.errors.length && x.m.publication.consentRecorded).map((x) => x.m.code).join(' ') || 'CODE'}</code></p>
 <table><tr><th>Photo</th><th>Code</th><th>Details</th><th>Checks</th></tr>
 ${report.map(({ m, errors, warnings, slug, priv }) => `<tr><td>${m.photo ? `<img src="photos/${slug}.webp">` : '—'}</td>
-<td><b>${esc(m.code)}</b><br><span style="color:#4f5d73">Private: ${esc(priv.name)}<br>${esc(priv.source)}</span><br>${esc(m.nationality)}<br>${esc(m.status)}${m.featured ? '<br>★ featured' : ''}</td>
+<td><b>${esc(m.reviewName || '— name missing —')}</b><br>Ref: ${esc(m.code)}<br><span style="color:#4f5d73">Public name: ${esc(m.displayName || '(code only — no name consent)')}<br>${esc(priv.source)}</span><br>${esc(m.nationality)}<br>${esc(m.status)}${m.featured ? '<br>★ featured' : ''}</td>
 <td>${m.age ? `Age ${m.age}${m.publication.showAge ? '' : ' (hidden)'} · ` : ''}${m.experienceYears ?? 'not stated'} yrs${m.overseasExperience ? ' · overseas' : ''}<br>
 Skills: ${SKILLS.filter((k) => m.skills[k] !== 'none').map((k) => `${k} (${m.skills[k]})`).join(', ')}<br>
 Languages: ${m.languages.map((l) => `${esc(l.language)}${l.level ? ' ' + l.level : ''}`).join(', ')}<br>
@@ -220,6 +233,7 @@ function publish(codes) {
     let text = readFileSync(md, 'utf8');
     if (!/consentRecorded: true/.test(text)) { console.error(`✗ ${raw}: no recorded consent — not published`); continue; }
     text = text.replace(/^published: false$/m, 'published: true');
+    text = text.replace(/^reviewName: .*\n/m, ''); // the private full name never leaves staging
     const photoOk = /photoConsent: true/.test(text);
     if (!photoOk) text = text.replace(/^photo: .*\n/m, '');
     writeFileSync(join(CONTENT, `${slug}.md`), text);

@@ -295,7 +295,12 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .maid-card__body { display: flex; flex-direction: column; flex: 1; padding: 18px; }
 .maid-card__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
 .maid-card__nat { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.maid-card__title { font-size: 1.1rem; margin-bottom: 8px; }
+.maid-card__title { font-size: 1.1rem; margin-bottom: 2px; line-height: 1.25; overflow-wrap: anywhere; hyphens: auto; }
+.maid-card__ref { margin: 0 0 8px; font-size: .78rem; color: var(--muted); letter-spacing: .02em; }
+.maid-card__ref span { font-weight: 600; color: var(--navy); }
+.profile__name { overflow-wrap: anywhere; margin-bottom: 6px; }
+.profile__ref { margin: 0 0 16px; color: var(--muted); font-size: .95rem; }
+.profile__ref strong { color: var(--navy); letter-spacing: .02em; }
 .maid-card__title a { color: var(--navy); text-decoration: none; }
 .maid-card__title a:hover { color: var(--blue); }
 .maid-card__facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 10px; font-size: .9rem; }

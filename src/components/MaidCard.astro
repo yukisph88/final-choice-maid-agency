@@ -11,7 +11,8 @@ const H = headingLevel;
 const has = (k: keyof Maid['skills']) => (m.skills[k] === 'experienced' ? '1' : '0');
 const skills = experiencedSkills(m, lang);
 const profile = href(withLang(lang, profilePath(lang, m.slug)));
-const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
+// Heading: the approved public name (or the private review name in local review); the code is always kept as the reference.
+const name = (REVIEW ? m.reviewName : undefined) ?? m.displayName;
 ---
 <article
   class="maid-card"
@@ -38,7 +39,8 @@ const title = m.displayName ? `${m.displayName} · ${m.code}` : m.code;
       <span class={`status status--${m.status}`}>{T.status[m.status]}</span>
       <span class="maid-card__nat">{T.nationality[m.nationality]}</span>
     </div>
-    <H class="maid-card__title"><a href={profile}>{title}</a></H>
+    <H class="maid-card__title"><a href={profile}>{name ?? m.code}</a></H>
+    {name && <p class="maid-card__ref">{T.card.ref}: <span>{m.code}</span></p>}
     <dl class="maid-card__facts">
       {m.publication.showAge && m.age && (<div><dt>{T.card.age}</dt><dd>{m.age}</dd></div>)}
       <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>

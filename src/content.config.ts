@@ -14,7 +14,8 @@ const maidSchema = z
     code: z
       .string()
       .regex(/^[A-Z0-9][A-Z0-9-]{2,29}$/, 'Code must be 3–30 characters: capital letters, numbers and hyphens only'),
-    displayName: z.string().max(30).optional(), // first name only, and only with consent
+    displayName: z.string().max(60).optional(), // public name — only as far as the candidate's name consent allows
+    reviewName: z.string().max(80).optional(), // PRIVATE: full name for the local review only; removed on publish
     nationality: z.enum(['indonesian', 'filipino']),
     age: z.number().int().min(21).max(60).optional(), // shown only if publication.showAge is true
     religion: z.string().max(30).optional(),
