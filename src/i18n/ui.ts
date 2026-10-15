@@ -53,7 +53,7 @@ const en = {
     photoAlt: (code: string) => `Photo of domestic helper ${code}`,
   },
   pkg: {
-    chooseNationality: 'Choose helper nationality', helper: 'helper', referencePrice: 'reference price*', quote: 'Request a quotation',
+    chooseNationality: 'Choose helper nationality', chooseCategory: 'Choose a package category', allInclude: (c: string) => `All ${c} packages include:`, helper: 'helper', referencePrice: 'reference price*', quote: 'Request a quotation',
     pending: 'Inclusions and terms for this package are confirmed by our consultant with your quotation.', reviewed: 'Prices last reviewed',
   },
   process: {
@@ -103,7 +103,7 @@ const en = {
     filipino: 'Hi Final Choice, I am interested in hiring a Filipino domestic helper. Can you assist me?',
     profile: (code: string) => `Hi Final Choice, I would like to enquire about maid reference ${code}.`,
     interview: (code: string) => `Hi Final Choice, I would like to request an interview with maid reference ${code}.`,
-    package: (tier: string, nat: string) => `Hi Final Choice, I would like a quotation for the ${tier} package (${nat} domestic helper).`,
+    package: (category: string, name: string, price: string) => `Hi Final Choice, I would like to enquire about the ${category} ${name} Package${price ? ` (${price})` : ''}.`,
     service: (name: string) => `Hi Final Choice, I would like to enquire about ${name}.`,
     renewal: 'Hi Final Choice, I would like to enquire about renewing my maid’s work permit / contract.',
     biodata: 'Hi Final Choice, please share suitable domestic helper biodata for my family.',
@@ -167,7 +167,7 @@ const ms: Dict = {
     photoAlt: (code: string) => `Gambar pembantu rumah ${code}`,
   },
   pkg: {
-    chooseNationality: 'Pilih warganegara pembantu', helper: 'pembantu', referencePrice: 'harga rujukan*', quote: 'Minta sebut harga',
+    chooseNationality: 'Pilih warganegara pembantu', chooseCategory: 'Pilih kategori pakej', allInclude: (c: string) => `Semua pakej ${c} termasuk:`, helper: 'pembantu', referencePrice: 'harga rujukan*', quote: 'Minta sebut harga',
     pending: 'Kandungan dan terma pakej ini akan disahkan oleh perunding kami bersama sebut harga anda.', reviewed: 'Harga terakhir disemak',
   },
   process: {
@@ -217,7 +217,7 @@ const ms: Dict = {
     filipino: 'Hai Final Choice, saya berminat untuk mendapatkan pembantu rumah Filipina. Boleh pihak tuan/puan membantu saya?',
     profile: (code: string) => `Hai Final Choice, saya ingin bertanya tentang pembantu rumah rujukan ${code}.`,
     interview: (code: string) => `Hai Final Choice, saya ingin memohon temu duga dengan pembantu rumah rujukan ${code}.`,
-    package: (tier: string, nat: string) => `Hai Final Choice, saya ingin mendapatkan sebut harga pakej ${tier} (pembantu rumah ${nat}).`,
+    package: (category: string, name: string, price: string) => `Hai Final Choice, saya ingin bertanya tentang Pakej ${name} ${category}${price ? ` (${price})` : ''}.`,
     service: (name: string) => `Hai Final Choice, saya ingin bertanya tentang ${name}.`,
     renewal: 'Hai Final Choice, saya ingin bertanya tentang pembaharuan permit kerja / kontrak pembantu rumah saya.',
     biodata: 'Hai Final Choice, boleh kongsikan biodata pembantu rumah yang sesuai untuk keluarga saya?',

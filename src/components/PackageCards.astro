@@ -1,7 +1,7 @@
 ---
-// Package price cards. Prices, inclusions and "verified" flags come from ONE file (src/data/packages.yaml)
-// for both languages, so English and Bahasa Melayu pages always show identical terms.
-// Only inclusions marked "verified: true" are displayed.
+// Package price cards. Every price, term and inclusion comes from ONE file (src/data/packages.yaml)
+// for both languages, so the homepage, the Packages page and the nationality pages always show identical terms.
+// Only lines marked "verified: true" are displayed. Each category keeps its own terms (no sharing between them).
 import Icon from './Icon.astro';
 import { packages, type Nationality } from '../lib/config';
 import { whatsappLink } from '../lib/urls';
@@ -12,35 +12,34 @@ const { lang, only, headingLevel = 'h3', id = 'packages-tabs' } = Astro.props;
 const T = t(lang);
 const ms = lang === 'ms';
 const H = headingLevel;
-const nats = (only ? [only] : (['indonesian', 'filipino'] as Nationality[])).map((k) => {
-  const n = packages.nationalities[k];
-  return { key: k, packages: n.packages, label: ms ? n.label_ms : n.label, short: ms ? n.shortLabel_ms : n.shortLabel, waNat: ms ? n.shortLabel_ms : n.shortLabel };
-});
+const cats = packages.categories.filter((c) => !only || c.nationality === only).map((c) => ({
+  ...c, name: ms ? c.label_ms : c.label, tab: ms ? c.tab_ms : c.tab,
+  includes: c.includes.filter((x) => x.verified),
+}));
 const rm = (n: number) => `RM${n.toLocaleString('en-MY')}`;
 const reviewed = formatLongDate(new Date(packages.lastReviewed + 'T00:00:00+08:00'), lang);
-const eyebrow = (short: string) => (ms ? `Pembantu ${short}` : `${short} helper`);
 ---
 <div class="packages" data-tabs>
-  {nats.length > 1 && (
-    <div class="tabs" role="tablist" aria-label={T.pkg.chooseNationality}>
-      {nats.map((n, i) => (
-        <button class="tab" type="button" role="tab" id={`${id}-tab-${n.key}`} aria-controls={`${id}-panel-${n.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
-          <span class="tab__long">{n.label}</span><span class="tab__short">{eyebrow(n.short)}</span>
+  {cats.length > 1 && (
+    <div class={`tabs tabs--${cats.length}`} role="tablist" aria-label={T.pkg.chooseCategory}>
+      {cats.map((c, i) => (
+        <button class="tab" type="button" role="tab" id={`${id}-tab-${c.id}`} aria-controls={`${id}-panel-${c.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+          <span class="tab__long">{c.name}</span><span class="tab__short">{c.tab}</span>
         </button>
       ))}
     </div>
   )}
 
-  {nats.map((n, i) => (
-    <div class="tab-panel" role={nats.length > 1 ? 'tabpanel' : undefined} id={`${id}-panel-${n.key}`} aria-labelledby={nats.length > 1 ? `${id}-tab-${n.key}` : undefined} hidden={i > 0 ? true : undefined}>
-      <div class="package-grid">
-        {packages.tiers.map((tier) => {
-          const p = n.packages[tier.id];
-          const shown = p.inclusions.filter((x) => x.verified);
+  {cats.map((c, i) => (
+    <div class="tab-panel" role={cats.length > 1 ? 'tabpanel' : undefined} id={`${id}-panel-${c.id}`} aria-labelledby={cats.length > 1 ? `${id}-tab-${c.id}` : undefined} hidden={i > 0 ? true : undefined}>
+      {cats.length === 1 && <p class="package-category">{c.name}</p>}
+      <div class={`package-grid package-grid--${c.packages.length}`}>
+        {c.packages.map((p) => {
+          const shown = p.terms.filter((x) => x.verified);
           return (
-            <article class={`package-card${tier.highlight ? ' package-card--highlight' : ''}`}>
-              <p class="package-card__eyebrow">{eyebrow(n.short)}</p>
-              <H class="package-card__name">{tier.name}</H>
+            <article class={`package-card${p.highlight ? ' package-card--highlight' : ''}`}>
+              <p class="package-card__eyebrow">{c.name}</p>
+              <H class="package-card__name">{p.name}</H>
               <p class="package-card__price">
                 {p.price ? (<><span class="package-card__amount">{rm(p.price)}</span><span class="package-card__note">{T.pkg.referencePrice}</span></>) : <span class="package-card__amount package-card__amount--quote">{T.pkg.quote}</span>}
               </p>
@@ -51,13 +50,21 @@ const eyebrow = (short: string) => (ms ? `Pembantu ${short}` : `${short} helper`
               ) : (
                 <p class="package-card__pending">{T.pkg.pending}</p>
               )}
-              <a class={`btn ${tier.highlight ? 'btn--wa' : 'btn--wa-outline'} btn--block`} href={whatsappLink(T.wa.package(tier.name, n.waNat))} target="_blank" rel="noopener" data-track={`package_${n.key}_${tier.id}`}>
-                <Icon name="whatsapp" size={18} /> {T.btn.enquirePackage} {tier.name}
+              <a class={`btn ${p.highlight ? 'btn--wa' : 'btn--wa-outline'} btn--block`} href={whatsappLink(T.wa.package(c.name, p.name, p.price ? rm(p.price) : ''))} target="_blank" rel="noopener" data-track={`package_${c.id}_${p.id}`}>
+                <Icon name="whatsapp" size={18} /> {T.btn.enquirePackage} {p.name}
               </a>
             </article>
           );
         })}
       </div>
+      {c.includes.length > 0 && (
+        <div class="package-includes">
+          <p class="package-includes__title">{T.pkg.allInclude(c.name)}</p>
+          <ul class="ticks package-includes__list">
+            {c.includes.map((x) => <li><Icon name="check" size={18} />{ms ? x.text_ms : x.text}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   ))}
   <p class="package-footnote">* {ms ? packages.priceNote_ms : packages.priceNote} <span class="muted">{T.pkg.reviewed} {reviewed}.</span></p>

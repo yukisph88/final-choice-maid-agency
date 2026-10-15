@@ -44,21 +44,29 @@ const siteSchema = z.object({
   forms: z.object({ endpoint: z.string(), accessKey: z.string() }),
 });
 
-const inclusion = z.object({ text: z.string().min(1), text_ms: z.string().min(1), verified: z.boolean() });
-const pkg = z.object({ price: z.number().positive().nullable(), inclusions: z.array(inclusion).default([]) });
-const nationalityPackages = z.object({
+const line = z.object({ text: z.string().min(1), text_ms: z.string().min(1), verified: z.boolean() });
+const pkg = z.object({
+  id: z.enum(['premium', 'platinum', 'diamond']),
+  name: z.string().min(1),
+  price: z.number().positive().nullable(),
+  highlight: z.boolean().default(false),
+  terms: z.array(line).default([]),
+});
+const category = z.object({
+  id: z.string().regex(/^[a-z-]+$/),
+  nationality: z.enum(['indonesian', 'filipino']),
   label: z.string(),
-  shortLabel: z.string(),
   label_ms: z.string(),
-  shortLabel_ms: z.string(),
-  packages: z.object({ premium: pkg, platinum: pkg, diamond: pkg }),
+  tab: z.string(),
+  tab_ms: z.string(),
+  packages: z.array(pkg).min(1).max(3),
+  includes: z.array(line).default([]),
 });
 const packagesSchema = z.object({
   priceNote: z.string(),
   priceNote_ms: z.string(),
   lastReviewed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD'),
-  tiers: z.array(z.object({ id: z.enum(['premium', 'platinum', 'diamond']), name: z.string(), highlight: z.boolean() })),
-  nationalities: z.object({ indonesian: nationalityPackages, filipino: nationalityPackages }),
+  categories: z.array(category).min(1),
 });
 
 const testimonialSchema = z.array(

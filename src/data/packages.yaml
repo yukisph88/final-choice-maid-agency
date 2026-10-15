@@ -1,112 +1,153 @@
 # =====================================================================
-#  FINAL CHOICE — MAID PACKAGES (prices and inclusions)
+#  FINAL CHOICE — MAID PACKAGES (prices, terms and inclusions)
+#  ONE file for the homepage, the Packages page and the nationality pages,
+#  in English and Bahasa Melayu.
 #
 #  HOW TO CHANGE A PRICE
-#    Find the nationality and package below and change the number after
+#    Find the category and package below and change the number after
 #    "price:". Numbers only — no "RM", no commas (e.g. 15600).
 #    To hide a price and show "Request a quotation" instead, use:  price: null
 #
-#  HOW TO ADD / CHANGE AN INCLUSION
-#    Each inclusion has "text" (English), "text_ms" (Bahasa Melayu) and "verified".
-#    Prices and "verified" are shared, so both languages always show the same terms.
-#    Only inclusions with  verified: true  are shown on the website.
-#    Set verified: true ONLY after management has confirmed that term in writing.
+#  HOW TO CHANGE A TERM OR INCLUSION
+#    Each line has "text" (English), "text_ms" (Bahasa Melayu) and "verified".
+#    Only lines with  verified: true  are shown on the website.
+#    "terms"     = shown on that package card only (warranty, fees, insurance …)
+#    "includes"  = shown once under the cards, for every package in that category
 #
-#  Indonesian and Filipino packages are kept separate on purpose:
-#  their terms are NOT assumed to be the same.
+#  Each category has its OWN terms on purpose. Never copy one category's terms
+#  to another without written confirmation from management.
+#
+#  Source: package brochures (Indonesian, Indonesian Christian, Filipino),
+#  as provided by Final Choice on 15/10/2026. Prices are shown as
+#  "subject to confirmation" until management approves the current price list.
 # =====================================================================
 
-# Shown under the price cards on every page that displays packages
 priceNote: >-
   Prices are reference package prices in Ringgit Malaysia and are subject to
-  confirmation. Your consultant will confirm the final quotation, inclusions and
-  terms in writing before you commit. Warranty and replacement arrangements are
-  subject to the terms of your service agreement.
+  confirmation until the current price list is approved. Your consultant will confirm
+  the final quotation, inclusions and terms in writing before you commit. Warranty,
+  replacement and disbursement arrangements are subject to the terms of your service agreement.
 
 priceNote_ms: >-
   Harga yang dipaparkan ialah harga rujukan pakej dalam Ringgit Malaysia dan
-  tertakluk kepada pengesahan. Perunding kami akan mengesahkan sebut harga, kandungan
-  pakej dan terma secara bertulis sebelum anda membuat keputusan. Waranti dan
-  penggantian tertakluk kepada terma perjanjian perkhidmatan anda.
+  tertakluk kepada pengesahan sehingga senarai harga terkini diluluskan. Perunding kami
+  akan mengesahkan sebut harga akhir, kandungan pakej dan terma secara bertulis sebelum
+  anda membuat keputusan. Waranti, penggantian dan yuran disbursement tertakluk kepada
+  terma perjanjian perkhidmatan anda.
 
 # Date the prices were last checked by staff (YYYY-MM-DD)
-lastReviewed: "2026-10-14"
+lastReviewed: "2026-10-15"
 
-# Package tiers, in display order. "highlight" marks the centre card.
-tiers:
-  - id: premium
-    name: "Premium"
-    highlight: false
-  - id: platinum
-    name: "Platinum"
-    highlight: true
-  - id: diamond
-    name: "Diamond"
-    highlight: false
-
-nationalities:
-  indonesian:
-    label: "Indonesian Domestic Helper"
-    shortLabel: "Indonesian"
+# Tabs, in display order. "nationality" links a category to its nationality page.
+categories:
+  - id: indonesian
+    nationality: indonesian
+    label: "Indonesian Maid"
     label_ms: "Pembantu Rumah Indonesia"
-    shortLabel_ms: "Indonesia"
+    tab: "Indonesian Maid"
+    tab_ms: "Indonesia"
     packages:
-      premium:
+      - id: premium
+        name: "Premium"
         price: 15600
-        inclusions:
-          - text: "90-day warranty period"
-            text_ms: "Tempoh waranti 90 hari"
-            verified: true
-          - text: "Replacement fee: RM3,800"
-            text_ms: "Yuran penggantian: RM3,800"
-            verified: true
-      platinum:
+        highlight: false
+        terms:
+          - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
+          - { text: "Disbursement fee: RM3,800", text_ms: "Yuran disbursement: RM3,800", verified: true }
+          - { text: "Insurance: 1 year", text_ms: "Insurans: 1 tahun", verified: true }
+      - id: platinum
+        name: "Platinum"
         price: 17600
-        inclusions:
-          - text: "180-day warranty period"
-            text_ms: "Tempoh waranti 180 hari"
-            verified: true
-          - text: "Replacement fee: RM3,800"
-            text_ms: "Yuran penggantian: RM3,800"
-            verified: true
-      diamond:
+        highlight: true
+        terms:
+          - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
+          - { text: "Disbursement fee: RM3,800", text_ms: "Yuran disbursement: RM3,800", verified: true }
+          - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
+      - id: diamond
+        name: "Diamond"
         price: 19600
-        inclusions:
-          - text: "180-day warranty period"
-            text_ms: "Tempoh waranti 180 hari"
-            verified: true
-          - text: "No replacement fee"
-            text_ms: "Tiada yuran penggantian"
-            verified: true
+        highlight: false
+        terms:
+          - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
+          - { text: "Free replacement during the warranty period, subject to terms", text_ms: "Penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
+          - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
+          - { text: "24-month SOCSO account management service", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan", verified: true }
+    includes:
+      - { text: "2-year contract", text_ms: "Kontrak 2 tahun", verified: true }
+      - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
+      - { text: "FOMEMA medical check-up", text_ms: "Pemeriksaan perubatan FOMEMA", verified: true }
+      - { text: "Processing fees in Indonesia and Malaysia", text_ms: "Yuran pemprosesan di Indonesia dan Malaysia", verified: true }
+      - { text: "One-way flight ticket from Indonesia to Malaysia", text_ms: "Tiket penerbangan sehala dari Indonesia ke Malaysia", verified: true }
+      - { text: "Airport pick-up", text_ms: "Penjemputan di lapangan terbang", verified: true }
 
-  filipino:
-    label: "Filipino Domestic Helper"
-    shortLabel: "Filipino"
-    label_ms: "Pembantu Rumah Filipina"
-    shortLabel_ms: "Filipina"
+  - id: indonesian-christian
+    nationality: indonesian
+    label: "Indonesian Christian Maid"
+    label_ms: "Pembantu Rumah Indonesia Kristian"
+    tab: "Indonesian Christian Maid"
+    tab_ms: "Indonesia Kristian"
     packages:
-      premium:
-        price: 15600
-        inclusions: []
-      platinum:
+      - id: premium
+        name: "Premium"
+        price: 17800
+        highlight: false
+        terms:
+          - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
+          - { text: "Disbursement fee: RM3,800", text_ms: "Yuran disbursement: RM3,800", verified: true }
+          - { text: "Insurance: 1 year", text_ms: "Insurans: 1 tahun", verified: true }
+      - id: platinum
+        name: "Platinum"
+        price: 19800
+        highlight: true
+        terms:
+          - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
+          - { text: "Disbursement fee: RM3,800", text_ms: "Yuran disbursement: RM3,800", verified: true }
+          - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
+      - id: diamond
+        name: "Diamond"
+        price: 21800
+        highlight: false
+        terms:
+          - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
+          - { text: "Free replacement during the warranty period, subject to terms", text_ms: "Penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
+          - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
+          - { text: "24-month SOCSO account management service", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan", verified: true }
+    includes:
+      - { text: "2-year contract", text_ms: "Kontrak 2 tahun", verified: true }
+      - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
+      - { text: "FOMEMA medical check-up", text_ms: "Pemeriksaan perubatan FOMEMA", verified: true }
+      - { text: "Processing fees in Indonesia and Malaysia", text_ms: "Yuran pemprosesan di Indonesia dan Malaysia", verified: true }
+      - { text: "One-way flight ticket from Indonesia to Malaysia", text_ms: "Tiket penerbangan sehala dari Indonesia ke Malaysia", verified: true }
+      - { text: "Airport pick-up", text_ms: "Penjemputan di lapangan terbang", verified: true }
+
+  # Filipino: TWO packages only (there is no Filipino Premium package)
+  - id: filipino
+    nationality: filipino
+    label: "Filipino Maid"
+    label_ms: "Pembantu Rumah Filipina"
+    tab: "Filipino Maid"
+    tab_ms: "Filipina"
+    packages:
+      - id: platinum
+        name: "Platinum"
         price: 17600
-        inclusions:
-          # Internal reference only — set verified: true after confirmation
-          - text: "Includes SOCSO contribution"
-            text_ms: "Termasuk caruman PERKESO (SOCSO)"
-            verified: false
-          - text: "Includes ACC"
-            text_ms: "Termasuk ACC"
-            verified: false
-      diamond:
+        highlight: false
+        terms:
+          - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
+          - { text: "Disbursement fee for a warranty claim: RM3,800", text_ms: "Yuran disbursement bagi tuntutan waranti: RM3,800", verified: true }
+      - id: diamond
+        name: "Diamond"
         price: 19600
-        inclusions:
-          - text: "Includes SOCSO contribution"
-            text_ms: "Termasuk caruman PERKESO (SOCSO)"
-            verified: false
-          - text: "Includes ACC"
-            text_ms: "Termasuk ACC"
-            verified: false
-          - text: "No replacement fee"
-            text_ms: "Tiada yuran penggantian"
-            verified: false
+        highlight: false
+        terms:
+          - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
+          - { text: "Free replacement, subject to warranty terms", text_ms: "Penggantian percuma, tertakluk kepada terma waranti", verified: true }
+          - { text: "24-month SOCSO management service", text_ms: "Perkhidmatan pengurusan PERKESO (SOCSO) selama 24 bulan", verified: true }
+    includes:
+      - { text: "2-year employment contract", text_ms: "Kontrak pekerjaan 2 tahun", verified: true }
+      - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
+      - { text: "2-year insurance", text_ms: "Insurans 2 tahun", verified: true }
+      - { text: "Processing fees in the Philippines and Malaysia", text_ms: "Yuran pemprosesan di Filipina dan Malaysia", verified: true }
+      - { text: "One-way flight ticket", text_ms: "Tiket penerbangan sehala", verified: true }
+      - { text: "Medical check-up (FOMEMA)", text_ms: "Pemeriksaan perubatan (FOMEMA)", verified: true }
+      - { text: "Airport pick-up", text_ms: "Penjemputan di lapangan terbang", verified: true }
