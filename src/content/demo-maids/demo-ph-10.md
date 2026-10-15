@@ -1,5 +1,6 @@
 ---
 code: "DEMO-PH-10"
+displayName: "Demo Profile 10"
 nationality: filipino
 age: 34
 experienceYears: 2
@@ -20,6 +21,7 @@ employmentHistory:
     duties: "Demonstration data for testing only"
 status: reserved
 statusUpdated: 2026-10-11
+statusRecorded: true
 interviewAvailability: "Demo"
 featured: false
 published: true

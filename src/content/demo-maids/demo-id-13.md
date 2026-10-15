@@ -1,5 +1,6 @@
 ---
 code: "DEMO-ID-13"
+displayName: "Demo Profile 13"
 nationality: indonesian
 age: 37
 experienceYears: 5
@@ -20,6 +21,7 @@ employmentHistory:
     duties: "Demonstration data for testing only"
 status: placed
 statusUpdated: 2026-10-14
+statusRecorded: true
 interviewAvailability: "Demo"
 featured: false
 published: true

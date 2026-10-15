@@ -21,6 +21,11 @@ env:
   # SITE_URL=https://www.your-domain.com and BASE_PATH=/  (Settings → Secrets and variables → Actions → Variables)
   SITE_URL: ${{ vars.SITE_URL || 'https://yukisph88.github.io' }}
   BASE_PATH: ${{ vars.BASE_PATH || '/final-choice-maid-agency' }}
+  # Pre-launch preview: show the clearly labelled DEMO profiles (no real candidates) in the maid directory.
+  # Real candidates appear only after publication consent is recorded and approved (npm run maids:approvals).
+  # Before publishing the first real approved profiles, set repository variable PUBLIC_DEMO_CANDIDATES=false
+  # (Settings → Secrets and variables → Actions → Variables) or change the default below to 'false'.
+  PUBLIC_DEMO_CANDIDATES: ${{ vars.PUBLIC_DEMO_CANDIDATES || 'true' }}
 
 jobs:
   build:

@@ -1,5 +1,6 @@
 ---
 code: "DEMO-ID-11"
+displayName: "Demo Profile 11"
 nationality: indonesian
 age: 35
 experienceYears: 3
@@ -20,6 +21,7 @@ employmentHistory:
     duties: "Demonstration data for testing only"
 status: processing
 statusUpdated: 2026-10-12
+statusRecorded: true
 interviewAvailability: "Demo"
 featured: false
 published: true

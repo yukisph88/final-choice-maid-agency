@@ -478,6 +478,7 @@ async function approvals() {
   }
   console.log(`\n${ready.length} candidate(s) READY TO PUBLISH${ready.length ? ': ' + ready.join(', ') : ''}`);
   if (ready.length) publish(ready);
+  if (ready.length) console.log('\n! The public preview currently shows DEMO profiles. To show these real approved profiles instead,\n  set PUBLIC_DEMO_CANDIDATES to false (see .github/workflows/deploy.yml) in the same approved update.');
   console.log('\nNothing has been pushed or deployed. Review locally first: npm run build && npm run preview');
 }
 
