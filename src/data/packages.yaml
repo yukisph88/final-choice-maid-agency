@@ -17,20 +17,23 @@
 #  Each category has its OWN terms on purpose. Never copy one category's terms
 #  to another without written confirmation from management.
 #
-#  Source: package brochures (Indonesian, Indonesian Christian, Filipino),
-#  as provided by Final Choice on 15/10/2026. Prices are shown as
+#  Source: package brochures (Indonesia, Indonesian Christian, Philippines),
+#  photographed and checked line by line on 15/10/2026. All prices are FINAL
+#  prices including 8% SST (company absorbs part of the SST). Prices are shown as
 #  "subject to confirmation" until management approves the current price list.
 # =====================================================================
 
 priceNote: >-
-  Prices are reference package prices in Ringgit Malaysia and are subject to
-  confirmation until the current price list is approved. Your consultant will confirm
+  Prices are final package prices in Ringgit Malaysia and include 8% SST (part of the
+  SST is absorbed by Final Choice). They are subject to confirmation until the current
+  price list is approved. Your consultant will confirm
   the final quotation, inclusions and terms in writing before you commit. Warranty,
   replacement and disbursement arrangements are subject to the terms of your service agreement.
 
 priceNote_ms: >-
-  Harga yang dipaparkan ialah harga rujukan pakej dalam Ringgit Malaysia dan
-  tertakluk kepada pengesahan sehingga senarai harga terkini diluluskan. Perunding kami
+  Harga yang dipaparkan ialah harga akhir pakej dalam Ringgit Malaysia dan termasuk
+  SST 8% (sebahagian SST ditanggung oleh Final Choice). Harga tertakluk kepada pengesahan
+  sehingga senarai harga terkini diluluskan. Perunding kami
   akan mengesahkan sebut harga akhir, kandungan pakej dan terma secara bertulis sebelum
   anda membuat keputusan. Waranti, penggantian dan yuran disbursement tertakluk kepada
   terma perjanjian perkhidmatan anda.
@@ -69,9 +72,9 @@ categories:
         highlight: false
         terms:
           - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
-          - { text: "Free replacement during the warranty period, subject to terms", text_ms: "Penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
+          - { text: "Disbursement fee: Free — free replacement during the warranty period, subject to terms", text_ms: "Yuran disbursement: Percuma — penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
           - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
-          - { text: "24-month SOCSO account management service", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan", verified: true }
+          - { text: "24-month SOCSO account management service (the employer pays the contribution; we assist with submission and processing)", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan (caruman dibayar oleh majikan; kami membantu urusan penghantaran dan pemprosesan)", verified: true }
     includes:
       - { text: "2-year contract", text_ms: "Kontrak 2 tahun", verified: true }
       - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
@@ -109,9 +112,9 @@ categories:
         highlight: false
         terms:
           - { text: "Warranty: 180 days", text_ms: "Waranti: 180 hari", verified: true }
-          - { text: "Free replacement during the warranty period, subject to terms", text_ms: "Penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
+          - { text: "Disbursement fee: Free — free replacement during the warranty period, subject to terms", text_ms: "Yuran disbursement: Percuma — penggantian percuma dalam tempoh waranti, tertakluk kepada terma", verified: true }
           - { text: "Insurance: 2 years", text_ms: "Insurans: 2 tahun", verified: true }
-          - { text: "24-month SOCSO account management service", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan", verified: true }
+          - { text: "24-month SOCSO account management service (the employer pays the contribution; we assist with submission and processing)", text_ms: "Perkhidmatan pengurusan akaun PERKESO (SOCSO) selama 24 bulan (caruman dibayar oleh majikan; kami membantu urusan penghantaran dan pemprosesan)", verified: true }
     includes:
       - { text: "2-year contract", text_ms: "Kontrak 2 tahun", verified: true }
       - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
@@ -134,20 +137,21 @@ categories:
         highlight: false
         terms:
           - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
-          - { text: "Disbursement fee for a warranty claim: RM3,800", text_ms: "Yuran disbursement bagi tuntutan waranti: RM3,800", verified: true }
+          - { text: "Disbursement fee: RM3,800 (warranty claim)", text_ms: "Yuran disbursement: RM3,800 (tuntutan waranti)", verified: true }
+          - { text: "Airport pick-up", text_ms: "Penjemputan di lapangan terbang", verified: true }
       - id: diamond
         name: "Diamond"
         price: 19600
         highlight: false
         terms:
           - { text: "Warranty: 90 days", text_ms: "Waranti: 90 hari", verified: true }
-          - { text: "Free replacement, subject to warranty terms", text_ms: "Penggantian percuma, tertakluk kepada terma waranti", verified: true }
-          - { text: "24-month SOCSO management service", text_ms: "Perkhidmatan pengurusan PERKESO (SOCSO) selama 24 bulan", verified: true }
+          - { text: "Disbursement fee: Free — free replacement, subject to warranty terms", text_ms: "Yuran disbursement: Percuma — penggantian percuma, tertakluk kepada terma waranti", verified: true }
+          - { text: "24-month SOCSO management service (managing and submitting monthly SOCSO payments and related documents)", text_ms: "Perkhidmatan pengurusan PERKESO (SOCSO) selama 24 bulan (mengurus dan menghantar bayaran bulanan PERKESO serta dokumen berkaitan)", verified: true }
     includes:
       - { text: "2-year employment contract", text_ms: "Kontrak pekerjaan 2 tahun", verified: true }
       - { text: "1-year work permit", text_ms: "Permit kerja 1 tahun", verified: true }
       - { text: "2-year insurance", text_ms: "Insurans 2 tahun", verified: true }
-      - { text: "Processing fees in the Philippines and Malaysia", text_ms: "Yuran pemprosesan di Filipina dan Malaysia", verified: true }
+      - { text: "Philippines and Malaysia fees", text_ms: "Yuran Filipina dan Malaysia", verified: true }
       - { text: "One-way flight ticket", text_ms: "Tiket penerbangan sehala", verified: true }
       - { text: "Medical check-up (FOMEMA)", text_ms: "Pemeriksaan perubatan (FOMEMA)", verified: true }
-      - { text: "Airport pick-up", text_ms: "Penjemputan di lapangan terbang", verified: true }
+      # Airport pick-up is listed for Platinum only on the Philippines brochure — shown on the Platinum card

@@ -53,7 +53,7 @@ const en = {
     photoAlt: (code: string) => `Photo of domestic helper ${code}`,
   },
   pkg: {
-    chooseNationality: 'Choose helper nationality', chooseCategory: 'Choose a package category', allInclude: (c: string) => `All ${c} packages include:`, helper: 'helper', referencePrice: 'reference price*', quote: 'Request a quotation',
+    chooseNationality: 'Choose helper nationality', chooseCategory: 'Choose a package category', allInclude: (c: string) => `All ${c} packages include:`, helper: 'helper', referencePrice: 'final price, incl. 8% SST*', quote: 'Request a quotation',
     pending: 'Inclusions and terms for this package are confirmed by our consultant with your quotation.', reviewed: 'Prices last reviewed',
   },
   process: {
@@ -167,7 +167,7 @@ const ms: Dict = {
     photoAlt: (code: string) => `Gambar pembantu rumah ${code}`,
   },
   pkg: {
-    chooseNationality: 'Pilih warganegara pembantu', chooseCategory: 'Pilih kategori pakej', allInclude: (c: string) => `Semua pakej ${c} termasuk:`, helper: 'pembantu', referencePrice: 'harga rujukan*', quote: 'Minta sebut harga',
+    chooseNationality: 'Pilih warganegara pembantu', chooseCategory: 'Pilih kategori pakej', allInclude: (c: string) => `Semua pakej ${c} termasuk:`, helper: 'pembantu', referencePrice: 'harga akhir, termasuk SST 8%*', quote: 'Minta sebut harga',
     pending: 'Kandungan dan terma pakej ini akan disahkan oleh perunding kami bersama sebut harga anda.', reviewed: 'Harga terakhir disemak',
   },
   process: {
