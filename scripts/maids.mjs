@@ -340,7 +340,7 @@ async function approvals() {
   const ready = []; const problems = []; let seen = 0;
   sheet.slice(1).forEach((row) => {
     const g = (name) => cellText(row[col[name]]);
-    const code = g('Reference code').toUpperCase(); if (!code || code.startsWith('EXAMPLE')) return;
+    const code = g('Reference code').toUpperCase(); if (!code || code.startsWith('EXAMPLE') || !code.includes('-')) return; // skips the totals rows under the table
     const r = byCode[code]; if (!r) { problems.push(`${code}: not in the imported records`); return; } seen++;
     const status = STATUS_FROM_LABEL[g('Current availability').toLowerCase()];
     if (!status) { problems.push(`${code}: unknown availability "${g('Current availability')}"`); return; }
