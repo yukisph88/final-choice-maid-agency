@@ -309,6 +309,7 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .maid-card__facts dt::after { content: ':'; }
 .maid-card__facts dd { margin: 0; font-weight: 600; }
 .maid-card__updated { font-size: .8rem; color: var(--muted); margin: auto 0 12px; padding-top: 6px; }
+.maid-card__review-flag { font-size: .78rem; font-weight: 700; color: #a15c00; margin: 4px 0 0; } /* private review only */
 .maid-card__actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .maid-card__actions .btn { font-size: .9rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0 0 8px; }

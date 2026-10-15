@@ -4,8 +4,8 @@ import type { Lang } from './routes';
 
 const en = {
   nav: {
-    home: 'Home', maids: 'Find a Maid', indonesian: 'Indonesian Maid', filipino: 'Filipino Maid',
-    services: 'Our Services', packages: 'Packages', about: 'About Us', contact: 'Contact',
+    home: 'Home', maids: 'Find a Maid', indonesian: 'Indonesian', filipino: 'Filipino',
+    services: 'Services', packages: 'Packages', about: 'About', contact: 'Contact',
     menu: 'Menu', main: 'Main', skip: 'Skip to content', switchTo: 'Baca dalam Bahasa Melayu', language: 'Language',
   },
   crumb: {
@@ -26,7 +26,7 @@ const en = {
   langLevel: { basic: 'basic', conversational: 'conversational', fluent: 'fluent', native: 'native' },
   card: {
     age: 'Age', experience: 'Experience', religion: 'Religion', newHelper: 'New helper', notStated: 'Not stated', years: (n: number) => `${n} yr${n === 1 ? '' : 's'}`,
-    overseas: 'overseas', ref: 'Ref', updated: 'Status updated', photoOnRequest: 'Photo available on request', demo: 'DEMO – not a real candidate', review: 'LOCAL REVIEW – NOT PUBLISHED', experienceIn: 'Experience in',
+    overseas: 'overseas', ref: 'Ref', updated: 'Status updated', photoOnRequest: 'Photo available on request', demo: 'DEMO – not a real candidate', review: 'LOCAL REVIEW – NOT PUBLISHED', initialStatus: 'Initial status – not yet confirmed with candidate', experienceIn: 'Experience in',
   },
   dir: {
     filterLabel: 'Filter maid profiles', searchCode: 'Search name or reference code', nationality: 'Nationality', all: 'All', experience: 'Experience',
@@ -119,7 +119,7 @@ type Dict = typeof en;
 const ms: Dict = {
   nav: {
     home: 'Utama', maids: 'Cari Pembantu', indonesian: 'Indonesia', filipino: 'Filipina',
-    services: 'Perkhidmatan', packages: 'Pakej', about: 'Tentang Kami', contact: 'Hubungi',
+    services: 'Perkhidmatan', packages: 'Pakej', about: 'Tentang', contact: 'Hubungi',
     menu: 'Menu', main: 'Utama', skip: 'Langkau ke kandungan', switchTo: 'Read in English', language: 'Bahasa',
   },
   crumb: {
@@ -140,7 +140,7 @@ const ms: Dict = {
   langLevel: { basic: 'asas', conversational: 'boleh bertutur', fluent: 'fasih', native: 'bahasa ibunda' },
   card: {
     age: 'Umur', experience: 'Pengalaman', religion: 'Agama', newHelper: 'Pembantu baharu', notStated: 'Tidak dinyatakan', years: (n: number) => `${n} tahun`,
-    overseas: 'luar negara', ref: 'Rujukan', updated: 'Status dikemas kini', photoOnRequest: 'Gambar boleh diberi atas permintaan', demo: 'DEMO – bukan calon sebenar', review: 'SEMAKAN DALAMAN – BELUM DISIARKAN', experienceIn: 'Pengalaman dalam',
+    overseas: 'luar negara', ref: 'Rujukan', updated: 'Status dikemas kini', photoOnRequest: 'Gambar boleh diberi atas permintaan', demo: 'DEMO – bukan calon sebenar', review: 'SEMAKAN DALAMAN – BELUM DISIARKAN', initialStatus: 'Status awal – belum disahkan dengan calon', experienceIn: 'Pengalaman dalam',
   },
   dir: {
     filterLabel: 'Tapis profil pembantu rumah', searchCode: 'Cari nama atau kod rujukan', nationality: 'Warganegara', all: 'Semua', experience: 'Pengalaman',

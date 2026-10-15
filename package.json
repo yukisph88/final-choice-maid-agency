@@ -19,7 +19,10 @@
     "maids:archive": "node scripts/maids.mjs archive",
     "maids:list": "node scripts/maids.mjs list",
     "maids:preview": "node scripts/maids.mjs preview",
-    "maids:approvals": "node scripts/maids.mjs approvals"
+    "maids:approvals": "node scripts/maids.mjs approvals",
+    "maids:status-sheet": "node scripts/maids.mjs status-sheet",
+    "maids:status-apply": "node scripts/maids.mjs status-apply",
+    "maids:staff": "node scripts/maids-staff.mjs"
   },
   "engines": {
     "node": ">=22.12"
@@ -34,6 +37,7 @@
     "@astrojs/check": "^0.9.10",
     "@types/js-yaml": "^4.0.9",
     "cross-env": "^10.1.0",
+    "exceljs": "^4.4.0",
     "read-excel-file": "^9.3.12",
     "typescript": "^6.0.3"
   }

@@ -29,3 +29,8 @@ _review-screenshots/
 
 # PRIVATE maid biodata, passports, consent forms, import staging and archive — never upload
 private-biodata/
+
+# staff spreadsheets and stray backup folders (may contain maid names) — never upload
+*.xlsx
+*.xls
+/backups/
