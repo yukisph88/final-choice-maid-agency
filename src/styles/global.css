@@ -320,6 +320,7 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .status--interview-pending { background: var(--amber-soft); color: var(--amber); }
 .status--reserved { background: var(--blue-soft); color: var(--royal); }
 .status--processing { background: #efeafc; color: #5b3fb0; }
+.status--unconfirmed { background: #eef0f4; color: #4a5468; white-space: normal; }
 .status--placed, .status--unavailable, .status--withdrawn { background: #eef0f4; color: #4a5468; }
 
 .pagination { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 32px; }

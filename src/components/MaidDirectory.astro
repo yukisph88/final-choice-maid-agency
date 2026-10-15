@@ -1,6 +1,6 @@
 ---
 // Candidate directory. Every published profile is rendered as static HTML (crawlable,
-// works without JavaScript). Filtering, code search and pagination run in the browser
+// works without JavaScript). Filtering, code/name search and pagination run in the browser
 // and do not create new URLs, so filters never produce duplicate indexable pages.
 import MaidCard from './MaidCard.astro';
 import Icon from './Icon.astro';
@@ -35,7 +35,7 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
       <div class="filters__row">
         <div class="field field--search">
           <label for="f-code">{D.searchCode}</label>
-          <div class="input-icon"><Icon name="search" size={18} /><input id="f-code" name="code" type="search" placeholder="FC-ID-0012" autocomplete="off" /></div>
+          <div class="input-icon"><Icon name="search" size={18} /><input id="f-code" name="code" type="search" placeholder="MA192 / Siti" autocomplete="off" /></div>
         </div>
         {!nationality && (
           <div class="field">
@@ -64,6 +64,7 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
             <option value="interview-pending">{T.status['interview-pending']}</option>
             <option value="reserved">{T.status.reserved}</option>
             <option value="processing">{T.status.processing}</option>
+            <option value="unconfirmed">{T.status.unconfirmed}</option>
           </select>
         </div>
       </div>
@@ -110,7 +111,7 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
     function matches(c: HTMLElement) {
       const d = c.dataset;
       const code = (val('code')?.value || '').trim().toLowerCase();
-      if (code && !d.code!.includes(code)) return false;
+      if (code && !d.code!.includes(code) && !(d.name || '').includes(code)) return false; // reference code or shown name
       const nat = val('nationality')?.value;
       if (nat && d.nationality !== nat) return false;
       if (Number(d.exp) < Number(val('exp')?.value || 0)) return false;

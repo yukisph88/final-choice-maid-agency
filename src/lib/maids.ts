@@ -26,6 +26,10 @@ export async function getPublicMaids(): Promise<Maid[]> {
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || +b.statusUpdated - +a.statusUpdated);
 }
 
+/** Status shown to visitors: the recorded status only once staff have verified it, otherwise "to be confirmed". */
+export type ShownStatus = Maid['status'] | 'unconfirmed';
+export const shownStatus = (m: Maid): ShownStatus => (m.availabilityVerified ? m.status : 'unconfirmed');
+
 function statusRank(s: Maid['status']) {
   return ['available', 'interview-pending', 'reserved', 'processing', 'unavailable', 'placed', 'withdrawn'].indexOf(s);
 }

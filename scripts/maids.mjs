@@ -86,6 +86,7 @@ function toMarkdown(m) {
   for (const e of m.employmentHistory) L.push(`  - country: ${s(e.country)}\n    duration: ${s(e.duration)}\n    duties: ${s(e.duties)}${e.duties_ms ? `\n    duties_ms: ${s(e.duties_ms)}` : ''}`);
   L.push(`status: ${m.status}`);
   L.push(`statusUpdated: ${m.statusUpdated}`);
+  L.push(`availabilityVerified: ${m.availabilityVerified}`);
   if (m.interviewAvailability) L.push(`interviewAvailability: ${s(m.interviewAvailability)}`);
   if (m.interviewAvailability_ms) L.push(`interviewAvailability_ms: ${s(m.interviewAvailability_ms)}`);
   if (m.summary_ms) L.push(`summary_ms: ${s(m.summary_ms)}`);
@@ -159,7 +160,7 @@ function fromRow(r) {
   const m = {
     code, displayName: publicName, reviewName: fullName, nationality, age, religion: r.religion, maritalStatus: r.maritalStatus,
     experienceYears: exp, overseasExperience: yes(r.overseasExperience), skills, languages, employmentHistory,
-    status, statusUpdated: today(), interviewAvailability: r.interviewAvailability, interviewAvailability_ms: r.interviewAvailability_ms,
+    status, statusUpdated: today(), availabilityVerified: yes(r.availabilityVerified), interviewAvailability: r.interviewAvailability, interviewAvailability_ms: r.interviewAvailability_ms,
     summary: r.summary, summary_ms: r.summary_ms, featured: yes(r.featured), published: false,
     publication: { consentRecorded, consentDate: consentDate || today(), photoConsent: yes(r.photoConsent), showAge: yes(r.showAge), showReligion: yes(r.showReligion), approvedBy: (r.approvedBy || 'XX').slice(0, 10) },
     pdfApproved: yes(r.biodataPdfApproved),
@@ -268,7 +269,9 @@ function editRecord(code, fn) {
 }
 function setStatus(code, status) {
   if (!code || !STATUSES.includes(status)) die(`Usage: npm run maids:status -- CODE ${STATUSES.join('|')}`);
-  editRecord(code, (t) => t.replace(/^status: .*$/m, `status: ${status}`).replace(/^statusUpdated: .*$/m, `statusUpdated: ${today()}`));
+  // Setting a status by hand means staff have just confirmed it
+  editRecord(code, (t) => t.replace(/^status: .*$/m, `status: ${status}`).replace(/^statusUpdated: .*$/m, `statusUpdated: ${today()}`)
+    .replace(/^availabilityVerified: .*\r?\n/m, '').replace(/^(statusUpdated: .*)$/m, '$1\navailabilityVerified: true'));
   const hidden = ['placed', 'unavailable', 'withdrawn'].includes(status);
   console.log(`✓ ${code.toUpperCase()} → ${status} (${today()})${hidden ? ' — now hidden from the website' : ''}`);
   if (status === 'placed' || status === 'withdrawn') console.log('  Run "npm run maids:archive" to move the record and photo off the website.');
@@ -346,7 +349,7 @@ async function approvals() {
   const csvPath = join(IMPORT, 'maids.csv');
   const rows = parseCsv(readFileSync(csvPath, 'utf8'));
   const byCode = Object.fromEntries(rows.map((r) => [r.code.toUpperCase(), r]));
-  for (const k of ['showReligion']) for (const r of rows) if (!(k in r)) r[k] = 'no';
+  for (const k of ['showReligion', 'availabilityVerified']) for (const r of rows) if (!(k in r)) r[k] = 'no';
 
   const ready = []; const problems = []; let seen = 0;
   sheet.slice(1).forEach((row) => {
@@ -361,6 +364,8 @@ async function approvals() {
     Object.assign(r, {
       status, consentRecorded: Y('Publication consent'), consentDate: date, photoConsent: Y('Photo consent'),
       nameConsent: (g('Name display (Full / First / None)') || 'none').toLowerCase(), showAge: Y('Show age'), showReligion: Y('Show religion'),
+      // staff choose "Current availability" and approve the row → that status counts as confirmed today
+      availabilityVerified: Y('Approved for website'),
       approvedBy: g('Approved by (initials)').slice(0, 10),
     });
     const ok = Y('Approved for website') === 'yes' && r.consentRecorded === 'yes' && date && Y('Discrepancies resolved') === 'yes' && r.approvedBy;

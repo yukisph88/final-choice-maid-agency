@@ -40,6 +40,8 @@ const maidSchema = z
     // placed | unavailable | withdrawn                       → automatically hidden from the website
     status: z.enum(['available', 'interview-pending', 'reserved', 'processing', 'placed', 'unavailable', 'withdrawn']),
     statusUpdated: z.coerce.date(),
+    // true only when staff have confirmed the status with the candidate/supplier; otherwise shown as "to be confirmed"
+    availabilityVerified: z.boolean().default(false),
     interviewAvailability: z.string().max(120).optional(),
     interviewAvailability_ms: z.string().max(120).optional(),
     // Optional approved Bahasa Melayu summary. If empty, the BM page shows the English summary with a note.
