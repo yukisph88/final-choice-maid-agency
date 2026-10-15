@@ -139,11 +139,11 @@ function fromRow(r) {
     return { country, duration, duties, ...(duties_ms ? { duties_ms } : {}) };
   });
   // Names: full name from the biodata (private). Public display depends on nameConsent: full | first | none (default).
-  const fullName = titleName(r.internalName || '');
+  const { fullName, firstName } = splitName(r.internalName || '');
   const nameConsent = (r.nameConsent || 'none').toLowerCase();
   if (!['full', 'first', 'none'].includes(nameConsent)) errors.push('nameConsent must be full, first or none');
   if (!fullName) warnings.push('NAME MISSING on the biodata — card will show the reference code');
-  const publicName = r.displayName || (nameConsent === 'full' ? fullName : nameConsent === 'first' ? fullName.split(' ')[0] : '');
+  const publicName = r.displayName || (nameConsent === 'full' ? fullName : nameConsent === 'first' ? firstName : '');
   if (fullName && nameConsent === 'none') warnings.push('Name consent not recorded — the public site will show the reference code instead of the name');
   const consentRecorded = yes(r.consentRecorded);
   const consentDate = r.consentDate || '';
@@ -170,6 +170,17 @@ function fromRow(r) {
 // e.g. "ANA BINTI ALI" → "Ana Binti Ali"; keeps Malay/Batak particles readable (Bt, Bin, Br, Binti)
 function titleName(n) {
   return n.trim().replace(/\s+/g, ' ').toLowerCase().replace(/(^|[\s'-])([a-z])/g, (_, p, c) => p + c.toUpperCase());
+}
+// Filipino biodata write "SURNAME, GIVEN MIDDLE" — show it in reading order like the other cards
+// ("DELA CRUZ, MARIA SANTOS" → "Maria Santos Dela Cruz"); the first name is the given name, never the surname.
+// Spelling is kept exactly as on the biodata. Compound given names (e.g. "Mary Rose"): set displayName in the CSV.
+function splitName(raw) {
+  const n = titleName(raw);
+  const i = n.indexOf(',');
+  if (i === -1) return { fullName: n, firstName: n.split(' ')[0] || '' };
+  const surname = n.slice(0, i).trim(); const given = n.slice(i + 1).trim();
+  if (!given) return { fullName: surname, firstName: surname };
+  return { fullName: `${given} ${surname}`, firstName: given.split(' ')[0] };
 }
 
 const findFile = (dir, code, exts) => {
