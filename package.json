@@ -28,6 +28,7 @@
     "db:phototest": "node scripts/db-phototest.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
     "backup:local": "node scripts/local-backup.mjs",
+    "review:package": "node scripts/review-package.mjs",
     "db:backup": "node scripts/db-backup.mjs",
     "db:restore": "node scripts/db-restore.mjs"
   },

@@ -10,7 +10,8 @@ import { href, asset } from '../../lib/urls';
 // The dashboard page is only BUILT when a Supabase project is configured (PUBLIC_SUPABASE_URL + key at build time).
 // Until the database integration is approved and connected, no /staff/ page exists on the public website at all.
 export function getStaticPaths() {
-  return DB_ENABLED ? [{ params: { slug: undefined } }] : [];
+  // never in the private review build (it is shared with management on other computers)
+  return DB_ENABLED && import.meta.env.PUBLIC_REVIEW_MODE !== 'true' ? [{ params: { slug: undefined } }] : [];
 }
 ---
 <!doctype html>
