@@ -6,7 +6,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-const DIST = 'dist';
+const DIST = process.env.DIST_DIR ?? 'dist';
 const BASE = (process.env.BASE_PATH ?? '/final-choice-maid-agency').replace(/\/$/, '');
 const errors = [];
 const warn = [];
@@ -145,6 +145,10 @@ for (const f of files.filter((x) => /\.(html|js|json|txt|xml)$/.test(x))) {
     try { if (JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString()).role !== 'anon') errors.push(`${relative(DIST, f)}: contains a non-public Supabase key — remove it`); } catch { /* not a key */ }
   }
   if (/sb_secret_[A-Za-z0-9_-]{10,}/.test(text)) errors.push(`${relative(DIST, f)}: contains a Supabase SECRET key — remove it`);
+}
+// The staff-dashboard bundle (field names like internal_notes, Supabase library) must not be published without the dashboard page
+if (!existsSync(join(DIST, 'staff'))) {
+  for (const f of files.filter((x) => /_astro[\\/].*\.js$/.test(x))) if (/internal_notes/.test(readFileSync(f, 'utf8'))) errors.push(`${relative(DIST, f)}: unused staff-dashboard script is still in the build (run: node scripts/prune-dist.mjs)`);
 }
 if (!existsSync(join(DIST, 'robots.txt'))) errors.push('robots.txt missing');
 if (!existsSync(join(DIST, '404.html'))) errors.push('404.html missing');

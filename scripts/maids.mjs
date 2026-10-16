@@ -256,6 +256,9 @@ function publish(codes, { quiet = false } = {}) {
     if (!/consentRecorded: true/.test(text)) { console.error(`✗ ${raw}: no recorded consent — not published`); continue; }
     text = text.replace(/^published: false$/m, 'published: true');
     text = text.replace(/^reviewName: .*\n/m, ''); // the private full name never leaves staging
+    // Age and religion are written to the (public) repository only when their display is authorised
+    if (!/showAge: true/.test(text)) text = text.replace(/^age: .*\n/m, '');
+    if (!/showReligion: true/.test(text)) text = text.replace(/^religion: .*\n/m, '');
     const photoOk = /photoConsent: true/.test(text);
     if (!photoOk) text = text.replace(/^photo: .*\n/m, '');
     writeFileSync(join(CONTENT, `${slug}.md`), text);
@@ -448,8 +451,11 @@ async function approvals() {
       nameConsent: (g('Name display (Full / First / None)') || 'none').toLowerCase(), showAge: Y('Show age'), showReligion: Y('Show religion'),
       approvedBy: initials,
     });
-    // Only rows a staff member has signed change the status, so an old checklist cannot undo later status updates.
-    if (initials && (r.status !== status || !yes(r.statusConfirmed))) {
+    // Signing a row approves PUBLICATION only — it never confirms availability. A status is changed here only when staff
+    // pick a different one in "Current availability" (an explicit decision, recorded with their initials). To confirm a status
+    // that is unchanged, use the status tools (staff page, status sheet or maids:status), so that unverified
+    // availability keeps showing as "Availability to be confirmed" on the website.
+    if (initials && r.status !== status) {
       statusLog.push({ ts, code, name: recordName(r), from: r.status, to: status, by: initials, method: 'approval checklist' });
       Object.assign(r, { status, statusUpdated: ts, statusSetBy: initials, statusConfirmed: 'yes' });
     }

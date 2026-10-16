@@ -39,7 +39,7 @@ function fromDb(r: PublicMaidRow): Maid {
     displayName: opt(r.display_name), nationality: r.nationality, age: opt(r.age), religion: opt(r.religion), maritalStatus: opt(r.marital_status),
     experienceYears: r.experience_years === null ? undefined : Number(r.experience_years), overseasExperience: r.overseas_experience,
     skills: r.skills as Maid['skills'], languages: r.languages as Maid['languages'], employmentHistory: r.employment_history,
-    status: r.status as Maid['status'], statusUpdated: new Date(r.status_updated_at), statusRecorded: r.status_recorded, statusConfirmed: true,
+    status: r.status as Maid['status'], statusUpdated: new Date(r.status_updated_at), statusRecorded: r.status_recorded, statusConfirmed: r.status_recorded, // database: status_recorded = set and confirmed by staff
     interviewAvailability: opt(r.interview_availability_en), interviewAvailability_ms: opt(r.interview_availability_ms),
     summary: r.summary_en, summary_ms: opt(r.summary_ms), photo: r.photo_path ? publicPhotoUrl(r.photo_path) : undefined,
     featured: r.featured, published: true,
@@ -49,7 +49,9 @@ function fromDb(r: PublicMaidRow): Maid {
 
 /** Status shown to visitors: the status set by staff, or "to be confirmed" when no status has been recorded. */
 export type ShownStatus = Maid['status'] | 'unconfirmed';
-export const shownStatus = (m: Maid): ShownStatus => (m.statusRecorded ? m.status : 'unconfirmed');
+// Only a status that staff have CONFIRMED (with the candidate or supplier) is shown as a real status.
+// An initial status that nobody has verified yet is shown as "Availability to be confirmed".
+export const shownStatus = (m: Maid): ShownStatus => (m.statusConfirmed ? m.status : 'unconfirmed');
 
 function statusRank(s: Maid['status']) {
   return ['available', 'interview-pending', 'reserved', 'processing', 'unavailable', 'placed', 'withdrawn'].indexOf(s);

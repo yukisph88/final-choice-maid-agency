@@ -22,6 +22,7 @@ employmentHistory:
 status: reserved
 statusUpdated: 2026-10-11
 statusRecorded: true
+statusConfirmed: true
 interviewAvailability: "Demo"
 featured: false
 published: true

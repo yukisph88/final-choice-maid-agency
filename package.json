@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "astro dev",
     "dev:demo": "cross-env PUBLIC_DEMO_CANDIDATES=true astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/prune-dist.mjs",
     "build:demo": "cross-env PUBLIC_DEMO_CANDIDATES=true astro build",
     "preview": "astro preview",
     "check": "astro check",

@@ -54,7 +54,7 @@ const st = shownStatus(m);
       </ul>
     )}
     {REVIEW && m.statusRecorded && !m.statusConfirmed && <p class="maid-card__review-flag">{T.card.initialStatus}</p>}
-    {m.statusRecorded && <p class="maid-card__updated">{T.card.updated} {formatDate(m.statusUpdated, lang)}</p>}
+    {m.statusConfirmed && <p class="maid-card__updated">{T.card.updated} {formatDate(m.statusUpdated, lang)}</p>}
     <div class="maid-card__actions">
       <a class="btn btn--outline btn--sm" href={profile}>{T.btn.viewProfile}</a>
       <a class="btn btn--wa btn--sm" href={whatsappLink(T.wa.interview(m.code))} target="_blank" rel="noopener" data-track={`interview_${m.code}`}>

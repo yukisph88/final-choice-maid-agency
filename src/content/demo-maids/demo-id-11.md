@@ -22,6 +22,7 @@ employmentHistory:
 status: processing
 statusUpdated: 2026-10-12
 statusRecorded: true
+statusConfirmed: true
 interviewAvailability: "Demo"
 featured: false
 published: true
