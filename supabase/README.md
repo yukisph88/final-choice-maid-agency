@@ -65,7 +65,7 @@ and `DATA-PROCESSING-CHECKLIST.md`).
 2. **One-time SQL** (Supabase → SQL Editor): run `migrations/0004_public_status_confirmed.sql` (replaces two read functions;
    deletes nothing). It makes the website show a status only when staff have *confirmed* it.
 3. **Staff accounts** (step 4 above) — at least one admin and one editor.
-4. **Migrate**: `npm run backup:local` → `npm run db:migrate` (dry run) → `npm run db:migrate -- --apply` → `npm run db:check`.
+4. **Migrate** (locked until the written approval record exists — see `DATA-PROCESSING-CHECKLIST.md`): `npm run backup:local` → `npm run db:migrate` (dry run) → `npm run db:migrate -- --apply` → `npm run db:check`.
    All 52 arrive *unpublished*; their photos go to the **private** bucket.
 5. **Approve maids**: staff complete `private-biodata/approval/Maid_Approval_Checklist.xlsx` (consent, date, photo consent, name display,
    discrepancies resolved, approved, initials), then `npm run db:approvals` (dry run) → `npm run db:approvals -- --apply`.

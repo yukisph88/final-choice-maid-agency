@@ -1,0 +1,10 @@
+{
+  "_readme": "Copy this file to private-biodata/approval/data-processing-approval.json, fill it in ONLY after management has approved in writing, and set confirmed to true. It contains no personal data. The real migration (npm run db:migrate -- --apply) refuses to run without it.",
+  "confirmed": false,
+  "approvedBy": "Name and position of the person who approved (management / person responsible for PDPA)",
+  "approvedDate": "YYYY-MM-DD",
+  "region": "Region of the Supabase project that was approved, e.g. Tokyo or Singapore",
+  "reference": "Where the written approval is kept, e.g. signed memo dated ..., file name or folder",
+  "dpaAccepted": false,
+  "privacyNoticeUpdated": false
+}

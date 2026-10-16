@@ -21,6 +21,31 @@ import { parseCsv, csvRowToDb, validateRow, changedFields } from '../src/staff/m
 
 const args = new Set(process.argv.slice(2));
 const APPLY = args.has('--apply');
+const SYNTH = args.has('--synthetic') || args.has('--remove-synthetic');
+
+// SAFETY LOCK — checked BEFORE the script connects to the database at all.
+// Real personal data may be uploaded only after management's written data-processing approval is recorded on this PC:
+// copy supabase/data-processing-approval.TEMPLATE.json to private-biodata/approval/data-processing-approval.json and fill it in.
+function approvalGate() {
+  const f = 'private-biodata/approval/data-processing-approval.json';
+  if (!existsSync(f)) return { ok: false, why: `no approval record (${f})` };
+  let a; try { a = JSON.parse(readFileSync(f, 'utf8')); } catch { return { ok: false, why: 'approval record is not valid JSON' }; }
+  const missing = [];
+  if (a.confirmed !== true) missing.push('"confirmed" is not true');
+  if (!String(a.approvedBy || '').trim() || /^name and position/i.test(a.approvedBy)) missing.push('approvedBy');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(a.approvedDate || ''))) missing.push('approvedDate (YYYY-MM-DD)');
+  if (!String(a.region || '').trim() || /^region of/i.test(a.region)) missing.push('region');
+  if (!String(a.reference || '').trim() || /^where the written/i.test(a.reference)) missing.push('reference');
+  if (a.dpaAccepted !== true) missing.push('dpaAccepted');
+  if (a.privacyNoticeUpdated !== true) missing.push('privacyNoticeUpdated');
+  return missing.length ? { ok: false, why: `approval record incomplete: ${missing.join(', ')}` } : { ok: true, why: `approved by ${a.approvedBy} on ${a.approvedDate} (region: ${a.region})` };
+}
+const gate = SYNTH ? { ok: true, why: 'synthetic test data — no approval needed' } : approvalGate();
+if (args.has('--check-lock')) { console.log(`Approval lock: ${gate.ok ? 'OPEN' : 'LOCKED'} — ${gate.why}`); process.exit(0); }
+if (APPLY && !gate.ok) {
+  console.error(`✗ LOCKED: real maid records cannot be uploaded yet — ${gate.why}.\n  Management's written data-processing approval is required first (see supabase/DATA-PROCESSING-CHECKLIST.md).\n  Nothing was changed.`);
+  process.exit(1);
+}
 const db = adminClient();
 
 const SYNTHETIC = [

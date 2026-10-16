@@ -32,8 +32,15 @@ The 52 real records stay on the office PC until **every box below is ticked** by
 The migration script refuses to upload any record whose text looks like a passport, IC or phone number, and never uploads
 PDF files. Every record is imported as **unpublished**; consent, photo consent and name consent all start as "not given".
 
-## 3. After approval
-1. `npm run backup:local`
+## 3. The migration is locked until approval is recorded
+
+`npm run db:migrate -- --apply` refuses to upload real records unless `private-biodata/approval/data-processing-approval.json` exists,
+is filled in and says `"confirmed": true` (with the approver, date, approved region, where the written approval is kept, and that the
+Supabase DPA was accepted and the privacy notice updated). Start from `supabase/data-processing-approval.TEMPLATE.json`.
+Check the lock any time with `npm run db:migrate -- --check-lock` (it never contacts the database).
+
+## 4. After approval
+1. Create the approval record (above), then `npm run backup:local`
 2. `npm run db:migrate` — dry run; read the list.
 3. `npm run db:migrate -- --apply`
 4. `npm run db:check`
