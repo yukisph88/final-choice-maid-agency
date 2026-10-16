@@ -27,6 +27,8 @@
     "db:check": "node scripts/db-check.mjs",
     "db:phototest": "node scripts/db-phototest.mjs",
     "db:approvals": "node scripts/db-approvals.mjs",
+    "db:staff": "node scripts/db-staff.mjs",
+    "db:roletest": "node scripts/db-roletest.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
     "backup:local": "node scripts/local-backup.mjs",
     "review:package": "node scripts/review-package.mjs",

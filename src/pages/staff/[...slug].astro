@@ -107,6 +107,19 @@ export function getStaticPaths() {
     <p class="hint" style="margin-top:14px"><a href="#" id="l-forgot">Forgot password?</a> Enter your e-mail above first.</p>
   </section>
 
+  <section id="v-pass" class="card center" hidden>
+    <img src={asset('images/logo-final-choice.png')} alt="Final Choice" style="height:44px" />
+    <h2 style="margin-top:14px">Set a new password</h2>
+    <p class="hint">At least 12 characters. Use a password you do not use anywhere else.</p>
+    <form id="f-pass">
+      <label for="p-new">New password</label><input id="p-new" type="password" autocomplete="new-password" minlength="12" required />
+      <label for="p-new2">Repeat the new password</label><input id="p-new2" type="password" autocomplete="new-password" minlength="12" required />
+      <div id="p-msg"></div>
+      <button class="btn" type="submit" style="margin-top:16px;width:100%">Save password</button>
+      <button class="btn btn--ghost" type="button" id="p-cancel" style="margin-top:8px;width:100%" hidden>Cancel</button>
+    </form>
+  </section>
+
   <section id="v-denied" class="card center" hidden>
     <h2>No access</h2>
     <p class="hint">You are signed in, but this account is not an active Final Choice staff account. Ask the administrator to add you.</p>
@@ -118,6 +131,7 @@ export function getStaticPaths() {
       <img src={asset('images/logo-final-choice.png')} alt="Final Choice" />
       <h1>Maid records</h1>
       <span class="who" id="who"></span>
+      <button class="btn btn--ghost btn--sm" id="b-pass" type="button">Change password</button>
       <button class="btn btn--ghost btn--sm" data-signout type="button">Sign out</button>
     </div></header>
     <main class="wrap">

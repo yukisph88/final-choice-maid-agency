@@ -25,15 +25,14 @@ env:
   # SITE_URL=https://www.your-domain.com and BASE_PATH=/  (Settings → Secrets and variables → Actions → Variables)
   SITE_URL: ${{ vars.SITE_URL || 'https://yukisph88.github.io' }}
   BASE_PATH: ${{ vars.BASE_PATH || '/final-choice-maid-agency' }}
-  # Pre-launch preview: show the clearly labelled DEMO profiles (no real candidates) in the maid directory.
-  # Real candidates appear only after publication consent is recorded and approved (npm run maids:approvals).
-  # Before publishing the first real approved profiles, set repository variable PUBLIC_DEMO_CANDIDATES=false
-  # (Settings → Secrets and variables → Actions → Variables) or change the default below to 'false'.
-  PUBLIC_DEMO_CANDIDATES: ${{ vars.PUBLIC_DEMO_CANDIDATES || 'true' }}
-  # Supabase database (optional). Only the PUBLIC project URL and anon key — never the service role key.
-  # Set them as repository VARIABLES. PUBLIC_MAIDS_SOURCE=supabase builds profiles from the database.
-  PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL || '' }}
-  PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY || '' }}
+  # Demo profiles (fictional, clearly labelled) are OFF: the directory shows only real, consented profiles.
+  # Set the repository variable PUBLIC_DEMO_CANDIDATES=true only for a layout test.
+  PUBLIC_DEMO_CANDIDATES: ${{ vars.PUBLIC_DEMO_CANDIDATES || 'false' }}
+  # Supabase database: only the PUBLIC project URL and PUBLIC (publishable) key belong here — they are designed to be public.
+  # NEVER the secret/service-role key. Repository variables of the same names override these defaults.
+  # PUBLIC_MAIDS_SOURCE=supabase builds the maid profiles from the database (set it only at go-live).
+  PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL || 'https://bxgzgagtssjbauylrzqz.supabase.co' }}
+  PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_BsXQvtdpj3N_9KnXHcTpwg_FV7-UMlO' }}
   PUBLIC_MAIDS_SOURCE: ${{ vars.PUBLIC_MAIDS_SOURCE || 'files' }}
 
 jobs:
@@ -48,6 +47,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Keep the free Supabase project active (it pauses after a week without use)
+        run: |
+          curl -fsS -m 30 -X POST "$PUBLIC_SUPABASE_URL/rest/v1/rpc/public_maid_status" -H "apikey: $PUBLIC_SUPABASE_ANON_KEY" -H "Content-Type: application/json" -d '{}' > /dev/null || echo "Supabase did not answer (it may be paused) — the website build continues"
       - name: Build
         run: npm run build
       - name: Quality checks (links, titles, structured data, privacy patterns)

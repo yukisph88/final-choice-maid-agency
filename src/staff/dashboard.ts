@@ -26,24 +26,29 @@ let current: Row | null = null; // record open in the editor (null = new)
 let pendingPhoto: Blob | null = null;
 let pendingPdf: File | null = null;
 let importPlan: { rows: Row[] } | null = null;
+let passFromReset = false; // true when the page was opened from a password-reset or invitation e-mail
 const canEdit = () => role === 'admin' || role === 'editor';
 
 function toast(msg: string) {
   const t = $('#toast'); t.textContent = msg; t.hidden = false;
   clearTimeout((toast as any).h); (toast as any).h = setTimeout(() => (t.hidden = true), 3500);
 }
-function show(view: 'login' | 'denied' | 'app') {
-  for (const v of ['login', 'denied', 'app']) $(`#v-${v}`).hidden = v !== view;
+function show(view: 'login' | 'denied' | 'app' | 'pass') {
+  for (const v of ['login', 'denied', 'app', 'pass']) $(`#v-${v}`).hidden = v !== view;
 }
 
 // ---------- start ----------
 if (cfg.url && cfg.key) {
   sb = createClient(cfg.url, cfg.key, { auth: { persistSession: true, storageKey: 'fc-staff-auth' } });
-  sb.auth.onAuthStateChange((_e, session) => { if (!session) show('login'); });
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') { passFromReset = true; $('#p-cancel').hidden = true; show('pass'); }
+    else if (!session) show('login');
+  });
   start();
 }
 
 async function start() {
+  if (passFromReset) return; // the set-password screen is showing
   const { data } = await sb.auth.getSession();
   if (!data.session) return show('login');
   const r = await sb.rpc('staff_role');
@@ -71,6 +76,22 @@ $('#f-login').addEventListener('submit', async (e) => {
   $<HTMLInputElement>('#l-pass').value = '';
   start();
 });
+
+// ---------- password: set (after a reset / invitation e-mail) or change ----------
+$('#b-pass').addEventListener('click', () => { passFromReset = false; $('#p-msg').innerHTML = ''; $('#p-cancel').hidden = false; show('pass'); });
+$('#p-cancel').addEventListener('click', () => show('app'));
+$('#f-pass').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const a = $<HTMLInputElement>('#p-new').value; const b = $<HTMLInputElement>('#p-new2').value; const msg = $('#p-msg');
+  if (a.length < 12) { msg.innerHTML = '<div class="err">Use at least 12 characters.</div>'; return; }
+  if (a !== b) { msg.innerHTML = '<div class="err">The two passwords are not the same.</div>'; return; }
+  const { error } = await sb.auth.updateUser({ password: a });
+  if (error) { msg.innerHTML = `<div class="err">${esc(error.message)}</div>`; return; }
+  $<HTMLInputElement>('#p-new').value = ''; $<HTMLInputElement>('#p-new2').value = '';
+  passFromReset = false; history.replaceState(null, '', location.pathname);
+  await start(); toast('Password saved.');
+});
+
 $('#l-forgot').addEventListener('click', async (e) => {
   e.preventDefault();
   const email = $<HTMLInputElement>('#l-email').value.trim();
