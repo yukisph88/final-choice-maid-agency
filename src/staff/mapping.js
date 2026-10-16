@@ -146,7 +146,9 @@ export function csvRowToDb(r) {
 export const COMPARE_FIELDS = ['full_name', 'first_name', 'display_name_override', 'name_consent', 'nationality', 'age', 'show_age', 'religion', 'show_religion', 'marital_status',
   'experience_years', 'overseas_experience', 'skills', 'languages', 'employment_history', 'summary_en', 'summary_ms', 'interview_availability_en', 'interview_availability_ms',
   'status', 'status_set_by', 'status_confirmed', 'consent_recorded', 'consent_date', 'photo_consent', 'approved_by', 'featured', 'source_file', 'internal_notes'];
-const norm = (v) => (v == null ? null : typeof v === 'object' ? JSON.stringify(v) : typeof v === 'number' ? v : String(v));
+// JSON fields come back from the database with keys in a different order, so compare with sorted keys
+const canon = (v) => (Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
+const norm = (v) => (v == null ? null : typeof v === 'object' ? JSON.stringify(canon(v)) : typeof v === 'number' ? v : String(v));
 export function changedFields(existing, row) {
   return COMPARE_FIELDS.filter((k) => k in row && norm(k === 'experience_years' && existing[k] != null ? Number(existing[k]) : existing[k]) !== norm(row[k]));
 }

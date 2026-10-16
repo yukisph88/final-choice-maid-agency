@@ -25,7 +25,9 @@
     "maids:staff": "node scripts/maids-staff.mjs",
     "db:test": "node scripts/db-test.mjs",
     "db:check": "node scripts/db-check.mjs",
+    "db:phototest": "node scripts/db-phototest.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
+    "backup:local": "node scripts/local-backup.mjs",
     "db:backup": "node scripts/db-backup.mjs",
     "db:restore": "node scripts/db-restore.mjs"
   },

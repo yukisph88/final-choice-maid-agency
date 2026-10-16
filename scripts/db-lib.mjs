@@ -12,6 +12,14 @@ export function loadEnv() {
       if (m && !line.trim().startsWith('#')) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
     }
   }
+  // Safety: the PUBLIC key slot must never hold a secret key (it would end up in the website)
+  const pub = env.PUBLIC_SUPABASE_ANON_KEY || '';
+  let jwtRole = '';
+  try { if (pub.startsWith('eyJ')) jwtRole = JSON.parse(Buffer.from(pub.split('.')[1], 'base64url').toString()).role; } catch { /* not a JWT */ }
+  if (pub.startsWith('sb_secret_') || jwtRole === 'service_role') {
+    console.error('✗ STOP: PUBLIC_SUPABASE_ANON_KEY in .env.local contains a SECRET key. Put the Publishable/anon key there,\n  and the Secret/service_role key only in SUPABASE_SERVICE_ROLE_KEY.');
+    process.exit(1);
+  }
   return env;
 }
 

@@ -58,6 +58,13 @@ for (const r of source) {
   const photo = join('private-biodata/staging/photos', `${row.code.toLowerCase()}.webp`);
   if (existsSync(photo)) row.photo_path = `${row.code.toLowerCase()}.webp`;
   const { errors } = validateRow(row);
+  // Extra guard for EVERYTHING that would be uploaded (including private notes and file names):
+  // no passport / IC / phone numbers, and no document files.
+  const everything = JSON.stringify(Object.entries(row).filter(([k]) => k !== 'skills'));
+  if (/\b[A-Z]{1,2}\d{7,8}\b/.test(everything.replace(/[A-Z0-9]+(-[A-Z0-9]+)+/g, ''))) errors.push('looks like a passport number in an uploaded field'); // reference codes are removed first
+  if (/\b\d{6}-\d{2}-\d{4}\b/.test(everything)) errors.push('looks like an IC number in an uploaded field');
+  if (/\+?6?01\d[- ]?\d{3,4}[- ]?\d{4}/.test(everything)) errors.push('looks like a phone number in an uploaded field');
+  if (row.biodata_pdf_path) errors.push('biodata PDFs are never uploaded by the migration');
   if (errors.length) { plan.bad.push({ code: row.code, errors }); continue; }
   const old = byCode.get(row.code);
   if (!old) plan.add.push({ row, photo: existsSync(photo) ? photo : null });

@@ -7,6 +7,11 @@ export const DB_ENABLED = Boolean(DB_URL && DB_KEY);
 /** Build maid profiles from the database instead of src/content/maids (switch: PUBLIC_MAIDS_SOURCE=supabase). */
 export const DB_SOURCE = DB_ENABLED && import.meta.env.PUBLIC_MAIDS_SOURCE === 'supabase';
 
+/** New "sb_publishable_" keys go in the apikey header only; legacy JWT "anon" keys also as a Bearer token. */
+export const dbHeaders = (): Record<string, string> => ({
+  apikey: DB_KEY, 'Content-Type': 'application/json', ...(DB_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${DB_KEY}` } : {}),
+});
+
 export const publicPhotoUrl = (path: string) => `${DB_URL}/storage/v1/object/public/maid-public/${encodeURIComponent(path)}`;
 
 export interface PublicMaidRow {
@@ -21,7 +26,7 @@ export interface PublicMaidRow {
 export async function fetchPublicMaids(): Promise<PublicMaidRow[]> {
   const res = await fetch(`${DB_URL}/rest/v1/rpc/public_maids`, {
     method: 'POST',
-    headers: { apikey: DB_KEY, Authorization: `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
+    headers: dbHeaders(),
     body: '{}',
   });
   if (!res.ok) throw new Error(`Supabase public_maids() failed: HTTP ${res.status} ${await res.text()}`);
