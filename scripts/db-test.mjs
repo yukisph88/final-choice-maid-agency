@@ -74,6 +74,15 @@ ok('age shown with show_age', pub[0].age === 30);
 ok('photo shown with photo consent', pub[0].photo_path === 'test-id-001.webp');
 await throws('unpublish while public photo still set is rejected (forces photo removal)', () => as('editor', `update public.maids set published=false where code='TEST-ID-001'`), /public_photo_requires_consent/);
 
+console.log('\nUnconfirmed availability is never shown as a real status');
+// management's initial status: set by someone (status_set_by) but NOT confirmed with the candidate
+await as('editor', `update public.maids set status='available', status_set_by='MGMT', status_confirmed=false where code='TEST-ID-001'`);
+const unc = (await as(null, 'select * from public.public_maids()')).rows[0];
+ok('initial (unconfirmed) status is reported as NOT confirmed to the website', unc.status_recorded === false, `(${unc.status_recorded})`);
+ok('same in the live-status function', (await as(null, 'select * from public.public_maid_status()')).rows[0].status_recorded === false);
+await as('editor', `update public.maids set status_confirmed=true where code='TEST-ID-001'`);
+ok('once staff confirm it, it is reported as confirmed', (await as(null, 'select * from public.public_maids()')).rows[0].status_recorded === true);
+
 console.log('\nLive availability');
 await as('editor', `update public.maids set status='reserved', status_set_by='TT', status_confirmed=true where code='TEST-ID-001'`);
 let st = (await as(null, 'select * from public.public_maid_status()')).rows;

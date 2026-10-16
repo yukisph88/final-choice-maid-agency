@@ -188,6 +188,8 @@ create policy history_read on public.maid_history for select to authenticated us
 -- no insert/update/delete policy on history: only the SECURITY DEFINER trigger writes to it
 
 -- ---------- public read functions (the ONLY thing website visitors can call) ----------
+-- NOTE: the output column "status_recorded" means "status CONFIRMED by staff" (kept under this name for compatibility).
+-- A status nobody has verified is shown on the website as "Availability to be confirmed".
 create or replace function public.public_maids()
 returns table (
   code text, display_name text, nationality text, age int, religion text, marital_status text,
@@ -207,7 +209,7 @@ language sql stable security definer set search_path = public as $$
          nullif(m.marital_status, ''),
          m.experience_years, m.overseas_experience, m.skills, m.languages, m.employment_history,
          m.summary_en, m.summary_ms, m.interview_availability_en, m.interview_availability_ms,
-         m.status, m.status_updated_at, (m.status_set_by <> ''), m.featured,
+         m.status, m.status_updated_at, m.status_confirmed, m.featured,
          case when m.photo_consent then nullif(m.public_photo_path, '') end
   from public.maids m
   where m.published and m.consent_recorded and m.consent_date is not null
@@ -218,7 +220,7 @@ $$;
 create or replace function public.public_maid_status()
 returns table (code text, status text, status_updated_at timestamptz, status_recorded boolean)
 language sql stable security definer set search_path = public as $$
-  select m.code, m.status, m.status_updated_at, (m.status_set_by <> '')
+  select m.code, m.status, m.status_updated_at, m.status_confirmed
   from public.maids m
   where m.published and m.consent_recorded and m.consent_date is not null;
 $$;

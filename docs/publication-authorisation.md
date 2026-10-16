@@ -12,9 +12,9 @@ checklist, not legal advice. The 52 real profiles are ready; only the permission
     site — they are **not** privacy or a password.
   - The profile files and photos are stored in the repository's **Git history permanently**. Un-publishing a maid removes
     her from the live website, but the old files stay readable in the repository history and in any copies others made.
-  - **Alternative that avoids this:** build the profiles from the private Supabase database instead of from repository
-    files. Data is then not in Git history, and removal takes effect at the next rebuild. It needs the database approvals
-    in `supabase/DATA-PROCESSING-CHECKLIST.md`. Decide which route before the first push.
+  - **Route chosen: Supabase.** Profiles are built from the private database instead of from repository files, so candidate
+    data and photos are **not** in Git history, and removal takes effect at the next rebuild. It needs the database approvals
+    in `supabase/DATA-PROCESSING-CHECKLIST.md`. (The published pages and photos are still public to anyone with the link.)
 - [ ] **Candidate privacy notice / consent form** says: profile (name, photo, experience) is published on the agency's
       website; who can see it; how long; how to withdraw consent.
 - [ ] **Withdrawal procedure** agreed (who removes a maid, target time — normally the same day: untick → `maids:approvals`
@@ -51,15 +51,20 @@ file `private-biodata/MIGRATION-SUMMARY.md`; it includes a maid whose biodata al
 | "Availability to be confirmed" until staff confirm | Internal staff notes, source file names |
 | WhatsApp "Request interview" button using the reference code | Private database, Supabase keys |
 
-## D. Publishing, once A and B are done
+## D. Publishing, once A and B are done (Supabase route — chosen)
+
+Candidate data is **not** committed to GitHub: profiles and photos live in the private-by-default Supabase project and the
+website reads only what the database marks as published with consent.
 
 1. Staff complete the checklist (section B) and save it.
-2. `npm run maids:approvals` — creates the public files for the **approved rows only** (others are not published).
-3. In `.github/workflows/deploy.yml` set `PUBLIC_DEMO_CANDIDATES` to `'false'` so the demo profiles disappear.
-4. `npm run build` and `npm run test:site`, then look at the result locally.
-5. Tell Claude "approved, push" → push, GitHub Actions deploys, live check (names, photos, EN/BM, mobile, privacy scan).
+2. `npm run db:approvals` (dry run) — read the list — then `npm run db:approvals -- --apply`.
+   Approved rows are published (with the name/photo/age/religion permissions chosen); everyone else stays private.
+3. Set the GitHub variables and run the workflow (see `supabase/README.md`, "Going live").
+4. Verify the live site (names, photos, English/BM, mobile, privacy), then tell Claude "approved".
 
-## E. Wording to confirm before launch
-The directory heading still reads "Available maids: Indonesian and Filipino helpers" and its intro says "latest available
-domestic helpers". While availability is unconfirmed, consider "Maid biodata: Indonesian and Filipino helpers" / "Helper
-profiles" (this changes the page title and description used by search engines, so it needs your approval).
+Before step 2 the real records must be migrated to Supabase — only after the data-processing approvals in
+`supabase/DATA-PROCESSING-CHECKLIST.md`. A database check stops any record from being published without consent,
+consent date and approver, and records without consent can never appear on the website.
+
+## E. Wording
+The directory heading now reads "Maid Biodata: Indonesian and Filipino Helpers" (page title, description and intro no longer imply verified availability).

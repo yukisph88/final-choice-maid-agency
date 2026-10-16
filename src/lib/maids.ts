@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t } from '../i18n/ui';
 import { RESERVED_PROFILE_SLUGS, type Lang } from '../i18n/routes';
-import { DB_SOURCE, fetchPublicMaids, publicPhotoUrl, type PublicMaidRow } from './db';
+import { DB_ENABLED, DB_SOURCE, fetchPublicMaids, publicPhotoUrl, type PublicMaidRow } from './db';
 
 // One shared record per candidate. Both language versions read exactly the same data
 // (code, status, photo, skills), so English and Bahasa Melayu pages cannot disagree.
@@ -23,6 +23,10 @@ let dbCache: Promise<Maid[]> | undefined;
 export async function getPublicMaids(): Promise<Maid[]> {
   // Database source (PUBLIC_MAIDS_SOURCE=supabase): approved profiles come from Supabase public_maids(),
   // which already applies consent, name/age/religion/photo permissions and hides placed/unavailable/withdrawn.
+  if (import.meta.env.PUBLIC_MAIDS_SOURCE === 'supabase' && !DB_ENABLED && !DEMO && !REVIEW) {
+    // Fail the build (the live site keeps its previous version) instead of silently publishing an empty directory.
+    throw new Error('PUBLIC_MAIDS_SOURCE=supabase but PUBLIC_SUPABASE_URL / PUBLIC_SUPABASE_ANON_KEY are not set.');
+  }
   const list = DB_SOURCE && !DEMO && !REVIEW
     ? await (dbCache ??= fetchPublicMaids().then((rows) => rows.filter((r) => !RESERVED_PROFILE_SLUGS.includes(r.code.toLowerCase())).map(fromDb)))
     : (DEMO ? await getCollection('demoMaids') : await getCollection('maids'))

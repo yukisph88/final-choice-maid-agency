@@ -11,6 +11,7 @@ Open **https://yukisph88.github.io/final-choice-maid-agency/staff/** (not linked
 | Change availability | In the list, use the **status dropdown** on the maid's row. Placed, Unavailable and Withdrawn maids disappear from the website's listings. Pick the same status again to record "confirmed today". |
 | Add a new maid | **+ Add maid** → fill the tabs (Details, Experience & skills, Profile text) → **Save**. New maids are *not* published. |
 | Upload or change a photo | Open the maid → **Photo & files** → choose the picture → **Save**. It is cropped to a small portrait automatically and kept **private** until the maid is published with photo consent. |
+| Publish many maids at once | Complete the approval checklist (Excel), then on the office PC: `npm run db:approvals` (dry run) and `npm run db:approvals -- --apply`. Only approved rows are published; signing never confirms availability. |
 | Publish a maid | Open the maid → **Availability & website** → tick *Written consent on file*, the date and your initials (and *Photo consent* if the photo may be shown) → tick **Published** → Save. The system refuses to publish without consent. |
 | Unpublish a maid | Untick **Published** → Save (the website photo is removed automatically). |
 | Add many maids | **Import CSV** (same columns as the office list). A preview shows what is new or changed; nothing is published. |

@@ -56,6 +56,32 @@ and `PUBLIC_DEMO_CANDIDATES=false` when real approved profiles should replace th
 - Search engines index the profile text, name, photo and the status from the last rebuild. The live status
   is added in the visitor's browser, so search results may show a status up to one day old.
 
+
+## Going live with the real profiles (Supabase route) — in this order
+Nothing real is uploaded or published until steps 1–4 are confirmed in writing (see `docs/publication-authorisation.md`
+and `DATA-PROCESSING-CHECKLIST.md`).
+
+1. **Approvals confirmed**: management decision, data-processing / region decision, candidate privacy notice and consent forms.
+2. **One-time SQL** (Supabase → SQL Editor): run `migrations/0004_public_status_confirmed.sql` (replaces two read functions;
+   deletes nothing). It makes the website show a status only when staff have *confirmed* it.
+3. **Staff accounts** (step 4 above) — at least one admin and one editor.
+4. **Migrate**: `npm run backup:local` → `npm run db:migrate` (dry run) → `npm run db:migrate -- --apply` → `npm run db:check`.
+   All 52 arrive *unpublished*; their photos go to the **private** bucket.
+5. **Approve maids**: staff complete `private-biodata/approval/Maid_Approval_Checklist.xlsx` (consent, date, photo consent, name display,
+   discrepancies resolved, approved, initials), then `npm run db:approvals` (dry run) → `npm run db:approvals -- --apply`.
+   Only approved rows are published; their approved photo is copied to the public photo bucket. Signing a row never
+   confirms availability — maids stay "Availability to be confirmed" until staff confirm a status.
+6. **Connect the website** (GitHub → repo → Settings → Secrets and variables → Actions → *Variables*):
+   `PUBLIC_SUPABASE_URL` (project URL), `PUBLIC_SUPABASE_ANON_KEY` (the *publishable* key only), `PUBLIC_MAIDS_SOURCE` = `supabase`,
+   `PUBLIC_DEMO_CANDIDATES` = `false`. Never add the secret key. Then Actions → *Build and deploy website* → **Run workflow**.
+7. **Check the live site**: names, photos, "Availability to be confirmed", English and BM, mobile; Google indexing stays off until launch approval.
+
+### Withdrawing a maid (consent withdrawn)
+`npm run db:approvals` after un-ticking her row (or untick *Published* in the dashboard) → then GitHub → Actions →
+**Run workflow** so her profile page text disappears too. The database stops listing her immediately and her public photo
+is deleted at once, but a cached copy of the photo can stay reachable at its old address for up to 5 minutes. The old
+profile page stays online until that rebuild, so run it straight away.
+
 ## Backups and recovery
 - `npm run db:backup` → `private-biodata/db-backups/<date-time>/` (all records, history, staff list, every file,
   and a privacy check of the public photos).
