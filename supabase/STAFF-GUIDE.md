@@ -1,39 +1,56 @@
-# Final Choice staff guide — adding maids, availability and photos
+# Final Choice staff guide — the staff portal
 
-Two ways to work. Use the dashboard once staff accounts exist; until then use the office-PC method.
+Open **https://yukisph88.github.io/final-choice-maid-agency/staff/** (it is not linked anywhere on the public website) and sign in
+with your own e-mail and password. On a phone use the **Menu** button. You are signed out after 60 minutes without activity.
 
-## A. Staff dashboard (needs a staff account — set up after the database connection is approved)
-Open **https://yukisph88.github.io/final-choice-maid-agency/staff/** (not linked anywhere on the website) and sign in.
-
-| I want to… | Do this |
+## What each section does
+| Section | Use it to… |
 |---|---|
-| Find a maid | Type the name or reference code in **Search**; filter by nationality, status or website. |
-| Change availability | In the list, use the **status dropdown** on the maid's row. Placed, Unavailable and Withdrawn maids disappear from the website's listings. Pick the same status again to record "confirmed today". |
-| Add a new maid | **+ Add maid** → fill the tabs (Details, Experience & skills, Profile text) → **Save**. New maids are *not* published. |
-| Upload or change a photo | Open the maid → **Photo & files** → choose the picture → **Save**. It is cropped to a small portrait automatically and kept **private** until the maid is published with photo consent. |
-| Publish many maids at once | Complete the approval checklist (Excel), then on the office PC: `npm run db:approvals` (dry run) and `npm run db:approvals -- --apply`. Only approved rows are published; signing never confirms availability. |
-| Publish a maid | Open the maid → **Availability & website** → tick *Written consent on file*, the date and your initials (and *Photo consent* if the photo may be shown) → tick **Published** → Save. The system refuses to publish without consent. |
-| Unpublish a maid | Untick **Published** → Save (the website photo is removed automatically). |
-| Add many maids | **Import CSV** (same columns as the office list). A preview shows what is new or changed; nothing is published. |
-| See who changed what | **History** (all changes) or the maid's **History** tab. |
+| **Dashboard** | See totals, availability, the placement pipeline, and what needs attention (unverified availability, missing photos, maids ready to publish). |
+| **All Maid Biodata** | Search and filter all maids; open one to edit. **Import CSV** adds maids in bulk (never publishes). Administrators can **Export**. |
+| **Add New Maid** | Register a maid. Only fill what the biodata says. New maids start *private* and *To Be Confirmed*. |
+| **Photo Management** | Upload, replace, re-crop and preview photos. Drag and zoom to crop. Photos are private until the maid is published with photo consent. |
+| **Availability Tracking** | Set Available / On Hold / Booked / Pending Arrival / Hired / Withdrawn / To Be Confirmed, one by one or in bulk. Choosing a status records who verified it and when. **Re-verify** confirms a status is still right today. |
+| **Applications & Placements** | Record employer, package, interview/booking/arrival dates and the stage. Moving a placement offers to update the maid's availability. |
+| **Publication Approvals** | (Administrators.) Record written consent, date, approver initials, photo/name permission, then publish. Everyone else can view the state. |
+| **Documents** | Store consent forms, contracts and similar files privately, with an access level (administrators only / administrators + editors / all staff). Identity and medical documents are always administrators only. |
+| **Reports** | Register summary, availability verification, publication & consent, photo coverage, placements, staff activity. Print; administrators can export CSV (recorded in the audit log). |
+| **Staff Management** | (Administrators.) Add staff, change roles, set a temporary password, deactivate. |
+| **Settings** | Change your name and password. |
 
-What appears on the website: availability changes show as soon as a visitor opens the page. Edited profile text, new
-publications and new photos appear after the website rebuilds (daily at 06:00, or at once via GitHub → Actions →
-*Build and deploy website* → **Run workflow**).
+## Roles
+| | Administrator | Editor | Viewer |
+|---|---|---|---|
+| Read everything allowed to staff | ✓ | ✓ | ✓ |
+| Add / edit biodata, photos, availability, placements, documents | ✓ | ✓ | — |
+| Record consent, publish / unpublish, update website photo | ✓ | — | — |
+| Delete (a **Withdrawn** maid, placements, documents) | ✓ | — | — |
+| Export data, manage staff | ✓ | — | — |
 
-## B. Office PC (works today, no accounts needed)
-Open a terminal in `C:\Users\user\Documents\final-choice-maid-agency`.
+The database enforces these rules — a hidden button is not the only protection.
 
-| I want to… | Command or file |
-|---|---|
-| Change availability (one maid) | `npm run maids:status -- REFERENCE_CODE STATUS INITIALS` (e.g. `reserved`) |
-| Change availability (many) | `npm run maids:status-sheet` → edit the Excel file → `npm run maids:status-apply` |
-| Add or correct a maid | Edit `private-biodata/import/maids.csv` (one row per maid), put the portrait in `private-biodata/import/photos/<CODE>.jpg`, then `npm run maids:import` |
-| Check before anything goes to the database | `npm run db:migrate` (dry run — shows exactly what would be added or changed) |
-| Send the changes to the database | `npm run db:migrate -- --apply` (takes a backup first; never publishes anyone) |
-| Back up | `npm run backup:local` and `npm run db:backup` |
+## The maid profile
+Tabs: Personal biodata · Experience & skills · Languages · Salary & rest day · Availability · Photos · Placement & employer ·
+Internal notes · Documents · Public profile & approval · Change history. **Preview public version** shows exactly what a
+visitor would see (English or Bahasa Melayu) and what stays hidden. The top of the page shows who changed it last and when;
+**Change history** lists every change with the person and time.
 
-Rules for everyone
-- Never type passport, IC or phone numbers, addresses, medical or family-health details into any maid field.
+## What appears on the website
+Only maids an administrator has published after recording written consent. Availability labels update as soon as a visitor opens
+the page; edited text, new publications and photos appear at the next website rebuild (daily, or GitHub → Actions →
+*Build and deploy website* → **Run workflow**). Hired and Withdrawn maids are not listed.
+
+## Everyday rules
+- Never type passport, IC or phone numbers, addresses, medical or family-health details into a maid field.
+- Do not upload identity or medical documents unless the company is authorised to hold them; if you do, keep them **administrators only**.
 - Publish only with the candidate's written consent on file.
-- Do not upload original PDFs or identity documents to the database. They stay in the office files.
+- Before a large import: administrators take a backup (office PC: `npm run db:backup`).
+
+## Office PC commands (administrators)
+| I want to… | Command |
+|---|---|
+| Back up | `npm run backup:local` and `npm run db:backup` |
+| Check what a migration would do | `npm run db:migrate` (dry run; locked until the written approval record exists) |
+| Send the 52 records to the database | `npm run db:migrate -- --apply` (after the approval record is confirmed; never publishes anyone) |
+| Bulk-publish from the signed checklist | `npm run db:approvals` (dry run) then `npm run db:approvals -- --apply` |
+| Staff accounts from the PC | `npm run db:staff -- list` / `add` / `reset` / `deactivate` |

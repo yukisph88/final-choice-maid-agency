@@ -61,9 +61,9 @@ const count = `${maids.length} ${maids.length === 1 ? D.profile : D.profiles}`;
           <select id="f-status" name="status">
             <option value="">{D.allStatuses}</option>
             <option value="available">{T.status.available}</option>
-            <option value="interview-pending">{T.status['interview-pending']}</option>
-            <option value="reserved">{T.status.reserved}</option>
-            <option value="processing">{T.status.processing}</option>
+            <option value="on-hold">{T.status['on-hold']}</option>
+            <option value="booked">{T.status.booked}</option>
+            <option value="pending-arrival">{T.status['pending-arrival']}</option>
             <option value="unconfirmed">{T.status.unconfirmed}</option>
           </select>
         </div>

@@ -88,7 +88,7 @@ ok('cannot publish without consent (database rule, even for the office key)', !!
 const photoNoPub = await db.from('maids').update({ public_photo_path: 'test-id-0003.webp' }).eq('code', 'TEST-ID-0003').select();
 ok('cannot set a website photo for an unpublished maid', !!photoNoPub.error);
 for (const t of T.filter((x) => x.publish)) {
-  const { error } = await db.from('maids').update({ consent_recorded: true, consent_date: '2026-10-16', approved_by: 'TEST', photo_consent: t.photoConsent, published: true }).eq('code', t.code);
+  const { error } = await db.from('maids').update({ consent_recorded: true, consent_date: '2026-10-16', approved_by: 'TEST', discrepancies_resolved: true, photo_consent: t.photoConsent, published: true }).eq('code', t.code);
   ok(`${t.code}: published after consent recorded`, !error, error?.message);
 }
 const p2 = await db.from('maids').update({ public_photo_path: 'test-ph-0002.webp' }).eq('code', 'TEST-PH-0002').select();
@@ -124,9 +124,9 @@ const listing = await anon.storage.from('maid-public').list('', { limit: 10 });
 ok('visitors cannot list the website bucket', !!listing.error || (listing.data || []).length === 0);
 
 console.log('\n5. Live status');
-await db.from('maids').update({ status: 'reserved' }).eq('code', 'TEST-ID-0001');
+await db.from('maids').update({ status: 'booked' }).eq('code', 'TEST-ID-0001');
 const st = (await anon.rpc('public_maid_status')).data?.find((r) => r.code === 'TEST-ID-0001');
-ok('status change is visible to the website immediately', st?.status === 'reserved');
+ok('status change is visible to the website immediately', st?.status === 'booked');
 await db.from('maids').update({ status: 'available' }).eq('code', 'TEST-ID-0001');
 
 console.log('\n6. History');

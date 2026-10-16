@@ -62,7 +62,7 @@ for (const row of sheet.slice(1)) {
   const initials = g('Approved by (initials)').slice(0, 10);
   const approved = Y('Approved for website') && Y('Publication consent') && date && Y('Discrepancies resolved') && initials && !HIDDEN.includes(m.status);
   if (!approved) { if (m.published) unpublish.push({ m, why: HIDDEN.includes(m.status) ? `status is ${m.status}` : 'no longer approved in the checklist' }); else same.push(code); continue; }
-  const want = { consent_recorded: true, consent_date: date, photo_consent: Y('Photo consent'), name_consent: nameConsent, show_age: Y('Show age'), show_religion: Y('Show religion'), approved_by: initials, published: true };
+  const want = { consent_recorded: true, consent_date: date, photo_consent: Y('Photo consent'), name_consent: nameConsent, show_age: Y('Show age'), show_religion: Y('Show religion'), approved_by: initials, discrepancies_resolved: true, published: true };
   const wantPhoto = want.photo_consent && Boolean(m.photo_path);
   const changed = Object.keys(want).filter((k) => String(m[k] ?? '') !== String(want[k])).concat((wantPhoto ? !m.public_photo_path : Boolean(m.public_photo_path)) ? ['public photo'] : []);
   if (!changed.length) same.push(code); else publish.push({ m, want, wantPhoto, changed });

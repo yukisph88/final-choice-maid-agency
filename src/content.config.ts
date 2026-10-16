@@ -38,7 +38,7 @@ const maidSchema = z
       .default([]),
     // available | interview-pending | reserved | processing  → shown publicly (if published + consent)
     // placed | unavailable | withdrawn                       → automatically hidden from the website
-    status: z.enum(['available', 'interview-pending', 'reserved', 'processing', 'placed', 'unavailable', 'withdrawn']),
+    status: z.enum(['to-be-confirmed', 'available', 'on-hold', 'booked', 'pending-arrival', 'hired', 'interview-pending', 'reserved', 'processing', 'placed', 'unavailable', 'withdrawn']),
     statusUpdated: z.coerce.date(),
     // statusRecorded: an authorised staff member has set the status (otherwise shown as "to be confirmed").
     // statusConfirmed: staff have checked it with the candidate/supplier (an initial status is not confirmed).

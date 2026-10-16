@@ -11,7 +11,7 @@ import type { Lang } from '../i18n/routes';
 interface Props { lang: Lang }
 const T = t(Astro.props.lang);
 const on = DB_ENABLED && !DEMO && !REVIEW;
-const cfg = { url: `${DB_URL}/rest/v1/rpc/public_maid_status`, headers: dbHeaders(), labels: T.status, hidden: ['placed', 'unavailable', 'withdrawn'] };
+const cfg = { url: `${DB_URL}/rest/v1/rpc/public_maid_status`, headers: dbHeaders(), labels: T.status, hidden: ['hired', 'placed', 'unavailable', 'withdrawn'] };
 ---
 {on && (
   <script is:inline type="module" define:vars={{ cfg }}>

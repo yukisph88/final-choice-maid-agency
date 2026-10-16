@@ -12,7 +12,7 @@ export const DEMO = import.meta.env.PUBLIC_DEMO_CANDIDATES === 'true';
 export const REVIEW = import.meta.env.PUBLIC_REVIEW_MODE === 'true';
 
 /** Statuses that are never shown publicly, even if a record is still marked published. */
-export const HIDDEN_STATUSES: Maid['status'][] = ['placed', 'unavailable', 'withdrawn'];
+export const HIDDEN_STATUSES: Maid['status'][] = ['hired', 'placed', 'unavailable', 'withdrawn'];
 
 /**
  * Candidates that may appear publicly: published, consent recorded, and an active status
@@ -43,7 +43,8 @@ function fromDb(r: PublicMaidRow): Maid {
     displayName: opt(r.display_name), nationality: r.nationality, age: opt(r.age), religion: opt(r.religion), maritalStatus: opt(r.marital_status),
     experienceYears: r.experience_years === null ? undefined : Number(r.experience_years), overseasExperience: r.overseas_experience,
     skills: r.skills as Maid['skills'], languages: r.languages as Maid['languages'], employmentHistory: r.employment_history,
-    status: r.status as Maid['status'], statusUpdated: new Date(r.status_updated_at), statusRecorded: r.status_recorded, statusConfirmed: r.status_recorded, // database: status_recorded = set and confirmed by staff
+    // "to-be-confirmed" is shown as "Availability to be confirmed" (statusConfirmed is false); the stored word only needs to be valid
+    status: (r.status === 'to-be-confirmed' ? 'available' : r.status) as Maid['status'], statusUpdated: new Date(r.status_updated_at), statusRecorded: r.status_recorded, statusConfirmed: r.status_recorded, // database: status_recorded = set and confirmed by staff
     interviewAvailability: opt(r.interview_availability_en), interviewAvailability_ms: opt(r.interview_availability_ms),
     summary: r.summary_en, summary_ms: opt(r.summary_ms), photo: r.photo_path ? publicPhotoUrl(r.photo_path) : undefined,
     featured: r.featured, published: true,
@@ -58,7 +59,7 @@ export type ShownStatus = Maid['status'] | 'unconfirmed';
 export const shownStatus = (m: Maid): ShownStatus => (m.statusConfirmed ? m.status : 'unconfirmed');
 
 function statusRank(s: Maid['status']) {
-  return ['available', 'interview-pending', 'reserved', 'processing', 'unavailable', 'placed', 'withdrawn'].indexOf(s);
+  return ['available', 'on-hold', 'interview-pending', 'booked', 'reserved', 'pending-arrival', 'processing', 'to-be-confirmed', 'unavailable', 'placed', 'hired', 'withdrawn'].indexOf(s);
 }
 
 export function experiencedSkills(m: Maid, lang: Lang): string[] {

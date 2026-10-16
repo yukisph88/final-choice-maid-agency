@@ -5,10 +5,13 @@
 export const NATIONALITIES = ['indonesian', 'filipino'];
 export const LEVELS = ['experienced', 'some-experience', 'willing-to-learn', 'none'];
 export const LANG_LEVELS = ['basic', 'conversational', 'fluent', 'native'];
-export const STATUSES = ['available', 'interview-pending', 'reserved', 'processing', 'placed', 'unavailable', 'withdrawn'];
-export const HIDDEN = ['placed', 'unavailable', 'withdrawn'];
+// Availability vocabulary of the database / staff portal. "To Be Confirmed" = nobody has verified the status yet.
+export const STATUSES = ['to-be-confirmed', 'available', 'on-hold', 'booked', 'pending-arrival', 'hired', 'withdrawn'];
+export const HIDDEN = ['hired', 'withdrawn']; // not listed on the website
+// words used by the older CSV / file system, converted when records are imported
+export const LEGACY_STATUS = { available: 'available', 'interview-pending': 'on-hold', reserved: 'booked', processing: 'pending-arrival', placed: 'hired', unavailable: 'withdrawn', withdrawn: 'withdrawn' };
 export const SKILLS = ['childcare', 'newborn', 'elderlyCare', 'cooking', 'housekeeping', 'petCare'];
-export const STATUS_LABEL = { available: 'Available', 'interview-pending': 'Interview Pending', reserved: 'Reserved', processing: 'Processing', placed: 'Placed', unavailable: 'Unavailable', withdrawn: 'Withdrawn' };
+export const STATUS_LABEL = { 'to-be-confirmed': 'To Be Confirmed', available: 'Available', 'on-hold': 'On Hold', booked: 'Booked', 'pending-arrival': 'Pending Arrival', hired: 'Hired', withdrawn: 'Withdrawn' };
 export const SKILL_LABEL = { childcare: 'Childcare', newborn: 'Newborn care', elderlyCare: 'Elderly care', cooking: 'Cooking', housekeeping: 'Housekeeping', petCare: 'Pet care' };
 export const LEVEL_LABEL = { experienced: 'Experienced', 'some-experience': 'Some experience', 'willing-to-learn': 'Willing to learn', none: 'Not stated' };
 
@@ -86,7 +89,7 @@ export function validateRow(row) {
   }
   if (!['full', 'first', 'none'].includes(row.name_consent)) errors.push('Name display must be full, first or none');
   if (row.consent_date === 'INVALID') errors.push('Consent date must be DD/MM/YYYY');
-  if (row.published && !(row.consent_recorded && row.consent_date && str(row.approved_by))) errors.push('Cannot publish: record consent, consent date and approver first');
+  if (row.published && !(row.consent_recorded && row.consent_date && str(row.approved_by) && row.discrepancies_resolved)) errors.push('Cannot publish: record consent, consent date, approver and resolve the biodata discrepancies first');
   const publicText = [row.full_name, row.first_name, row.display_name_override, row.summary_en, row.summary_ms, row.interview_availability_en, row.interview_availability_ms, row.religion, row.marital_status,
     ...(row.languages || []).map((l) => l.language), ...(row.employment_history || []).flatMap((e) => [e.country, e.duration, e.duties, e.duties_ms])].join(' ');
   if (PASSPORT.test(publicText)) errors.push('Text looks like a passport number — remove it');
@@ -126,9 +129,13 @@ export function csvRowToDb(r) {
     summary_ms: str(r.summary_ms),
     interview_availability_en: str(r.interviewAvailability),
     interview_availability_ms: str(r.interviewAvailability_ms),
-    status: (str(r.status) || 'available').toLowerCase(),
+    // never infer a verified status: anything not confirmed by staff is "To Be Confirmed"
+    status: yes(r.statusConfirmed) ? (LEGACY_STATUS[(str(r.status) || 'available').toLowerCase()] ?? (str(r.status) || 'available').toLowerCase()) : 'to-be-confirmed',
     status_set_by: str(r.statusSetBy),
-    status_confirmed: yes(r.statusConfirmed),
+    status_confirmed: yes(r.statusConfirmed) && (LEGACY_STATUS[(str(r.status) || 'available').toLowerCase()] ?? 'x') !== 'to-be-confirmed',
+    rest_day_preference: str(r.restDayPreference) || ((str(r.internalNotes).match(/Day off:\s*([^;(]+?)\s*(?:\(|;|$)/i) || [])[1] || '').replace(/^./, (c) => c.toUpperCase()),
+    salary_note: str(r.salaryNote),
+    discrepancies_resolved: yes(r.discrepanciesResolved),
     consent_recorded: yes(r.consentRecorded),
     consent_date: toIsoDate(r.consentDate),
     photo_consent: yes(r.photoConsent),
@@ -143,7 +150,7 @@ export function csvRowToDb(r) {
 }
 
 /** Fields compared to decide whether an import row is new, changed or unchanged. */
-export const COMPARE_FIELDS = ['full_name', 'first_name', 'display_name_override', 'name_consent', 'nationality', 'age', 'show_age', 'religion', 'show_religion', 'marital_status',
+export const COMPARE_FIELDS = ['rest_day_preference', 'salary_note', 'discrepancies_resolved', 'full_name', 'first_name', 'display_name_override', 'name_consent', 'nationality', 'age', 'show_age', 'religion', 'show_religion', 'marital_status',
   'experience_years', 'overseas_experience', 'skills', 'languages', 'employment_history', 'summary_en', 'summary_ms', 'interview_availability_en', 'interview_availability_ms',
   'status', 'status_set_by', 'status_confirmed', 'consent_recorded', 'consent_date', 'photo_consent', 'approved_by', 'featured', 'source_file', 'internal_notes'];
 // JSON fields come back from the database with keys in a different order, so compare with sorted keys
@@ -163,11 +170,14 @@ const COLUMN_FIELDS = {
   status: ['status'], statusSetBy: ['status_set_by'], statusConfirmed: ['status_confirmed'], statusUpdated: ['status_updated_at'],
   consentRecorded: ['consent_recorded'], consentDate: ['consent_date'], photoConsent: ['photo_consent'], approvedBy: ['approved_by'],
   featured: ['featured'], sourceFile: ['source_file'], internalNotes: ['internal_notes'],
+  restDayPreference: ['rest_day_preference'], salaryNote: ['salary_note'], discrepanciesResolved: ['discrepancies_resolved'],
 };
 /** Keep only what the file actually contains. `existing` supplies the other skill levels (skills are stored as one object). */
 export function restrictToColumns(row, columns, existing = {}) {
   const out = { code: row.code };
-  for (const c of columns) for (const f of COLUMN_FIELDS[c] || []) if (f in row) out[f] = row[f];
+  // availability is only changed when the file says explicitly whether it is confirmed (columns status AND statusConfirmed)
+  const statusOk = columns.includes('status') && columns.includes('statusConfirmed');
+  for (const c of columns) for (const f of COLUMN_FIELDS[c] || []) if (f in row && (statusOk || !['status', 'status_confirmed', 'status_updated_at'].includes(f))) out[f] = row[f];
   const skillCols = SKILLS.filter((k) => columns.includes(k));
   if (skillCols.length) out.skills = { ...(existing.skills || {}), ...Object.fromEntries(skillCols.map((k) => [k, row.skills[k]])) };
   return out;
