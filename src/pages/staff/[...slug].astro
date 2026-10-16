@@ -7,6 +7,11 @@ import '@fontsource/ibm-plex-sans/600.css';
 import '@fontsource/montserrat/700.css';
 import { DB_URL, DB_KEY, DB_ENABLED } from '../../lib/db';
 import { href, asset } from '../../lib/urls';
+// The dashboard page is only BUILT when a Supabase project is configured (PUBLIC_SUPABASE_URL + key at build time).
+// Until the database integration is approved and connected, no /staff/ page exists on the public website at all.
+export function getStaticPaths() {
+  return DB_ENABLED ? [{ params: { slug: undefined } }] : [];
+}
 ---
 <!doctype html>
 <html lang="en-MY">
