@@ -19,3 +19,4 @@ export function formatHistory(arr: Row[] | undefined): string;
 export function validateRow(row: Row): { errors: string[]; warnings: string[] };
 export function csvRowToDb(r: Row): Row;
 export function changedFields(existing: Row, row: Row): string[];
+export function restrictToColumns(row: Row, columns: string[], existing?: Row): Row;

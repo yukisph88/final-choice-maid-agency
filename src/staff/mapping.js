@@ -152,3 +152,23 @@ const norm = (v) => (v == null ? null : typeof v === 'object' ? JSON.stringify(c
 export function changedFields(existing, row) {
   return COMPARE_FIELDS.filter((k) => k in row && norm(k === 'experience_years' && existing[k] != null ? Number(existing[k]) : existing[k]) !== norm(row[k]));
 }
+
+// CSV column → database fields. An UPDATE of an existing maid may only touch the columns that are really in the file,
+// so importing a short list (for example only codes and statuses) can never reset consent, names or other settings.
+const COLUMN_FIELDS = {
+  internalName: ['full_name', 'first_name'], displayName: ['display_name_override'], nameConsent: ['name_consent'], nationality: ['nationality'],
+  age: ['age'], showAge: ['show_age'], religion: ['religion'], showReligion: ['show_religion'], maritalStatus: ['marital_status'],
+  experienceYears: ['experience_years'], overseasExperience: ['overseas_experience'], languages: ['languages'], employmentHistory: ['employment_history'],
+  summary: ['summary_en'], summary_ms: ['summary_ms'], interviewAvailability: ['interview_availability_en'], interviewAvailability_ms: ['interview_availability_ms'],
+  status: ['status'], statusSetBy: ['status_set_by'], statusConfirmed: ['status_confirmed'], statusUpdated: ['status_updated_at'],
+  consentRecorded: ['consent_recorded'], consentDate: ['consent_date'], photoConsent: ['photo_consent'], approvedBy: ['approved_by'],
+  featured: ['featured'], sourceFile: ['source_file'], internalNotes: ['internal_notes'],
+};
+/** Keep only what the file actually contains. `existing` supplies the other skill levels (skills are stored as one object). */
+export function restrictToColumns(row, columns, existing = {}) {
+  const out = { code: row.code };
+  for (const c of columns) for (const f of COLUMN_FIELDS[c] || []) if (f in row) out[f] = row[f];
+  const skillCols = SKILLS.filter((k) => columns.includes(k));
+  if (skillCols.length) out.skills = { ...(existing.skills || {}), ...Object.fromEntries(skillCols.map((k) => [k, row.skills[k]])) };
+  return out;
+}

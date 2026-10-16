@@ -17,7 +17,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { adminClient } from './db-lib.mjs';
-import { parseCsv, csvRowToDb, validateRow, changedFields } from '../src/staff/mapping.js';
+import { parseCsv, csvRowToDb, validateRow, changedFields, restrictToColumns } from '../src/staff/mapping.js';
 
 const args = new Set(process.argv.slice(2));
 const APPLY = args.has('--apply');
@@ -94,10 +94,12 @@ for (const r of source) {
   const old = byCode.get(row.code);
   if (!old) plan.add.push({ row, photo: existsSync(photo) ? photo : null });
   else {
-    delete row.published; // never change publication of an existing record from the CSV
-    const diff = changedFields(old, row);
+    // never change publication of an existing record, and touch ONLY the columns the file really contains
+    const part = restrictToColumns(row, Object.keys(r), old);
+    const diff = changedFields(old, part);
     const needPhoto = existsSync(photo) && !old.photo_path;
-    if (diff.length || needPhoto) plan.update.push({ row, diff, photo: needPhoto ? photo : null });
+    if (needPhoto) part.photo_path = row.photo_path;
+    if (diff.length || needPhoto) plan.update.push({ row: part, diff, photo: needPhoto ? photo : null });
     else plan.same.push(row.code);
   }
 }
@@ -118,7 +120,9 @@ for (const x of [...plan.add, ...plan.update]) {
     const { error } = await db.storage.from('maid-private').upload(x.row.photo_path, readFileSync(x.photo), { contentType: 'image/webp', upsert: true });
     if (error) { console.error(`✗ ${x.row.code} photo: ${error.message}`); continue; }
   }
-  const { error } = await db.from('maids').upsert(x.row, { onConflict: 'code' });
+  const isNew = !byCode.has(x.row.code);
+  const { code, ...changes } = x.row;
+  const { error } = isNew ? await db.from('maids').insert(x.row) : await db.from('maids').update(changes).eq('code', code);
   if (error) { console.error(`✗ ${x.row.code}: ${error.message}`); continue; }
   done++;
 }

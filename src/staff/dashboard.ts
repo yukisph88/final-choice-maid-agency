@@ -4,7 +4,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import {
   STATUSES, STATUS_LABEL, SKILLS, SKILL_LABEL, LEVELS, LEVEL_LABEL, HIDDEN,
-  parseCsv, csvRowToDb, validateRow, changedFields, parseLanguages, formatLanguages, parseHistory, formatHistory, splitName,
+  parseCsv, csvRowToDb, validateRow, changedFields, restrictToColumns, parseLanguages, formatLanguages, parseHistory, formatHistory, splitName,
 } from './mapping.js';
 
 type Row = Record<string, any>;
@@ -332,13 +332,14 @@ $('#i-file').addEventListener('change', async (e) => {
     if (seen.has(row.code)) { bad++; lines.push(`<tr><td>${esc(row.code)}</td><td class="err">Listed twice in the file</td></tr>`); continue; }
     seen.add(row.code);
     const old = byCode.get(row.code);
-    if (old) { delete row.published; row.photo_path = old.photo_path; } else row.photo_path = '';
-    const { errors } = validateRow({ ...row, published: false });
+    // An existing maid is updated ONLY in the columns the file really contains (consent, name settings etc. are never reset by a short list)
+    const out = old ? restrictToColumns(row, Object.keys(r), old) : { ...row, photo_path: '' };
+    const { errors } = validateRow({ ...(old || {}), ...out, published: false });
     if (errors.length) { bad++; lines.push(`<tr><td>${esc(row.code)}</td><td class="err">${esc(errors.join('; '))}</td></tr>`); continue; }
-    if (!old) { rows.push(row); lines.push(`<tr><td>${esc(row.code)}</td><td>New — ${esc(row.full_name)}</td></tr>`); continue; }
-    const diff = changedFields(old, row);
+    if (!old) { rows.push(out); lines.push(`<tr><td>${esc(row.code)}</td><td>New — ${esc(row.full_name)}</td></tr>`); continue; }
+    const diff = changedFields(old, out);
     if (!diff.length) { same++; continue; }
-    rows.push(row); lines.push(`<tr><td>${esc(row.code)}</td><td>Update: ${esc(diff.join(', '))}</td></tr>`);
+    rows.push(out); lines.push(`<tr><td>${esc(row.code)}</td><td>Update: ${esc(diff.join(', '))}</td></tr>`);
   }
   importPlan = bad ? null : { rows };
   $('#i-out').innerHTML = `<p><b>${src.length}</b> rows · <b>${rows.filter((r) => !byCode.has(r.code)).length}</b> new · <b>${rows.filter((r) => byCode.has(r.code)).length}</b> changed · ${same} unchanged · <b>${bad}</b> with problems</p>
@@ -348,9 +349,16 @@ $('#i-file').addEventListener('change', async (e) => {
 $('#i-apply').addEventListener('click', async () => {
   if (!importPlan) return;
   $<HTMLButtonElement>('#i-apply').disabled = true;
-  for (let i = 0; i < importPlan.rows.length; i += 50) {
-    const { error } = await sb.from('maids').upsert(importPlan.rows.slice(i, i + 50), { onConflict: 'code' });
+  const existing = new Map(maids.map((m) => [m.code, m]));
+  const fresh = importPlan.rows.filter((r) => !existing.has(r.code));
+  for (let i = 0; i < fresh.length; i += 50) {
+    const { error } = await sb.from('maids').insert(fresh.slice(i, i + 50));
     if (error) { $('#i-out').insertAdjacentHTML('afterbegin', `<div class="err">Stopped: ${esc(error.message)}</div>`); return; }
   }
-  ($('#d-import') as HTMLDialogElement).close(); toast(`${importPlan.rows.length} record(s) imported. Nobody was published.`); await load();
+  for (const r of importPlan.rows.filter((x) => existing.has(x.code))) {
+    const { code, ...changes } = r; // only the columns present in the file
+    const { error } = await sb.from('maids').update(changes).eq('id', existing.get(code)!.id);
+    if (error) { $('#i-out').insertAdjacentHTML('afterbegin', `<div class="err">Stopped at ${esc(code)}: ${esc(error.message)}</div>`); return; }
+  }
+  ($('#d-import') as HTMLDialogElement).close(); toast(`${importPlan.rows.length} record(s) imported. Publication settings were not changed.`); await load();
 });
