@@ -23,29 +23,12 @@ const args = new Set(process.argv.slice(2));
 const APPLY = args.has('--apply');
 const SYNTH = args.has('--synthetic') || args.has('--remove-synthetic');
 
-// SAFETY LOCK — checked BEFORE the script connects to the database at all.
-// Real personal data may be uploaded only after management's written data-processing approval is recorded on this PC:
-// copy supabase/data-processing-approval.TEMPLATE.json to private-biodata/approval/data-processing-approval.json and fill it in.
-function approvalGate() {
-  const f = 'private-biodata/approval/data-processing-approval.json';
-  if (!existsSync(f)) return { ok: false, why: `no approval record (${f})` };
-  let a; try { a = JSON.parse(readFileSync(f, 'utf8')); } catch { return { ok: false, why: 'approval record is not valid JSON' }; }
-  const missing = [];
-  if (a.confirmed !== true) missing.push('"confirmed" is not true');
-  if (!String(a.approvedBy || '').trim() || /^name and position/i.test(a.approvedBy)) missing.push('approvedBy');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(a.approvedDate || ''))) missing.push('approvedDate (YYYY-MM-DD)');
-  if (!String(a.region || '').trim() || /^region of/i.test(a.region)) missing.push('region');
-  if (!String(a.reference || '').trim() || /^where the written/i.test(a.reference)) missing.push('reference');
-  if (a.dpaAccepted !== true) missing.push('dpaAccepted');
-  if (a.privacyNoticeUpdated !== true) missing.push('privacyNoticeUpdated');
-  return missing.length ? { ok: false, why: `approval record incomplete: ${missing.join(', ')}` } : { ok: true, why: `approved by ${a.approvedBy} on ${a.approvedDate} (region: ${a.region})` };
-}
-const gate = SYNTH ? { ok: true, why: 'synthetic test data — no approval needed' } : approvalGate();
-if (args.has('--check-lock')) { console.log(`Approval lock: ${gate.ok ? 'OPEN' : 'LOCKED'} — ${gate.why}`); process.exit(0); }
-if (APPLY && !gate.ok) {
-  console.error(`✗ LOCKED: real maid records cannot be uploaded yet — ${gate.why}.\n  Management's written data-processing approval is required first (see supabase/DATA-PROCESSING-CHECKLIST.md).\n  Nothing was changed.`);
-  process.exit(1);
-}
+// INTERNAL IMPORT — no custom approval-file gate any more (removed on the owner's instruction, see private-biodata/approval/internal-import-authorisation.md).
+// This does NOT remove the company's data-protection obligations (PDPA, cross-border storage, the Supabase data-processing terms, notifying candidates):
+// those remain the company's responsibility. What stays enforced by the system itself: Row Level Security, staff login and roles, PRIVATE storage,
+// duplicate protection, protection of staff-edited records, and the rule that an import NEVER publishes anyone and NEVER records publication consent.
+if (args.has('--check-lock')) { console.log('Approval gate: none — the internal import is not gated by an approval file. Publication consent is a separate step (staff portal, Publication Approvals).'); process.exit(0); }
+if (APPLY && !SYNTH) console.log('Internal staff-database import (owner-authorised). Records are saved PRIVATE and UNPUBLISHED with no publication consent; availability stays "To Be Confirmed".');
 const db = adminClient();
 
 const SYNTHETIC = [
@@ -100,6 +83,7 @@ function fillEmptyOnly(old, row) {
 const plan = { add: [], update: [], same: [], bad: [] };
 for (const r of source) {
   const row = csvRowToDb(r);
+  if (!SYNTH) Object.assign(row, { published: false, featured: false, consent_recorded: false, consent_date: null, photo_consent: false, name_consent: 'none', show_age: false, show_religion: false, approved_by: '', display_name_override: '', discrepancies_resolved: false, public_photo_path: '' });   // publication consent is recorded later, by an administrator, in the portal
   const photo = join('private-biodata/staging/photos', `${row.code.toLowerCase()}.webp`);
   if (existsSync(photo)) row.photo_path = `${row.code.toLowerCase()}.webp`;
   const { errors } = validateRow(row);
@@ -129,6 +113,7 @@ for (const x of plan.update) console.log(`~ ${x.protectedRec ? 'fill-in ' : 'upd
 for (const x of plan.bad) console.log(`✗ skip    ${x.code}: ${x.errors.join('; ')}`);
 console.log(`\n${plan.add.length} new · ${plan.update.length} changed · ${plan.same.length} already identical · ${plan.bad.length} with problems · database now has ${existing.length}`);
 
+if (args.has('--only-new') && plan.update.length) { console.log(`\n--only-new: ${plan.update.length} existing record(s) are left exactly as they are (${plan.update.map((x) => x.row.code).join(', ')}).`); plan.update.length = 0; }
 if (!APPLY) { console.log('\nDry run only. Run again with --apply to make these changes.'); process.exit(plan.bad.length ? 1 : 0); }
 if (plan.bad.length) { console.error('\n✗ Fix the records with problems first. Nothing changed.'); process.exit(1); }
 if (!plan.add.length && !plan.update.length) { console.log('\nNothing to do.'); process.exit(0); }

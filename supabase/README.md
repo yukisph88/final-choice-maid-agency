@@ -68,7 +68,7 @@ and `DATA-PROCESSING-CHECKLIST.md`).
    role rules, staff-account functions; it only adds things and tightens publication to administrators — read the notes at its top).
    Afterwards `npm run db:roletest` (temporary users and synthetic data, all removed again) must pass before the portal is used.
 3. **Staff accounts** (step 4 above) — at least one admin and one editor; administrators can also add staff in the portal.
-4. **Migrate** (locked until the written approval record exists — see `DATA-PROCESSING-CHECKLIST.md`): `npm run backup:local` → `npm run db:migrate` (dry run) → `npm run db:migrate -- --apply` → `npm run db:check`.
+4. **Migrate** (internal import; not gated by an approval file — see `DATA-PROCESSING-CHECKLIST.md` §3 for what is still required of the company): `npm run backup:local` → `npm run db:migrate` (dry run) → `npm run db:migrate -- --apply` → `npm run db:check`.
    All 52 arrive *unpublished*; their photos go to the **private** bucket.
 5. **Approve maids**: staff complete `private-biodata/approval/Maid_Approval_Checklist.xlsx` (consent, date, photo consent, name display,
    discrepancies resolved, approved, initials), then `npm run db:approvals` (dry run) → `npm run db:approvals -- --apply`.

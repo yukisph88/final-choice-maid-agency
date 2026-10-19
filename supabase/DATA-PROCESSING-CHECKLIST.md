@@ -32,14 +32,15 @@ The 52 real records stay on the office PC until **every box below is ticked** by
 The migration script refuses to upload any record whose text looks like a passport, IC or phone number, and never uploads
 PDF files. Every record is imported as **unpublished**; consent, photo consent and name consent all start as "not given".
 
-## 3. The migration is locked until approval is recorded
+## 3. The migration command is no longer gated by an approval file
+On the owner's instruction (2026-10-19, see `private-biodata/approval/internal-import-authorisation.md`) `npm run db:migrate -- --apply` no longer requires
+`data-processing-approval.json`. **This does not remove any legal or company data-protection obligation** — informing candidates, the cross-border
+transfer to the Tokyo region, the Supabase data-processing terms and access/retention rules stay the company's responsibility; the items above remain a checklist
+for the company, not for the script. What the system itself still enforces: staff login and roles, Row Level Security, PRIVATE storage, duplicate protection,
+protection of staff-edited records (only empty fields are filled; `--only-new` leaves existing records alone) and the rule that an import **never publishes anyone and never
+records publication consent**. Publication on the public website is a separate, protected process (consent, date, approver, resolved discrepancies — enforced by the database).
 
-`npm run db:migrate -- --apply` refuses to upload real records unless `private-biodata/approval/data-processing-approval.json` exists,
-is filled in and says `"confirmed": true` (with the approver, date, approved region, where the written approval is kept, and that the
-Supabase DPA was accepted and the privacy notice updated). Start from `supabase/data-processing-approval.TEMPLATE.json`.
-Check the lock any time with `npm run db:migrate -- --check-lock` (it never contacts the database).
-
-## 4. After approval
+## 4. Importing
 1. Create the approval record (above), then `npm run backup:local`
 2. `npm run db:migrate` — dry run; read the list.
 3. `npm run db:migrate -- --apply`

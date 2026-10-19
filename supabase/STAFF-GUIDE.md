@@ -65,7 +65,7 @@ the page; edited text, new publications and photos appear at the next website re
 | I want to… | Command |
 |---|---|
 | Back up | `npm run backup:local` and `npm run db:backup` |
-| Check what a migration would do | `npm run db:migrate` (dry run; locked until the written approval record exists) |
+| Check what a migration would do | `npm run db:migrate` (dry run, changes nothing) |
 | Send the 52 records to the database | `npm run db:migrate -- --apply` (after the approval record is confirmed; never publishes anyone) |
 | Bulk-publish from the signed checklist | `npm run db:approvals` (dry run) then `npm run db:approvals -- --apply` |
 | Staff accounts from the PC | `npm run db:staff -- list` / `add` / `reset` / `deactivate` |
