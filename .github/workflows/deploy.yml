@@ -54,6 +54,8 @@ jobs:
         run: npm run build
       - name: Quality checks (links, titles, structured data, privacy patterns)
         run: npm run test:site
+      - name: Biodata PDFs (every published maid has a correct PDF; no private data; no PDF for anyone else)
+        run: npm run test:biodata
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

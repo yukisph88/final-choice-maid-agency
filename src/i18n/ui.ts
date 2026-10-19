@@ -15,7 +15,7 @@ const en = {
   btn: {
     whatsappUs: 'WhatsApp Us', whatsapp: 'WhatsApp', whatsappConsultant: 'WhatsApp Our Consultant', browseMaids: 'Browse Maid Biodata',
     viewProfile: 'View Biodata', requestInterview: 'Request Interview', call: 'Call', learnMore: 'Learn more', readGuide: 'Read guide',
-    enquire: 'Enquire', askAbout: 'Ask about', downloadBiodata: 'Download biodata (PDF)', seeProfiles: 'See profiles',
+    enquire: 'Enquire', askAbout: 'Ask about', downloadBiodata: 'Download Biodata (PDF)', seeProfiles: 'See profiles',
     allQuestions: 'See all questions', allBiodata: 'View all maid biodata', requestBiodata: 'Request biodata', toDirectory: 'Go to maid directory',
     enquirePackage: 'Enquire about', home: 'Go to homepage', aboutUs: 'About us', contactUs: 'Contact us', directions: 'Get directions', openMaps: 'Open in Google Maps',
   },
@@ -130,7 +130,7 @@ const ms: Dict = {
   btn: {
     whatsappUs: 'WhatsApp Kami', whatsapp: 'WhatsApp', whatsappConsultant: 'WhatsApp Perunding Kami', browseMaids: 'Lihat Biodata Pembantu Rumah',
     viewProfile: 'Lihat Biodata', requestInterview: 'Mohon Temu Duga', call: 'Hubungi', learnMore: 'Ketahui lanjut', readGuide: 'Baca panduan',
-    enquire: 'Tanya', askAbout: 'Tanya tentang', downloadBiodata: 'Muat turun biodata (PDF)', seeProfiles: 'Lihat profil',
+    enquire: 'Tanya', askAbout: 'Tanya tentang', downloadBiodata: 'Muat Turun Biodata (PDF)', seeProfiles: 'Lihat profil',
     allQuestions: 'Lihat semua soalan', allBiodata: 'Lihat semua biodata', requestBiodata: 'Minta biodata', toDirectory: 'Ke direktori pembantu rumah',
     enquirePackage: 'Tanya tentang', home: 'Ke laman utama', aboutUs: 'Tentang kami', contactUs: 'Hubungi kami', directions: 'Dapatkan arah', openMaps: 'Buka di Google Maps',
   },

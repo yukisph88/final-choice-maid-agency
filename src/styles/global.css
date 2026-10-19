@@ -323,7 +323,9 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .maid-card__updated { font-size: .8rem; color: var(--muted); margin: auto 0 12px; padding-top: 6px; }
 .live-gone { background: var(--amber-soft); color: var(--amber); border-radius: 10px; padding: 10px 12px; font-weight: 600; font-size: .92rem; }
 .maid-card__review-flag { font-size: .78rem; font-weight: 700; color: #a15c00; margin: 4px 0 0; } /* private review only */
-.maid-card__actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.maid-card__actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.maid-card__actions .btn--wa { grid-column: 1 / -1; }
+.maid-card__pdf { padding-inline: 12px; } /* small download icon next to "View profile" */
 .maid-card__actions .btn { font-size: .9rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0 0 8px; }
 .chips li { background: var(--blue-soft); color: var(--navy); border-radius: 999px; padding: 3px 10px; font-size: .8rem; font-weight: 500; }

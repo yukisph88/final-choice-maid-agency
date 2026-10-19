@@ -76,3 +76,10 @@ and instructed publication through the file-based GitHub Pages workflow (without
 - Choices applied: full name shown; photo shown; **age and religion hidden**; no PDFs, internal notes, source file names or other documents published; availability stays **"To Be Confirmed"** (`statusConfirmed: false`) until staff verify it.
 - **Held back:** S3-33-CHMNY-BSM1090 — a copy of her biodata is also in the SOLD OUT folder. Not published until her current availability is verified. 51 of 52 profiles (40 Indonesian, 11 Filipino) are published.
 - The owner acknowledged that anything published through the public GitHub repository is visible to everyone and may remain in the repository history after removal.
+
+## G. Downloadable biodata PDFs (automatic)
+Every published maid has an English and a Bahasa Melayu "Download Biodata (PDF)" file, created during each website build (`src/pages/biodata/[file].pdf.ts`, layout in `src/lib/biodata-pdf.ts`) from the same published data and photo as her profile page.
+- Files: `/biodata/Final-Choice-Biodata-<REFERENCE CODE>.pdf` and `...-BM.pdf`. When her profile is edited, the next deployment regenerates her PDF — nothing is prepared by hand.
+- Content = what the profile page shows (name as authorised, photo only with photo consent, code, nationality, marital status if recorded, experience, skills, languages, work history, summary, availability label, company contact). Age and religion appear only if separately authorised; internal notes, documents and personal numbers never appear.
+- Withheld, unpublished, placed/hired or withdrawn maids get no PDF: the next build simply does not create it, and `npm run test:biodata` (run in the deployment) fails if a PDF exists for anyone who is not published.
+- **Copies already downloaded, shared or cached (browsers, WhatsApp, search engines, the GitHub repository history) cannot be recalled.** Withdrawal removes the profile page and the PDF from the live site from the next deployment only.
