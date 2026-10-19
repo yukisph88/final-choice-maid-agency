@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t } from '../i18n/ui';
 import { RESERVED_PROFILE_SLUGS, type Lang } from '../i18n/routes';
-import { DB_ENABLED, DB_SOURCE, fetchPublicMaids, publicPhotoUrl, type PublicMaidRow } from './db';
+import { DB_ENABLED, DB_SOURCE, LIVE_STATUS, fetchSiteStatus, fetchPublicMaids, publicPhotoUrl, type PublicMaidRow } from './db';
 
 // One shared record per candidate. Both language versions read exactly the same data
 // (code, status, photo, skills), so English and Bahasa Melayu pages cannot disagree.
@@ -20,6 +20,8 @@ export const HIDDEN_STATUSES: Maid['status'][] = ['hired', 'placed', 'unavailabl
  * pages, listings and the sitemap automatically.
  */
 let dbCache: Promise<Maid[]> | undefined;
+let siteStatusCache: ReturnType<typeof fetchSiteStatus> | undefined;
+const SITE_STATUS_OK: Record<string, true> = { available: true, 'on-hold': true, booked: true, 'pending-arrival': true, hired: true, withdrawn: true };
 export async function getPublicMaids(): Promise<Maid[]> {
   // Database source (PUBLIC_MAIDS_SOURCE=supabase): approved profiles come from Supabase public_maids(),
   // which already applies consent, name/age/religion/photo permissions and hides placed/unavailable/withdrawn.
@@ -31,6 +33,16 @@ export async function getPublicMaids(): Promise<Maid[]> {
     ? await (dbCache ??= fetchPublicMaids().then((rows) => rows.filter((r) => !RESERVED_PROFILE_SLUGS.includes(r.code.toLowerCase())).map(fromDb)))
     : (DEMO ? await getCollection('demoMaids') : await getCollection('maids'))
         .map((e) => ({ ...e.data, slug: e.data.code.toLowerCase(), summary: (e.body ?? '').trim(), demo: DEMO || REVIEW }));
+  // Hybrid live status (file-based profiles): a CONFIRMED status from staff is baked in at build time too (search engines, no-JavaScript visitors, PDFs),
+  // and a confirmed Hired / Withdrawn maid drops out of the static pages and PDFs at the next build. No answer / no row = nothing changes.
+  if (LIVE_STATUS && !DB_SOURCE && !DEMO && !REVIEW) {
+    const live = await (siteStatusCache ??= fetchSiteStatus());
+    for (const m of list) {
+      const r = live.get(m.code.toUpperCase()); if (!r) continue;
+      if (r.status === 'to-be-confirmed') { m.statusConfirmed = false; continue; }
+      if (r.status in SITE_STATUS_OK) { m.status = r.status as Maid['status']; m.statusConfirmed = true; if (r.verified_at) m.statusUpdated = new Date(r.verified_at); }
+    }
+  }
   return list
     .filter((m) => (REVIEW || (m.published && m.publication.consentRecorded)) && !HIDDEN_STATUSES.includes(m.status))
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || +b.statusUpdated - +a.statusUpdated);

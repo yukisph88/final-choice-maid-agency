@@ -39,7 +39,10 @@
     "test:biodata": "node scripts/check-biodata-pdfs.mjs",
     "db:compare": "node scripts/db-compare.mjs",
     "db:verify-import": "node scripts/db-verify-import.mjs",
-    "db:portal-readtest": "node scripts/db-portal-readtest.mjs"
+    "db:portal-readtest": "node scripts/db-portal-readtest.mjs",
+    "site:status-check": "node scripts/site-status-sync.mjs",
+    "site:status-sync": "node scripts/site-status-sync.mjs --sync",
+    "site:status-livetest": "node scripts/site-status-livetest.mjs"
   },
   "engines": {
     "node": ">=22.12"

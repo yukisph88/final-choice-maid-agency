@@ -34,6 +34,8 @@ env:
   PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL || 'https://bxgzgagtssjbauylrzqz.supabase.co' }}
   PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_BsXQvtdpj3N_9KnXHcTpwg_FV7-UMlO' }}
   PUBLIC_MAIDS_SOURCE: ${{ vars.PUBLIC_MAIDS_SOURCE || 'files' }}
+  # Hybrid: profiles/photos/PDFs stay in the repository files; only the CONFIRMED availability is read live from the database (migration 0006). Set the variable to 'false' to switch it off.
+  PUBLIC_LIVE_STATUS: ${{ vars.PUBLIC_LIVE_STATUS || 'true' }}
 
 jobs:
   build:

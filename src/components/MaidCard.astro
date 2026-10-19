@@ -58,7 +58,7 @@ const st = shownStatus(m);
     {m.statusConfirmed && <p class="maid-card__updated">{T.card.updated} {formatDate(m.statusUpdated, lang)}</p>}
     <div class="maid-card__actions">
       <a class="btn btn--outline btn--sm" href={profile}>{T.btn.viewProfile}</a>
-      {!(DEMO || REVIEW) && <a class="btn btn--outline btn--sm maid-card__pdf" href={biodataHref(m.code, lang)} download={`${biodataName(m.code, lang)}.pdf`} title={T.btn.downloadBiodata} aria-label={`${T.btn.downloadBiodata} ${m.code}`} data-track={`card_biodata_pdf_${m.code}`}><Icon name="download" size={16} /></a>}
+      {!(DEMO || REVIEW) && <a class="btn btn--outline btn--sm maid-card__pdf" data-biodata-pdf href={biodataHref(m.code, lang)} download={`${biodataName(m.code, lang)}.pdf`} title={T.btn.downloadBiodata} aria-label={`${T.btn.downloadBiodata} ${m.code}`} data-track={`card_biodata_pdf_${m.code}`}><Icon name="download" size={16} /></a>}
       <a class="btn btn--wa btn--sm" href={whatsappLink(T.wa.interview(m.code))} target="_blank" rel="noopener" data-track={`interview_${m.code}`}>
         <Icon name="whatsapp" size={16} /> {T.btn.requestInterview}
       </a>

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Final Choice — offline security tests for ALL database migrations (0001 → 0005).
+// Final Choice — offline security tests for ALL database migrations (0001 → 0006).
 //   npm run db:test
 // Runs the real SQL files in PGlite (PostgreSQL in WebAssembly, local, free) with minimal stand-ins for Supabase's auth/storage
 // schemas, then tries every role against every rule using SYNTHETIC records only (no real maid data, no network).
@@ -28,10 +28,10 @@ await db.exec(`
   grant select, insert, update, delete on storage.objects to authenticated;
   grant select on auth.users to authenticated;
 `);
-for (const f of ['0001_maid_database', '0002_storage', '0003_office_role_grants', '0004_public_status_confirmed', '0005_staff_portal']) {
+for (const f of ['0001_maid_database', '0002_storage', '0003_office_role_grants', '0004_public_status_confirmed', '0005_staff_portal', '0006_public_site_status']) {
   try { await db.exec(readFileSync(`supabase/migrations/${f}.sql`, 'utf8')); } catch (e) { console.error(`✗ migration ${f} failed:`, e.message); process.exit(1); }
 }
-console.log('Migrations 0001–0005 applied (in the same order as the real project).\n');
+console.log('Migrations 0001–0006 applied (in the same order as the real project).\n');
 
 const U = { admin: '00000000-0000-0000-0000-00000000000a', admin2: '00000000-0000-0000-0000-0000000000a2', editor: '00000000-0000-0000-0000-00000000000e', viewer: '00000000-0000-0000-0000-00000000000f', stranger: '00000000-0000-0000-0000-000000000099' };
 for (const [k, id] of Object.entries(U)) await db.query('insert into auth.users values ($1, $2, now())', [id, `${k}@test.local`]);
@@ -193,6 +193,41 @@ await throws('editor cannot log/perform an export', () => as('editor', `select p
 await as('admin', `select public.log_export('maid register', 52)`);
 ok('an export is written to the audit log', (await as('viewer', `select count(*)::int n from public.audit_log where action='export'`)).rows[0].n === 1);
 await throws('nobody can write to the audit log directly', () => as('admin', `insert into public.audit_log (table_name, action) values ('x','y')`), /row-level security|permission denied/);
+
+
+console.log('\nLive availability for the file-based public website (0006)');
+await office(`insert into public.maids (code, full_name, first_name, nationality, skills, status_set_by) values ('TEST-LISTED-1','Private Name One','Private','indonesian','${SK}','MGMT'), ('TEST-UNLISTED-9','Private Name Nine','Private','filipino','${SK}','MGMT')`);
+await office(`update public.maids set internal_notes='SECRET NOTE', salary_note='RM 9999', age=31, religion='SecretReligion' where code in ('TEST-LISTED-1','TEST-UNLISTED-9')`);
+const site = (who = null) => as(who, 'select * from public.public_site_status()');
+ok('with nobody listed the public function returns nothing (maids exist, none listed)', (await site()).rows.length === 0);
+await throws('visitors cannot read the listing table', () => as(null, 'select * from public.public_site_listing'), /permission denied/);
+await throws('an editor cannot list a code', () => as('editor', `insert into public.public_site_listing (code) values ('TEST-LISTED-1')`), /row-level security/);
+await throws('a viewer cannot list a code', () => as('viewer', `insert into public.public_site_listing (code) values ('TEST-LISTED-1')`), /row-level security/);
+await throws('only an existing maid code can be listed', () => as('admin', `insert into public.public_site_listing (code) values ('NOT-A-MAID-1')`), /foreign key/);
+await as('admin', `insert into public.public_site_listing (code) values ('TEST-LISTED-1')`);
+ok('an administrator can list a code', (await as('viewer', 'select count(*)::int n from public.public_site_listing')).rows[0].n === 1);
+let r = await site();
+ok('only the listed code is returned (the unlisted maid is invisible)', r.rows.length === 1 && r.rows[0].code === 'TEST-LISTED-1');
+ok('it returns exactly three columns: code, status, verified_at', JSON.stringify(Object.keys(r.rows[0])) === JSON.stringify(['code', 'status', 'verified_at']));
+ok('an unconfirmed maid is reported as to-be-confirmed with no date', r.rows[0].status === 'to-be-confirmed' && r.rows[0].verified_at === null);
+await office(`update public.maids set status='available', status_confirmed=false where code='TEST-LISTED-1'`);
+r = await site(); ok('an initial status nobody confirmed is still reported as to-be-confirmed', r.rows[0].status === 'to-be-confirmed' && r.rows[0].verified_at === null);
+for (const s of ['available', 'on-hold', 'booked', 'pending-arrival', 'hired', 'withdrawn']) {
+  await office(`update public.maids set status='${s}', status_confirmed=true where code='TEST-LISTED-1'`);
+  r = await site(); ok(`confirmed "${s}" is reported as "${s}" with a verification time`, r.rows[0].status === s && r.rows[0].verified_at !== null);
+}
+const everything = JSON.stringify((await site()).rows) + JSON.stringify((await site('viewer')).rows);
+ok('nothing private is ever returned (no name, notes, salary, age, religion, photo path)', !/Private Name|SECRET|9999|SecretReligion|webp|photo/i.test(everything));
+await office(`insert into public.maids (code, full_name, nationality, skills, status, status_confirmed) values ('TEST-LISTED-2','Two','filipino','${SK}','available', true)`);
+ok('a maid that is confirmed but not listed is not exposed', (await site()).rows.every((x) => x.code !== 'TEST-LISTED-2'));
+ok('the existing database-publication function is unchanged (unpublished = nothing)', (await as(null, 'select * from public.public_maid_status()')).rows.every((x) => !x.code.startsWith('TEST-LISTED')));
+ok('an editor cannot remove a listing (nothing is deleted)', (await as('editor', `delete from public.public_site_listing where code='TEST-LISTED-1' returning code`)).rows.length === 0);
+await as('admin', `delete from public.public_site_listing where code='TEST-LISTED-1'`);
+ok('an administrator can remove a listing, and the code disappears from the public answer', (await site()).rows.length === 0);
+await as('admin', `insert into public.public_site_listing (code) values ('TEST-LISTED-1')`); await office(`delete from public.maids where code='TEST-LISTED-1'`);
+ok('removing a maid removes her listing automatically', (await office('select count(*)::int n from public.public_site_listing')).rows[0].n === 0);
+await throws('the public function cannot be used to change anything', () => as(null, `update public.maids set status='hired'`), /permission denied/);
+await office(`delete from public.maids where code in ('TEST-UNLISTED-9','TEST-LISTED-2')`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
