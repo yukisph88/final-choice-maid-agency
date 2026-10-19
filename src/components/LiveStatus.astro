@@ -4,13 +4,15 @@
 // status labels. Placed / unavailable / withdrawn profiles are hidden from listings and marked on their profile page.
 // Search engines see the status from the last website build; visitors see the live one. If the database cannot be
 // reached, the page simply keeps the built status — nothing breaks.
-import { DB_ENABLED, DB_URL, dbHeaders } from '../lib/db';
+import { DB_SOURCE, DB_URL, dbHeaders } from '../lib/db';
 import { DEMO, REVIEW } from '../lib/maids';
 import { t } from '../i18n/ui';
 import type { Lang } from '../i18n/routes';
 interface Props { lang: Lang }
 const T = t(Astro.props.lang);
-const on = DB_ENABLED && !DEMO && !REVIEW;
+// Only when the profiles themselves come from the database (PUBLIC_MAIDS_SOURCE=supabase). With file-based profiles the database knows nothing
+// about them, and asking it would mark every card as "gone".
+const on = DB_SOURCE && !DEMO && !REVIEW;
 const cfg = { url: `${DB_URL}/rest/v1/rpc/public_maid_status`, headers: dbHeaders(), labels: T.status, hidden: ['hired', 'placed', 'unavailable', 'withdrawn'] };
 ---
 {on && (
