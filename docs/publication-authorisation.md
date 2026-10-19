@@ -68,3 +68,11 @@ consent date and approver, and records without consent can never appear on the w
 
 ## E. Wording
 The directory heading now reads "Maid Biodata: Indonesian and Filipino Helpers" (page title, description and intro no longer imply verified availability).
+
+## F. Company authorisation record — file-based publication (2026-10-19)
+The owner of Final Choice confirmed in writing in the project chat (2026-10-19) that Final Choice **has publication permission for all 52 candidates' names, biodata and photographs** for the public agency website,
+and instructed publication through the file-based GitHub Pages workflow (without Supabase). This is recorded as **company authorisation**.
+- It is **not** an individual signed consent form for each candidate, and no individual consent forms or signatures are recorded in this repository. The `consentDate` 2026-10-19 in each profile is the date of this company authorisation, not a candidate signing date. `approvedBy: OWNER` means "owner's chat confirmation", not a person's initials.
+- Choices applied: full name shown; photo shown; **age and religion hidden**; no PDFs, internal notes, source file names or other documents published; availability stays **"To Be Confirmed"** (`statusConfirmed: false`) until staff verify it.
+- **Held back:** S3-33-CHMNY-BSM1090 — a copy of her biodata is also in the SOLD OUT folder. Not published until her current availability is verified. 51 of 52 profiles (40 Indonesian, 11 Filipino) are published.
+- The owner acknowledged that anything published through the public GitHub repository is visible to everyone and may remain in the repository history after removal.
