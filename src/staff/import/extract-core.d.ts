@@ -1,0 +1,10 @@
+export const CODE_RE: RegExp;
+export function toItems(textItems: any[], pageHeight: number): { s: string; x: number; y: number; w: number }[];
+export function extractFields(items: { s: string; x: number; y: number; w: number }[], pageW: number): { raw: Record<string, string>; code: string; codeUnusual: boolean; remarks: string[] };
+export function extractWork(items: { s: string; x: number; y: number; w: number }[]): { jobs: { duration: string; country: string; duties: string }[]; note: string };
+export function extractTicks(items: { s: string; x: number; y: number; w: number }[]): { skills: Record<string, string>; bedridden: string; languages: string[]; dayOff: string } | null;
+export function extractFromLines(text: string): { raw: Record<string, string>; code: string; remarks: string[] };
+export function buildDraft(core: { raw: Record<string, string>; code: string; remarks: string[]; codeUnusual?: boolean }, work: { jobs: { duration: string; country: string; duties: string }[]; note: string }, fileName?: string, ticks?: ReturnType<typeof extractTicks>): { draft: Record<string, any>; flags: Record<string, { level: 'missing' | 'check'; note: string }>; fileName: string };
+export function pickPortrait(images: { x: number; y: number; w: number; h: number }[], pageW: number, pageH: number): { box: { x: number; y: number; w: number; h: number } | null; note: string; uncertain?: boolean };
+export function tickCells(items: { s: string; x: number; y: number; w: number }[]): { skills: any[]; langs: any[]; day: any[] } | null;
+export function readTicks(cells: ReturnType<typeof tickCells>, ink: (x: number, y: number) => number, threshold?: number): ReturnType<typeof extractTicks>;

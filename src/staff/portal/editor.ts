@@ -67,7 +67,7 @@ export async function renderEditor(code?: string) {
         <div class="bar-sub">${isNew ? 'Fill in what the biodata states. Nothing is published automatically.' : `Ref: <b>${esc(m.code)}</b> · ${m.nationality === 'filipino' ? 'Filipino' : 'Indonesian'} · ${statusPill(m.status)} ${m.published ? pill('Published', 'ok') : pill('Private', 'grey')}`}</div></div></div>
       <div class="bar-r"><span class="dirty" id="dirty" hidden>Unsaved changes</span>
         <button class="btn btn--ghost" type="button" data-act="preview">Preview public version</button>
-        ${editable ? '<button class="btn" type="submit" id="save">Save changes</button>' : '<span class="hint">Read-only (viewer)</span>'}</div>
+        ${editable ? '<a class="btn btn--ghost" href="#/maids">Cancel</a><button class="btn" type="submit" id="save">Save changes</button>' : '<span class="hint">Read-only (viewer)</span>'}</div>
     </div>
     <div id="mf-msg"></div>
     <div class="tabs2" role="tablist">${TABS.filter(([id]) => !(isNew && ['placement', 'documents', 'history'].includes(id))).map(([id, t], i) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${i === 0}">${t}</button>`).join('')}</div>

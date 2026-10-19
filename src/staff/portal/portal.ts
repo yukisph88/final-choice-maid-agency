@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { S, $, $$, esc, toast, initials, canEdit, isAdmin, type Row } from './core';
 import { UI, renderEditor } from './editor';
 import { renderMaids } from './maids';
+import { renderAddHub } from '../import/hub';
 import { renderDashboard } from './dashboard';
 import { renderPhotos } from './photos';
 import { renderAvailability } from './availability';
@@ -16,19 +17,28 @@ import { renderSettings } from './settings';
 
 const IDLE_MINUTES = 60;
 interface Nav { id: string; label: string; icon: string; show: () => boolean }
-const NAV: Nav[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '▦', show: () => true },
-  { id: 'maids', label: 'All Maid Biodata', icon: '☰', show: () => true },
-  { id: 'add', label: 'Add New Maid', icon: '＋', show: () => canEdit() },
-  { id: 'photos', label: 'Photo Management', icon: '◧', show: () => true },
-  { id: 'availability', label: 'Availability Tracking', icon: '◔', show: () => true },
-  { id: 'placements', label: 'Applications & Placements', icon: '⇄', show: () => true },
-  { id: 'approvals', label: 'Publication Approvals', icon: '✓', show: () => true },
-  { id: 'documents', label: 'Documents', icon: '❏', show: () => true },
-  { id: 'reports', label: 'Reports', icon: '▤', show: () => true },
-  { id: 'staff', label: 'Staff Management', icon: '☺', show: () => isAdmin() },
-  { id: 'settings', label: 'Settings', icon: '⚙', show: () => true },
+interface Group { id: string; label: string; icon: string; children: Nav[] }
+const always = () => true;
+const WORKSPACE: (Nav | Group)[] = [
+  { id: 'dashboard', label: 'Overview', icon: '▦', show: always },
+  { id: 'maid-mgmt', label: 'Maid Management', icon: '☰', children: [
+    { id: 'maids', label: 'All Maid Biodata', icon: '☰', show: always },
+    { id: 'add', label: 'Add New Maid', icon: '＋', show: () => canEdit() },
+    { id: 'photos', label: 'Photos', icon: '◧', show: always },
+    { id: 'availability', label: 'Availability Tracking', icon: '◔', show: always },
+    { id: 'documents', label: 'Documents', icon: '❏', show: always },
+  ] },
+  { id: 'placements', label: 'Placements', icon: '⇄', show: always },
+  { id: 'approvals', label: 'Approvals', icon: '✓', show: always },
+  { id: 'reports', label: 'Reports', icon: '▤', show: always },
 ];
+const ADMIN: Nav[] = [
+  { id: 'staff', label: 'Staff & Roles', icon: '☺', show: () => isAdmin() },
+  { id: 'settings', label: 'Settings', icon: '⚙', show: always },
+];
+const isGroup = (n: Nav | Group): n is Group => 'children' in n;
+const ALL: Nav[] = [...WORKSPACE.flatMap((n) => (isGroup(n) ? n.children : [n])), ...ADMIN];
+const CRUMB_GROUP: Record<string, string> = { maids: 'Maid Management', add: 'Maid Management', photos: 'Maid Management', availability: 'Maid Management', documents: 'Maid Management', maid: 'Maid Management' };
 const cfg = $('#cfg').dataset;
 let passFromReset = false; let prevHash = '';
 let started = false;
@@ -65,7 +75,12 @@ function idleTimer() {
 // ---------- shell ----------
 function buildShell() {
   const name = S.me.full_name || S.me.email || 'Staff'; const roleLabel = ({ admin: 'Administrator', editor: 'Editor', viewer: 'Viewer' } as Record<string, string>)[S.role] || S.role;
-  $('#nav').innerHTML = NAV.filter((n) => n.show()).map((n) => `<a class="nav-a" href="#/${n.id}" data-nav="${n.id}"><span class="nav-i" aria-hidden="true">${n.icon}</span><span>${esc(n.label)}</span></a>`).join('');
+  const link = (n: Nav, cls = '') => `<a class="nav-a ${cls}" href="#/${n.id}" data-nav="${n.id}" title="${esc(n.label)}"><span class="nav-i" aria-hidden="true">${n.icon}</span><span class="nav-t">${esc(n.label)}</span></a>`;
+  $('#nav').innerHTML = `<div class="nav-h">Workspace</div>${WORKSPACE.map((n) => {
+    if (!isGroup(n)) return n.show() ? link(n) : '';
+    const kids = n.children.filter((c) => c.show());
+    return `<div class="nav-g" data-group="${n.id}"><button type="button" class="nav-a nav-gh" data-toggle="${n.id}" aria-expanded="true" title="${esc(n.label)}"><span class="nav-i" aria-hidden="true">${n.icon}</span><span class="nav-t">${esc(n.label)}</span><span class="nav-caret" aria-hidden="true">▾</span></button><div class="nav-kids">${kids.map((c) => link(c, 'nav-kid')).join('')}</div></div>`;
+  }).join('')}<div class="nav-h">Administration</div><span class="nav-a nav-soon" title="Planned for a later phase"><span class="nav-i" aria-hidden="true">✎</span><span class="nav-t">Website Content <em>Future</em></span></span>${ADMIN.filter((n) => n.show()).map((n) => link(n)).join('')}`;
   $('#me-av').textContent = initials(name); $('#me-name').textContent = name; $('#me-role').textContent = roleLabel;
   $('#menu-name').textContent = name; $('#menu-mail').textContent = S.me.email || ''; $('#menu-role').textContent = roleLabel;
   highlight();
@@ -73,6 +88,9 @@ function buildShell() {
 function highlight() {
   const id = (location.hash.replace(/^#\//, '').split('/')[0]) || 'dashboard'; const key = id === 'maid' ? 'maids' : id;
   $$('#nav [data-nav]').forEach((a) => a.classList.toggle('nav-on', a.dataset.nav === key));
+  const label = ALL.find((n) => n.id === key)?.label || 'Overview'; const group = CRUMB_GROUP[id];
+  const detail = id === 'maid' ? decodeURIComponent(location.hash.split('/')[2] || '') : '';
+  $('#crumbs').innerHTML = ['<a href="#/dashboard">Home</a>', group ? `<span>${esc(group)}</span>` : '', id === 'maid' ? `<a href="#/maids">All Maid Biodata</a><span>${esc(detail)}</span>` : `<span>${esc(label)}</span>`].filter(Boolean).join('<i aria-hidden="true">›</i>');
 }
 const closeMenus = () => { $('#menu').hidden = true; $('#side').classList.remove('open'); $('#scrim').hidden = true; $('#me-btn').setAttribute('aria-expanded', 'false'); };
 $('#me-btn').addEventListener('click', (e) => { e.stopPropagation(); const open = $('#menu').hidden; $('#menu').hidden = !open; $('#me-btn').setAttribute('aria-expanded', String(open)); });
@@ -80,7 +98,14 @@ document.addEventListener('click', (e) => { if (!(e.target as HTMLElement).close
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus(); });
 $('#burger').addEventListener('click', () => { $('#side').classList.add('open'); $('#scrim').hidden = false; });
 $('#scrim').addEventListener('click', closeMenus);
-$('#nav').addEventListener('click', closeMenus);
+$('#nav').addEventListener('click', (e) => {
+  const t = (e.target as HTMLElement).closest<HTMLElement>('[data-toggle]');
+  if (t) { const g = t.closest('.nav-g')!; const open = g.classList.toggle('shut'); t.setAttribute('aria-expanded', String(!open)); return; }
+  closeMenus();
+});
+const setCollapsed = (on: boolean) => { $('#v-app').classList.toggle('collapsed', on); try { localStorage.setItem('fc-side', on ? '1' : '0'); } catch { /* private mode */ } };
+try { if (localStorage.getItem('fc-side') === '1') setCollapsed(true); } catch { /* ignore */ }
+$('#collapse').addEventListener('click', () => setCollapsed(!$('#v-app').classList.contains('collapsed')));
 $$('[data-signout]').forEach((b) => b.addEventListener('click', async () => { await S.sb.auth.signOut(); location.reload(); }));
 $('#menu-settings').addEventListener('click', closeMenus);
 $('#menu-pass').addEventListener('click', () => { closeMenus(); location.hash = '#/settings/password'; });
@@ -98,7 +123,7 @@ async function route() {
       case 'dashboard': return await renderDashboard();
       case 'maids': return await renderMaids();
       case 'maid': return await renderEditor(decodeURIComponent(arg || ''));
-      case 'add': if (!canEdit()) return deny(); return await renderEditor();
+      case 'add': if (!canEdit()) return deny(); return arg === 'manual' ? await renderEditor() : await renderAddHub();
       case 'photos': return await renderPhotos();
       case 'availability': return await renderAvailability();
       case 'placements': return await renderPlacements();

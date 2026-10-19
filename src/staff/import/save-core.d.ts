@@ -1,0 +1,2 @@
+export function findExisting(ctx: any, code: string): Promise<any | null>;
+export function saveImportWith(ctx: any, fields: Record<string, any>, photo: any, o: { fileName: string; reviewed: boolean; merge?: boolean; keepOriginal?: { name: string; type: string; size: number; body: any } | null }): Promise<{ ok: boolean; code: string; error?: string; merged?: boolean; duplicate?: boolean; maid?: any; originalKept?: boolean }>;

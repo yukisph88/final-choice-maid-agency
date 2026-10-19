@@ -47,9 +47,9 @@ export function toast(msg: string, kind: 'ok' | 'err' = 'ok') {
 
 export interface Dlg { el: HTMLDialogElement; close: () => void; q: <T extends HTMLElement = HTMLElement>(s: string) => T }
 /** Open a modal dialog. `body` and `foot` are HTML strings. */
-export function dialog(o: { title: string; body: string; foot?: string; wide?: boolean; onClose?: () => void }): Dlg {
+export function dialog(o: { title: string; body: string; foot?: string; wide?: boolean; xl?: boolean; onClose?: () => void }): Dlg {
   const el = document.createElement('dialog');
-  el.className = o.wide ? 'dlg dlg--wide' : 'dlg';
+  el.className = o.xl ? 'dlg dlg--xl' : o.wide ? 'dlg dlg--wide' : 'dlg';
   el.innerHTML = `<div class="dlg-head"><h2>${esc(o.title)}</h2><button type="button" class="btn btn--ghost btn--sm" data-x>Close</button></div>
     <div class="dlg-body">${o.body}</div>${o.foot ? `<div class="dlg-foot">${o.foot}</div>` : ''}`;
   document.body.appendChild(el);

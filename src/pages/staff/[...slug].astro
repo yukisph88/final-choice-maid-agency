@@ -132,6 +132,37 @@ export function getStaticPaths() {
     .pv-chips { display: flex; flex-wrap: wrap; gap: 6px; } .pv-chips span { background: #eef3ff; color: var(--navy); border-radius: 99px; padding: 2px 10px; font-size: .8rem; font-weight: 600; } .pv-profile h4 { margin: 12px 0 4px; font-size: .9rem; }
     @media (max-width: 560px) { .pv-card { grid-template-columns: 1fr; } }
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px; z-index: 100; max-width: 92vw; } .toast--err { background: var(--red); }
+
+    /* grouped navigation, collapsible sidebar, breadcrumbs */
+    .nav-h { font: 700 .68rem 'IBM Plex Sans', sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #9db2ee; padding: 14px 12px 4px; }
+    .nav-g { display: grid; } button.nav-a { border: 0; background: none; width: 100%; font: inherit; text-align: left; cursor: pointer; }
+    .nav-gh .nav-caret { margin-left: auto; transition: transform .15s; opacity: .8; } .nav-g.shut .nav-caret { transform: rotate(-90deg); } .nav-g.shut .nav-kids { display: none; }
+    .nav-kids { display: grid; gap: 2px; margin: 2px 0 4px 14px; border-left: 1px solid rgba(255,255,255,.18); padding-left: 6px; } .nav-kid { padding: 7px 10px; font-size: .92rem; }
+    .nav-soon { opacity: .55; cursor: not-allowed; } .nav-soon em { font-style: normal; font-size: .66rem; background: rgba(255,255,255,.18); border-radius: 99px; padding: 1px 7px; margin-left: 4px; }
+    .nav-on .nav-i { opacity: 1; } .collapse { margin: auto 10px 12px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #dfe7ff; border-radius: 9px; padding: 8px; cursor: pointer; display: flex; gap: 10px; align-items: center; justify-content: center; }
+    .collapse:hover { background: rgba(255,255,255,.1); }
+    .ttl { flex: 1; min-width: 0; } .ttl #page-title { flex: none; } .crumbs { display: flex; gap: 6px; align-items: center; font-size: .78rem; color: var(--muted); flex-wrap: wrap; } .crumbs a { color: var(--muted); text-decoration: none; } .crumbs a:hover { color: var(--navy); text-decoration: underline; } .crumbs i { font-style: normal; opacity: .6; }
+    .app { transition: grid-template-columns .15s; } .app.collapsed { grid-template-columns: 68px 1fr; }
+    .app.collapsed .nav-t, .app.collapsed .nav-h, .app.collapsed .brand b, .app.collapsed .nav-caret, .app.collapsed .collapse .nav-t { display: none; } .app.collapsed .nav-kids { margin-left: 0; border-left: 0; padding-left: 0; }
+    .app.collapsed .nav-a { justify-content: center; } .app.collapsed .brand { justify-content: center; padding: 14px 6px; } .app.collapsed .collapse span:first-child { transform: rotate(180deg); }
+    @media (max-width: 900px) { .app.collapsed { grid-template-columns: 1fr; } .app.collapsed .nav-t, .app.collapsed .nav-h, .app.collapsed .brand b, .app.collapsed .nav-caret { display: revert; } .collapse { display: none; } }
+    /* maid cards and view switch */
+    .vsw { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; } .vsw button { border: 0; background: #fff; padding: 6px 12px; cursor: pointer; font-weight: 600; color: var(--muted); } .vsw button.on { background: var(--navy); color: #fff; }
+    .mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; padding: 14px; } .mcard { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+    .mcard .pimg { cursor: pointer; } .mcard .pmeta { display: grid; gap: 6px; flex: 1; } .mcard .pills { display: flex; gap: 6px; flex-wrap: wrap; } .tbl th[data-sort] { cursor: pointer; } .tbl th[data-sort]:hover { color: var(--navy); }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 10px; } .chip { border: 1px solid var(--line); background: #fff; border-radius: 99px; padding: 4px 12px; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--muted); } .chip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; } .nat2 { display: grid; gap: 10px; } .natbar { display: flex; height: 14px; border-radius: 8px; overflow: hidden; background: #e8edf6; } .natbar i { display: block; } .qa { display: grid; gap: 8px; }
+
+    /* biodata import */
+    .hubs { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; } @media (max-width: 900px) { .hubs { grid-template-columns: 1fr; } }
+    .hub h2 { font-size: 1.15rem; margin: 8px 0; } .hub--main { border-color: var(--navy); box-shadow: 0 0 0 2px #e6efff; }
+    .drop { border: 2px dashed #9db2ee; border-radius: 14px; background: #f5f8ff; padding: 30px 16px; text-align: center; cursor: pointer; display: grid; gap: 4px; margin: 12px 0; } .drop:hover, .drop.over { background: #e6efff; border-color: var(--navy); } .drop span { color: var(--muted); font-size: .88rem; }
+    dialog.dlg--xl { width: min(1500px, 98vw); } .rv { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; } @media (max-width: 960px) { .rv { grid-template-columns: 1fr; } }
+    .rv-doc { position: sticky; top: 0; max-height: calc(92vh - 150px); overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: #f1f4fa; padding: 8px; } .rv-doc img { width: 100%; display: block; background: #fff; } .docx { background: #fff; padding: 14px; font-size: .85rem; }
+    .rv-photo { display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 8px 0 12px; } .rv-photo .photo-frame { width: 130px; flex: none; }
+    .unc { border-radius: 10px; } .fld.unc, div.unc { background: #fff8e6; outline: 2px solid #f0c978; outline-offset: 2px; padding: 4px 6px; } .unc--missing { background: #fdecea !important; outline-color: #f0a79f !important; } .unc-note { font-size: .8rem; color: #8a5300; margin: 2px 0 0; } .unc--missing .unc-note { color: var(--red); }
+    .legend { font-size: .8rem; color: var(--muted); margin: 6px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; } .unc-dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #fff8e6; border: 2px solid #f0c978; } .unc-dot.unc--missing { background: #fdecea; border-color: #f0a79f; }
+    .check.confirm { background: #eef3ff; border: 1px solid #cfdcf7; border-radius: 10px; padding: 8px 10px; } .err-text { color: var(--red); }
     @media (max-width: 640px) { .tbl--maids th:nth-child(3), .tbl--maids td:nth-child(3), .tbl--maids th:nth-child(4), .tbl--maids td:nth-child(4), .tbl--maids th:nth-child(7), .tbl--maids td:nth-child(7) { display: none; } .tbl td { padding: 8px 6px; } .toolbar2 .fld { min-width: 120px; flex: 1; } .actions-bar .count { margin-left: 0; } }
     @media print { .side, .top, .toolbar2, .actions-bar, .toast, #burger { display: none !important; } .app { display: block; } #view { padding: 0; } .card { border: 0; } }
   </style>
@@ -180,12 +211,13 @@ export function getStaticPaths() {
     <aside class="side" id="side" aria-label="Main navigation">
       <div class="brand"><img src={asset('images/logo-final-choice-mark.png')} alt="" /><b>Final Choice<small>Staff portal</small></b></div>
       <nav id="nav"></nav>
+      <button type="button" class="collapse" id="collapse" title="Collapse or expand the menu"><span aria-hidden="true">«</span><span class="nav-t">Collapse menu</span></button>
     </aside>
     <div class="scrim" id="scrim" hidden></div>
     <div class="main">
       <header class="top">
         <button class="btn btn--ghost btn--sm" id="burger" type="button" aria-label="Open menu">☰ Menu</button>
-        <h1 id="page-title">Dashboard</h1>
+        <div class="ttl"><nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav><h1 id="page-title">Overview</h1></div>
         <div class="me">
           <button class="me-btn" id="me-btn" type="button" aria-haspopup="true" aria-expanded="false"><span class="me-av" id="me-av">?</span><span class="me-t"><b id="me-name"></b><small id="me-role"></small></span></button>
           <div class="menu" id="menu" hidden>
