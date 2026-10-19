@@ -62,6 +62,8 @@ jobs:
 
   deploy:
     needs: build
+    # Only the production branch may publish. A manual run from database-development (or any other branch) builds and tests but never deploys.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

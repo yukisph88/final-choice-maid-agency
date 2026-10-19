@@ -36,7 +36,8 @@
     "db:restore": "node scripts/db-restore.mjs",
     "import:savetest": "node scripts/import-save-test.mjs",
     "import:extracttest": "node scripts/import-extract-test.mjs",
-    "test:biodata": "node scripts/check-biodata-pdfs.mjs"
+    "test:biodata": "node scripts/check-biodata-pdfs.mjs",
+    "db:compare": "node scripts/db-compare.mjs"
   },
   "engines": {
     "node": ">=22.12"

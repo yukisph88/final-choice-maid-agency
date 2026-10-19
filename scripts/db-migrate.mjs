@@ -77,6 +77,26 @@ const { data: existing, error: exErr } = await db.from('maids').select('*');
 if (exErr) { console.error('✗ Cannot read the database:', exErr.message, '\n  Did you run supabase/migrations/0001 and 0002 in the SQL Editor?'); process.exit(1); }
 const byCode = new Map(existing.map((m) => [m.code, m]));
 
+// ---- protect intentional staff edits ----
+// A record that a staff member has created or edited in the portal (it has history by a named person) is NEVER overwritten:
+// the import only fills fields that are still empty, and never touches consent, publication, status, notes or the name display choice.
+// Use  --overwrite CODE[,CODE]  to knowingly replace a protected record with the file's version.
+const overwrite = new Set((process.argv.find((x) => x.startsWith('--overwrite=')) || '').replace('--overwrite=', '').split(',').filter(Boolean).map((x) => x.toUpperCase()));
+const { data: hist } = await db.from('maid_history').select('maid_id, changed_by_email').neq('changed_by_email', '');
+const staffEdited = new Set((hist || []).map((h) => h.maid_id));
+const NEVER_TOUCH = ['consent_recorded', 'consent_date', 'photo_consent', 'approved_by', 'name_consent', 'show_age', 'show_religion', 'published', 'featured', 'display_name_override', 'discrepancies_resolved', 'discrepancy_notes',
+  'status', 'status_confirmed', 'status_set_by', 'status_updated_at', 'internal_notes', 'public_photo_path', 'photo_path'];
+const isEmpty = (v) => v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length) || (v && typeof v === 'object' && !Array.isArray(v) && Object.values(v).every((x) => x === 'none' || x === '' || x == null));
+function fillEmptyOnly(old, row) {
+  const part = {}; const used = [];
+  for (const [k, v] of Object.entries(row)) {
+    if (k === 'code' || NEVER_TOUCH.includes(k) || isEmpty(v)) continue;
+    if (k === 'skills') { const sk = { ...(old.skills || {}) }; let ch = false; for (const [kk, vv] of Object.entries(v || {})) if ((!sk[kk] || sk[kk] === 'none') && vv && vv !== 'none') { sk[kk] = vv; ch = true; } if (ch) { part.skills = sk; used.push('skills (empty ones only)'); } continue; }
+    if (isEmpty(old[k])) { part[k] = v; used.push(k); }
+  }
+  return { part, used };
+}
+
 const plan = { add: [], update: [], same: [], bad: [] };
 for (const r of source) {
   const row = csvRowToDb(r);
@@ -95,16 +115,17 @@ for (const r of source) {
   if (!old) plan.add.push({ row, photo: existsSync(photo) ? photo : null });
   else {
     // never change publication of an existing record, and touch ONLY the columns the file really contains
-    const part = restrictToColumns(row, Object.keys(r), old);
-    const diff = changedFields(old, part);
+    const protectedRec = staffEdited.has(old.id) && !overwrite.has(row.code);
+    const { part, diff } = protectedRec ? (() => { const f = fillEmptyOnly(old, row); return { part: { code: row.code, ...f.part }, diff: f.used }; })()
+      : (() => { const pp = restrictToColumns(row, Object.keys(r), old); return { part: pp, diff: changedFields(old, pp) }; })();
     const needPhoto = existsSync(photo) && !old.photo_path;
     if (needPhoto) part.photo_path = row.photo_path;
-    if (diff.length || needPhoto) plan.update.push({ row: part, diff, photo: needPhoto ? photo : null });
+    if (diff.length || needPhoto) plan.update.push({ row: part, diff, photo: needPhoto ? photo : null, protectedRec });
     else plan.same.push(row.code);
   }
 }
 for (const x of plan.add) console.log(`+ add     ${x.row.code}${x.photo ? '  (+ private photo)' : '  (no photo)'}`);
-for (const x of plan.update) console.log(`~ update  ${x.row.code}: ${x.diff.join(', ') || '—'}${x.photo ? ' + private photo' : ''}`);
+for (const x of plan.update) console.log(`~ ${x.protectedRec ? 'fill-in ' : 'update  '}${x.row.code}${x.protectedRec ? ' [edited by staff — protected: only EMPTY fields are filled; consent, status, notes and everything already entered stay as they are]' : ''}: ${x.diff.join(', ') || '—'}${x.photo ? ' + private photo' : ''}`);
 for (const x of plan.bad) console.log(`✗ skip    ${x.code}: ${x.errors.join('; ')}`);
 console.log(`\n${plan.add.length} new · ${plan.update.length} changed · ${plan.same.length} already identical · ${plan.bad.length} with problems · database now has ${existing.length}`);
 
