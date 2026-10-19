@@ -304,29 +304,33 @@ a.lang-switch__item:hover { color: var(--blue); background: var(--blue-soft); }
 .maid-card__media img { width: 100%; height: 100%; object-fit: cover; }
 .maid-card__placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; color: #8fa6cc; font-size: .85rem; }
 .demo-ribbon { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(180, 35, 24, .92); color: #fff; font: 700 .75rem/1 var(--font-body); letter-spacing: .04em; text-align: center; padding: 8px; }
-.maid-card__body { display: flex; flex-direction: column; flex: 1; padding: 18px; }
-.maid-card__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
-.maid-card__nat { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.maid-card__title { font-size: 1.1rem; margin-bottom: 2px; line-height: 1.25; overflow-wrap: break-word; text-wrap: balance; }
-.maid-card__ref { margin: 0 0 8px; font-size: .78rem; color: var(--muted); letter-spacing: .02em; }
+.maid-card__body { display: flex; flex-direction: column; flex: 1; padding: 16px 16px 18px; }
+.maid-card__top { display: flex; align-items: center; min-height: 28px; margin-bottom: 10px; }
+.maid-card__top .status { font-size: .74rem; padding: 4px 10px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.maid-card__nat { position: absolute; top: 10px; left: 10px; z-index: 1; font-size: .7rem; font-weight: 700; color: var(--navy); background: rgba(255, 255, 255, .92); padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .08em; box-shadow: 0 1px 4px rgba(20, 28, 46, .15); }
+/* every card reserves two lines for the name, one line for the reference, one for experience and two rows for skill chips,
+   so references, experience, skills and buttons line up across a row even when a long name wraps */
+.maid-card__title { font-size: 1.08rem; line-height: 1.25; margin: 0 0 4px; min-height: 2.5em; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.maid-card__ref { margin: 0 0 10px; font-size: .78rem; color: var(--muted); letter-spacing: .02em; min-height: 1.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .maid-card__ref span { font-weight: 600; color: var(--navy); }
 .profile__name { overflow-wrap: break-word; text-wrap: balance; margin-bottom: 6px; }
 .profile__ref { margin: 0 0 16px; color: var(--muted); font-size: .95rem; }
 .profile__ref strong { color: var(--navy); letter-spacing: .02em; }
 .maid-card__title a { color: var(--navy); text-decoration: none; }
 .maid-card__title a:hover { color: var(--blue); }
-.maid-card__facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 10px; font-size: .9rem; }
+.maid-card__facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 10px; font-size: .9rem; min-height: 1.5em; }
 .maid-card__facts div { display: flex; gap: 4px; }
 .maid-card__facts dt { color: var(--muted); }
 .maid-card__facts dt::after { content: ':'; }
 .maid-card__facts dd { margin: 0; font-weight: 600; }
-.maid-card__updated { font-size: .8rem; color: var(--muted); margin: auto 0 12px; padding-top: 6px; }
+.maid-card__body .chips { min-height: 62px; align-content: flex-start; margin-bottom: 12px; }
+.maid-card__updated { font-size: .8rem; color: var(--muted); margin: 0 0 8px; }
 .live-gone { background: var(--amber-soft); color: var(--amber); border-radius: 10px; padding: 10px 12px; font-weight: 600; font-size: .92rem; }
 .maid-card__review-flag { font-size: .78rem; font-weight: 700; color: #a15c00; margin: 4px 0 0; } /* private review only */
-.maid-card__actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.maid-card__actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: auto; }
 .maid-card__actions .btn--wa { grid-column: 1 / -1; }
 .maid-card__pdf { padding-inline: 12px; } /* small download icon next to "View profile" */
-.maid-card__actions .btn { font-size: .9rem; }
+.maid-card__actions .btn { font-size: .9rem; white-space: nowrap; justify-content: center; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0 0 8px; }
 .chips li { background: var(--blue-soft); color: var(--navy); border-radius: 999px; padding: 3px 10px; font-size: .8rem; font-weight: 500; }
 
@@ -527,4 +531,41 @@ body.nav-open .wa-float { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Homepage hero slideshow, training gallery, gentle motion (Aug photo update) ---------- */
+.hero__photo--slides { position: relative; aspect-ratio: 16 / 10; }
+.hero__slide { position: absolute; inset: 0; display: block; opacity: 0; animation: hero-fade 18s infinite both; }
+.hero__slide:nth-child(1) { opacity: 1; animation-name: hero-fade-first; }
+.hero__slide:nth-child(2) { animation-delay: 6s; }
+.hero__slide:nth-child(3) { animation-delay: 12s; }
+.hero__slide img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; animation: hero-zoom 18s infinite both; }
+.hero__slide:nth-child(2) img { animation-delay: 6s; } .hero__slide:nth-child(3) img { animation-delay: 12s; }
+@keyframes hero-fade-first { 0% { opacity: 1; } 33% { opacity: 1; } 38% { opacity: 0; } 94% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes hero-fade { 0% { opacity: 0; } 4% { opacity: 1; } 33% { opacity: 1; } 38% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes hero-zoom { 0% { transform: scale(1); } 38% { transform: scale(1.06); } 100% { transform: scale(1.06); } }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.hero__grid > div:first-child > * { animation: rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+.hero__grid > div:first-child > :nth-child(2) { animation-delay: .08s; } .hero__grid > div:first-child > :nth-child(3) { animation-delay: .16s; }
+.hero__grid > div:first-child > :nth-child(4) { animation-delay: .24s; } .hero__grid > div:first-child > :nth-child(5) { animation-delay: .32s; }
+.hero__media { animation: pop .9s cubic-bezier(.2, .7, .2, 1) .15s both; }
+.hero__badge { animation: rise .8s ease .7s both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero__slide { animation: none; opacity: 0; } .hero__slide:nth-child(1) { opacity: 1; } .hero__slide img { animation: none; }
+}
+/* scroll reveal (class added by script only when motion is allowed) */
+.reveal-ready .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease var(--d, 0ms), transform .7s cubic-bezier(.2, .7, .2, 1) var(--d, 0ms); }
+.reveal-ready .reveal.in { opacity: 1; transform: none; }
+.gallery { display: grid; gap: 14px; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 250px 250px; grid-template-areas: "a b b" "a c d"; }
+.gallery__a { grid-area: a; } .gallery__b { grid-area: b; } .gallery__c { grid-area: c; } .gallery__d { grid-area: d; }
+.gallery__item { position: relative; margin: 0; overflow: hidden; border-radius: 18px; background: var(--blue-soft); box-shadow: var(--shadow-sm); }
+.gallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.2, .7, .2, 1); }
+.gallery__a img { object-position: 50% 30%; } .gallery__b img { object-position: 50% 45%; } .gallery__c img { object-position: 50% 35%; } .gallery__d img { object-position: 50% 40%; }
+.gallery__item:hover img { transform: scale(1.05); }
+.gallery__item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 16px 12px; color: #fff; font-size: .92rem; font-weight: 600; background: linear-gradient(to top, rgba(20, 28, 46, .78), rgba(20, 28, 46, 0)); }
+.gallery__cta { text-align: center; margin: 28px 0 0; }
+@media (max-width: 760px) {
+  .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: none; grid-auto-rows: 190px; grid-template-areas: "b b" "a c" "a d"; gap: 10px; }
+  .gallery__item figcaption { font-size: .8rem; padding: 26px 10px 8px; }
 }

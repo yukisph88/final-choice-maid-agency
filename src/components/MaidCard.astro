@@ -35,15 +35,15 @@ const st = shownStatus(m);
     ) : (
       <span class="maid-card__placeholder"><Icon name="users" size={48} /><span>{T.card.photoOnRequest}</span></span>
     )}
+    <span class="maid-card__nat">{T.nationality[m.nationality]}</span>
     {m.demo && <span class="demo-ribbon">{REVIEW ? T.card.review : T.card.demo}</span>}
   </a>
   <div class="maid-card__body">
     <div class="maid-card__top">
       <span class={`status status--${st}`} data-live-status={m.code}>{T.status[st]}</span>
-      <span class="maid-card__nat">{T.nationality[m.nationality]}</span>
     </div>
-    <H class="maid-card__title"><a href={profile}>{name ?? m.code}</a></H>
-    {name && <p class="maid-card__ref">{T.card.ref}: <span>{m.code}</span></p>}
+    <H class="maid-card__title" title={name ?? m.code}><a href={profile}>{name ?? m.code}</a></H>
+    <p class="maid-card__ref">{name ? <>{T.card.ref}: <span>{m.code}</span></> : <>&nbsp;</>}<span class="sr-only"> · {T.nationality[m.nationality]}</span></p>
     <dl class="maid-card__facts">
       {m.publication.showAge && m.age && (<div><dt>{T.card.age}</dt><dd>{m.age}</dd></div>)}
       <div><dt>{T.card.experience}</dt><dd>{m.experienceYears === undefined ? T.card.notStated : m.experienceYears === 0 ? T.card.newHelper : T.card.years(m.experienceYears)}{m.overseasExperience ? ` · ${T.card.overseas}` : ''}</dd></div>

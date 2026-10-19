@@ -45,7 +45,14 @@ const C = {
     h1a: 'Find the Right ', h1b: 'Domestic Helper', h1c: ' for Your Family',
     lead: 'Explore Indonesian and Filipino domestic helpers with Agensi Pekerjaan Final Choice. Our team assists Malaysian employers with helper selection, interviews, documentation and placement arrangements.',
     trust1: `Licence ${c.licence}`, trust2: 'Indonesian & Filipino helpers', trust3: 'Interview before you decide',
-    heroAlt: 'Two domestic helpers neatly making a bed together in a bright bedroom',
+    heroAlt: 'Final Choice helper trainees in red aprons and blue shirts, smiling around the dishes they prepared at a cooking session in our Kuala Lumpur office',
+    heroAlt2: 'Eight trainees in Final Choice aprons gathered around a table during a practical session at our office',
+    heroAlt3: 'Trainees and a Final Choice team member holding bowls of food they prepared, in front of our company banner',
+    trainE: 'Training & preparation', trainH: 'Learning and practising before they join your family',
+    trainP: 'Helpers take part in practical sessions at our Kuala Lumpur office, such as cooking. These photos are from our own sessions.',
+    trainCaps: ['Hands-on cooking session at our office', 'Trainees together after a session', 'Sharing the dishes they prepared', 'Our team with two trainees'],
+    trainAlts: ['Trainees in Final Choice aprons showing their hands over a table of ingredients and bowls at a cooking session', 'Eight trainees in Final Choice aprons and blue shirts smiling together in our office', 'Trainees and a team member holding bowls of food they prepared, in front of the Final Choice banner', 'A Final Choice team member in a red blouse with two trainees holding bowls of food'],
+    trainBtn: 'Meet our helpers',
     badgeT: 'Two-year contracts', badgeX: 'Terms explained clearly before you sign.',
     onPage: 'On this page',
     nav: ['Services', 'Indonesian maid', 'Filipino maid', 'Process', 'Documents', 'Packages', 'Arrival & FOMEMA', 'FAQ', 'Contact'],
@@ -126,7 +133,14 @@ const C = {
     h1a: 'Cari ', h1b: 'Pembantu Rumah', h1c: ' yang Sesuai untuk Keluarga Anda',
     lead: 'Pilih pembantu rumah Indonesia dan Filipina bersama Agensi Pekerjaan Final Choice. Pasukan kami membantu majikan di Malaysia memilih pembantu, mengatur temu duga, menyediakan dokumen dan menguruskan penempatan.',
     trust1: `Lesen ${c.licence}`, trust2: 'Pembantu Indonesia & Filipina', trust3: 'Temu duga sebelum membuat keputusan',
-    heroAlt: 'Dua orang pembantu rumah mengemas katil bersama di dalam bilik tidur yang terang',
+    heroAlt: 'Peserta latihan Final Choice berapron merah dan berbaju biru tersenyum di sekeliling hidangan yang mereka sediakan dalam sesi memasak di pejabat kami di Kuala Lumpur',
+    heroAlt2: 'Lapan peserta latihan berapron Final Choice berkumpul di sekeliling meja semasa sesi amali di pejabat kami',
+    heroAlt3: 'Peserta latihan dan seorang pasukan Final Choice memegang mangkuk makanan yang mereka sediakan, di hadapan sepanduk syarikat kami',
+    trainE: 'Latihan & persediaan', trainH: 'Belajar dan berlatih sebelum menyertai keluarga anda',
+    trainP: 'Pembantu rumah mengikuti sesi amali di pejabat kami di Kuala Lumpur, seperti memasak. Gambar-gambar ini daripada sesi kami sendiri.',
+    trainCaps: ['Sesi memasak amali di pejabat kami', 'Peserta bersama selepas sesi', 'Berkongsi hidangan yang mereka sediakan', 'Pasukan kami bersama dua peserta'],
+    trainAlts: ['Peserta berapron Final Choice menunjukkan tangan di atas meja bahan dan mangkuk semasa sesi memasak', 'Lapan peserta berapron Final Choice dan berbaju biru tersenyum bersama di pejabat kami', 'Peserta dan seorang pasukan memegang mangkuk makanan yang mereka sediakan, di hadapan sepanduk Final Choice', 'Seorang pasukan Final Choice berbaju merah bersama dua peserta memegang mangkuk makanan'],
+    trainBtn: 'Kenali pembantu rumah kami',
     badgeT: 'Kontrak dua tahun', badgeX: 'Terma diterangkan dengan jelas sebelum anda menandatangani.',
     onPage: 'Dalam halaman ini',
     nav: ['Perkhidmatan', 'Pembantu Indonesia', 'Pembantu Filipina', 'Proses', 'Dokumen', 'Pakej', 'Ketibaan & FOMEMA', 'Soalan lazim', 'Hubungi'],
@@ -223,10 +237,18 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
         </ul>
       </div>
       <div class="hero__media">
-        <div class="hero__photo">
-          <picture>
-            <source media="(max-width: 700px)" srcset={asset('images/home-helper-housekeeping-640.webp')} type="image/webp" />
-            <img src={asset('images/home-helper-housekeeping-1024.webp')} alt={C.heroAlt} width="1024" height="640" fetchpriority="high" />
+        <div class="hero__photo hero__photo--slides">
+          <picture class="hero__slide">
+            <source media="(max-width: 700px)" srcset={asset('images/training/training-table-800.webp')} type="image/webp" />
+            <img src={asset('images/training/training-table-1280.webp')} alt={C.heroAlt} width="1280" height="960" fetchpriority="high" />
+          </picture>
+          <picture class="hero__slide">
+            <source media="(max-width: 700px)" srcset={asset('images/training/training-group-480.webp')} type="image/webp" />
+            <img src={asset('images/training/training-group-800.webp')} alt={C.heroAlt2} width="800" height="600" loading="lazy" decoding="async" />
+          </picture>
+          <picture class="hero__slide">
+            <source media="(max-width: 700px)" srcset={asset('images/training/training-bowls-480.webp')} type="image/webp" />
+            <img src={asset('images/training/training-bowls-800.webp')} alt={C.heroAlt3} width="800" height="450" loading="lazy" decoding="async" />
           </picture>
         </div>
         <div class="hero__badge">
@@ -260,6 +282,31 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
           </div>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- 2b. TRAINING & PREPARATION -->
+  <section class="section" aria-labelledby="train-h" id="training">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="eyebrow">{C.trainE}</p>
+        <h2 id="train-h">{C.trainH}</h2>
+        <p>{C.trainP}</p>
+      </div>
+      <div class="gallery">
+        {[
+          ['training-portrait', 810, 1080, '400', '600', 'gallery__a'],
+          ['training-table', 1280, 960, '480', '800', 'gallery__b'],
+          ['training-group', 1080, 810, '480', '800', 'gallery__c'],
+          ['training-bowls', 1080, 607, '480', '800', 'gallery__d'],
+        ].map(([name, w, h, small, mid, cls], i) => (
+          <figure class={`gallery__item ${cls} reveal`} style={`--d:${i * 90}ms`}>
+            <img src={asset(`images/training/${name}-${mid}.webp`)} srcset={`${asset(`images/training/${name}-${small}.webp`)} ${small}w, ${asset(`images/training/${name}-${mid}.webp`)} ${mid}w`} sizes="(max-width: 700px) 50vw, 33vw" alt={C.trainAlts[[3, 0, 1, 2][i]]} width={w} height={h} loading="lazy" decoding="async" />
+            <figcaption>{C.trainCaps[[3, 0, 1, 2][i]]}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <p class="gallery__cta reveal"><a class="btn btn--primary" href={p('maids')}>{C.trainBtn} <Icon name="arrow" size={18} /></a></p>
     </div>
   </section>
 
@@ -492,3 +539,12 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
     </div>
   </section>
 </BaseLayout>
+<script>
+  // Gentle fade-up when sections scroll into view. Without JavaScript (or with reduced motion) everything is simply visible.
+  const items = document.querySelectorAll<HTMLElement>('.reveal');
+  if (items.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('reveal-ready');
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    items.forEach((el) => io.observe(el));
+  }
+</script>
