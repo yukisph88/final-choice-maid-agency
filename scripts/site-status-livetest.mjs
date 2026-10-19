@@ -23,9 +23,12 @@ try {
   ok('visitors cannot read the listing table or the maids table', ((await anon.from('public_site_listing').select('code')).data || []).length === 0 && ((await anon.from('maids').select('code')).data || []).length === 0);
 
   console.log('\nSynthetic maid: every status');
-  await admin.from('maids').insert([{ code, full_name: 'Synthetic Status Test', first_name: 'Synthetic', nationality: 'filipino', skills: { childcare: 'none', newborn: 'none', elderlyCare: 'none', cooking: 'none', housekeeping: 'none', petCare: 'none' }, internal_notes: 'PRIVATE-NOTE', salary_note: 'PRIVATE-SALARY' }, { code: other, full_name: 'Other', nationality: 'indonesian', skills: {}, status: 'available', status_confirmed: true }]);
+  const sk = { childcare: 'none', newborn: 'none', elderlyCare: 'none', cooking: 'none', housekeeping: 'none', petCare: 'none' };
+  const i1 = await admin.from('maids').insert({ code, full_name: 'Synthetic Status Test', first_name: 'Synthetic', nationality: 'filipino', skills: sk, status: 'to-be-confirmed', status_confirmed: false, internal_notes: 'PRIVATE-NOTE', salary_note: 'PRIVATE-SALARY' });
+  const i2 = await admin.from('maids').insert({ code: other, full_name: 'Other', first_name: 'Other', nationality: 'indonesian', skills: sk, status: 'available', status_confirmed: true });
+  if (i1.error || i2.error) throw new Error(`could not create the synthetic maids: ${i1.error?.message || i2.error?.message}`);
   ok('a maid that is not listed is invisible even when confirmed', !(await answer()).some((r) => r.code === code || r.code === other));
-  await admin.from('public_site_listing').insert({ code });
+  const li = await admin.from('public_site_listing').insert({ code }); if (li.error) throw new Error(li.error.message);
   let r = (await answer()).find((x) => x.code === code); ok('listed + unconfirmed → to-be-confirmed, no date', r?.status === 'to-be-confirmed' && r.verified_at === null);
   await admin.from('maids').update({ status: 'available', status_confirmed: false }).eq('code', code); r = (await answer()).find((x) => x.code === code); ok('an initial "available" nobody confirmed → still to-be-confirmed', r?.status === 'to-be-confirmed');
   for (const s of ['available', 'on-hold', 'booked', 'pending-arrival', 'hired', 'withdrawn']) { await admin.from('maids').update({ status: s, status_confirmed: true }).eq('code', code); r = (await answer()).find((x) => x.code === code); ok(`confirmed ${s} → ${s} with a verification time`, r?.status === s && !!r.verified_at, JSON.stringify(r)); }
