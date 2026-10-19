@@ -141,6 +141,7 @@ export function getStaticPaths() {
     .nav-soon { opacity: .55; cursor: not-allowed; } .nav-soon em { font-style: normal; font-size: .66rem; background: rgba(255,255,255,.18); border-radius: 99px; padding: 1px 7px; margin-left: 4px; }
     .nav-on .nav-i { opacity: 1; } .collapse { margin: auto 10px 12px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #dfe7ff; border-radius: 9px; padding: 8px; cursor: pointer; display: flex; gap: 10px; align-items: center; justify-content: center; }
     .collapse:hover { background: rgba(255,255,255,.1); }
+    .side-foot { margin-top: auto; padding: 8px 10px 0; display: grid; gap: 4px; } .side-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 9px; color: #dfe7ff; text-decoration: none; font: 500 .9rem 'IBM Plex Sans', sans-serif; background: none; border: 0; cursor: pointer; text-align: left; } .side-link:hover { background: rgba(255,255,255,.1); } .side-out { font-weight: 600; } .collapse { margin-top: 6px; } .app.collapsed .side-link { font-size: 0; padding: 8px; } .app.collapsed .side-link::before { content: '←'; font-size: .95rem; } .app.collapsed .side-out::before { content: '✕'; }
     .ttl { flex: 1; min-width: 0; } .ttl #page-title { flex: none; } .crumbs { display: flex; gap: 6px; align-items: center; font-size: .78rem; color: var(--muted); flex-wrap: wrap; } .crumbs a { color: var(--muted); text-decoration: none; } .crumbs a:hover { color: var(--navy); text-decoration: underline; } .crumbs i { font-style: normal; opacity: .6; }
     .app { transition: grid-template-columns .15s; } .app.collapsed { grid-template-columns: 68px 1fr; }
     .app.collapsed .nav-t, .app.collapsed .nav-h, .app.collapsed .brand b, .app.collapsed .nav-caret, .app.collapsed .collapse .nav-t { display: none; } .app.collapsed .nav-kids { margin-left: 0; border-left: 0; padding-left: 0; }
@@ -211,6 +212,7 @@ export function getStaticPaths() {
     <aside class="side" id="side" aria-label="Main navigation">
       <div class="brand"><img src={asset('images/logo-final-choice-mark.png')} alt="" /><b>Final Choice<small>Staff portal</small></b></div>
       <nav id="nav"></nav>
+      <div class="side-foot"><a class="side-link" href={href('')}>← Public website</a><button type="button" class="side-link side-out" data-signout>Sign out</button></div>
       <button type="button" class="collapse" id="collapse" title="Collapse or expand the menu"><span aria-hidden="true">«</span><span class="nav-t">Collapse menu</span></button>
     </aside>
     <div class="scrim" id="scrim" hidden></div>

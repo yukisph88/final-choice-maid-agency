@@ -13,7 +13,7 @@ const en = {
     process: 'Maid Hiring Process', packages: 'Maid Packages', about: 'About Us', contact: 'Contact', faq: 'FAQ', blog: 'Blog', privacy: 'Privacy Policy',
   },
   btn: {
-    whatsappUs: 'WhatsApp Us', whatsapp: 'WhatsApp', whatsappConsultant: 'WhatsApp Our Consultant', browseMaids: 'Browse Maid Biodata',
+    whatsappUs: 'WhatsApp Us', whatsapp: 'WhatsApp', staffLogin: 'Staff Login', staffLoginHint: 'Staff Login — authorised employees only', whatsappConsultant: 'WhatsApp Our Consultant', browseMaids: 'Browse Maid Biodata',
     viewProfile: 'View Biodata', requestInterview: 'Request Interview', call: 'Call', learnMore: 'Learn more', readGuide: 'Read guide',
     enquire: 'Enquire', askAbout: 'Ask about', downloadBiodata: 'Download Biodata (PDF)', seeProfiles: 'See profiles',
     allQuestions: 'See all questions', allBiodata: 'View all maid biodata', requestBiodata: 'Request biodata', toDirectory: 'Go to maid directory',
@@ -128,7 +128,7 @@ const ms: Dict = {
     process: 'Proses Pengambilan', packages: 'Pakej Pembantu Rumah', about: 'Tentang Kami', contact: 'Hubungi Kami', faq: 'Soalan Lazim', blog: 'Blog', privacy: 'Dasar Privasi',
   },
   btn: {
-    whatsappUs: 'WhatsApp Kami', whatsapp: 'WhatsApp', whatsappConsultant: 'WhatsApp Perunding Kami', browseMaids: 'Lihat Biodata Pembantu Rumah',
+    whatsappUs: 'WhatsApp Kami', whatsapp: 'WhatsApp', staffLogin: 'Log Masuk Staf', staffLoginHint: 'Log Masuk Staf — untuk pekerja yang dibenarkan sahaja', whatsappConsultant: 'WhatsApp Perunding Kami', browseMaids: 'Lihat Biodata Pembantu Rumah',
     viewProfile: 'Lihat Biodata', requestInterview: 'Mohon Temu Duga', call: 'Hubungi', learnMore: 'Ketahui lanjut', readGuide: 'Baca panduan',
     enquire: 'Tanya', askAbout: 'Tanya tentang', downloadBiodata: 'Muat Turun Biodata (PDF)', seeProfiles: 'Lihat profil',
     allQuestions: 'Lihat semua soalan', allBiodata: 'Lihat semua biodata', requestBiodata: 'Minta biodata', toDirectory: 'Ke direktori pembantu rumah',

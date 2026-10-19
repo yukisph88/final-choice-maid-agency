@@ -3,9 +3,13 @@ import Icon from './Icon.astro';
 import { href, asset, whatsappLink } from '../lib/urls';
 import { path, LANGS, LANG_LABEL, HTML_LANG, type Lang, type Alternates } from '../i18n/routes';
 import { t } from '../i18n/ui';
+import { DB_ENABLED } from '../lib/db';
+import { REVIEW } from '../lib/maids';
 interface Props { lang: Lang; currentPath: string; alternates: Alternates }
 const { lang, currentPath, alternates } = Astro.props;
 const T = t(lang);
+// The staff portal page exists only in builds that have the database configured (never in the private review build) — show the link only then.
+const staffUrl = DB_ENABLED && !REVIEW ? href('/staff/') : null;
 
 const NAV = [
   { label: T.nav.home, path: path(lang, 'home'), exact: true },
@@ -37,6 +41,7 @@ const switchLinks = LANGS.map((l) => ({ l, url: l === lang ? currentPath : alter
     <nav class="main-nav" id="main-nav" aria-label={T.nav.main}>
       <ul>
         {NAV.map((n) => <li><a href={href(n.path)} aria-current={isActive(n) ? 'page' : undefined}>{n.label}</a></li>)}
+        {staffUrl && <li class="main-nav__staff"><a href={staffUrl} rel="nofollow" data-track="staff_login_menu"><Icon name="lock" size={18} /> {T.btn.staffLogin}</a></li>}
       </ul>
       <a class="btn btn--wa main-nav__cta" href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="whatsapp_header">
         <Icon name="whatsapp" size={18} /> {T.btn.whatsappUs}
@@ -56,6 +61,7 @@ const switchLinks = LANGS.map((l) => ({ l, url: l === lang ? currentPath : alter
       ))}
     </div>
 
+    {staffUrl && <a class="staff-login" href={staffUrl} rel="nofollow" title={T.btn.staffLoginHint} aria-label={T.btn.staffLoginHint} data-track="staff_login"><Icon name="lock" size={16} /> <span>{T.btn.staffLogin}</span></a>}
     <a class="btn btn--wa btn--sm header-wa" href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="whatsapp_header" aria-label={T.btn.whatsappUs}>
       <Icon name="whatsapp" size={18} /> <span>{T.btn.whatsapp}</span>
     </a>
