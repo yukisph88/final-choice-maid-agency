@@ -42,7 +42,8 @@
     "db:portal-readtest": "node scripts/db-portal-readtest.mjs",
     "site:status-check": "node scripts/site-status-sync.mjs",
     "site:status-sync": "node scripts/site-status-sync.mjs --sync",
-    "site:status-livetest": "node scripts/site-status-livetest.mjs"
+    "site:status-livetest": "node scripts/site-status-livetest.mjs",
+    "photos:prepare": "node scripts/prepare-photos.mjs"
   },
   "engines": {
     "node": ">=22.12"

@@ -11,7 +11,8 @@ import { site, testimonials } from '../lib/config';
 import { href, asset, whatsappLink, telLink } from '../lib/urls';
 import { getPublicMaids } from '../lib/maids';
 import { organizationSchema, websiteSchema } from '../lib/schema';
-import { path, routeAlternates, postPath, withLang, type Lang } from '../i18n/routes';
+import { path, routeAlternates, postPath, withLang, profilePath, type Lang } from '../i18n/routes';
+import officePhotos from '../data/office-photos.json';
 import { t } from '../i18n/ui';
 
 interface Props { lang: Lang }
@@ -31,6 +32,12 @@ for (let i = 0; featured.length < 8 && (i < byNat.indonesian.length || i < byNat
   if (byNat.indonesian[i]) featured.push(byNat.indonesian[i]);
   if (byNat.filipino[i] && featured.length < 8) featured.push(byNat.filipino[i]);
 }
+// "Meet our maids": four real, published portraits per nationality (evenly spread through the list), each linking to her profile.
+const spread = <T,>(list: T[], n: number) => (list.length <= n ? list : Array.from({ length: n }, (_, i) => list[Math.floor((i * list.length) / n)]));
+const meet = (['indonesian', 'filipino'] as const).map((nat) => {
+  const all = maids.filter((m) => m.nationality === nat);
+  return { nat, count: all.length, tiles: spread(all.filter((m) => m.photo), 4) };
+});
 const c = site.company;
 const areas = c.serviceAreas.join(lang === 'ms' ? ' dan ' : ' and ');
 const hours = c.hours.map((h) => ({ label: T.hours[h.label] ?? h.label, opens: h.opens, closes: h.closes }));
@@ -48,11 +55,19 @@ const C = {
     heroAlt: 'Final Choice helper trainees in red aprons and blue shirts, smiling around the dishes they prepared at a cooking session in our Kuala Lumpur office',
     heroAlt2: 'Eight trainees in Final Choice aprons gathered around a table during a practical session at our office',
     heroAlt3: 'Trainees and a Final Choice team member holding bowls of food they prepared, in front of our company banner',
-    trainE: 'Training & preparation', trainH: 'Learning and practising before they join your family',
-    trainP: 'Helpers take part in practical sessions at our Kuala Lumpur office, such as cooking. These photos are from our own sessions.',
-    trainCaps: ['Hands-on cooking session at our office', 'Trainees together after a session', 'Sharing the dishes they prepared', 'Our team with two trainees'],
+    trainE: 'Our training centre', trainH: 'Real training, hands-on practice',
+    trainP: 'Our helpers practise cooking and household skills in practical sessions at our training centre. These photographs are from our own training days.',
+    trainCaps: ['Hands-on cooking practice', 'Trainees together after a session', 'Sharing the dishes they prepared', 'Our team with two trainees'],
     trainAlts: ['Trainees in Final Choice aprons showing their hands over a table of ingredients and bowls at a cooking session', 'Eight trainees in Final Choice aprons and blue shirts smiling together in our office', 'Trainees and a team member holding bowls of food they prepared, in front of the Final Choice banner', 'A Final Choice team member in a red blouse with two trainees holding bowls of food'],
     trainBtn: 'Meet our helpers',
+    meetE: 'Meet our maids', meetH: 'Real helpers, real biodata',
+    meetP: 'Browse the biodata of Indonesian and Filipino domestic helpers registered with Final Choice. Each profile shows her photograph, experience, skills and languages, and you can download her biodata as a PDF. Please confirm current availability with our consultant before arranging an interview.',
+    meetInd: 'Indonesian maids', meetFil: 'Filipino maids', meetCount: (n: number) => `${n} biodata profiles`,
+    meetBtnInd: 'View Indonesian maids', meetBtnFil: 'View Filipino maids',
+    officeE: 'Our office', officeH: 'Visit Final Choice in person',
+    officeP: 'Meet our consultant at our office and talk through your household’s needs face to face. WhatsApp us first so we can confirm a time with you.',
+    officeHours: 'Opening hours', officePhotoAlt: (i: number) => `Final Choice office, photograph ${i}`,
+    officeNoPhoto: 'Photographs of our office are coming soon.',
     badgeT: 'Two-year contracts', badgeX: 'Terms explained clearly before you sign.',
     onPage: 'On this page',
     nav: ['Services', 'Indonesian maid', 'Filipino maid', 'Process', 'Documents', 'Packages', 'Arrival & FOMEMA', 'FAQ', 'Contact'],
@@ -136,11 +151,19 @@ const C = {
     heroAlt: 'Peserta latihan Final Choice berapron merah dan berbaju biru tersenyum di sekeliling hidangan yang mereka sediakan dalam sesi memasak di pejabat kami di Kuala Lumpur',
     heroAlt2: 'Lapan peserta latihan berapron Final Choice berkumpul di sekeliling meja semasa sesi amali di pejabat kami',
     heroAlt3: 'Peserta latihan dan seorang pasukan Final Choice memegang mangkuk makanan yang mereka sediakan, di hadapan sepanduk syarikat kami',
-    trainE: 'Latihan & persediaan', trainH: 'Belajar dan berlatih sebelum menyertai keluarga anda',
-    trainP: 'Pembantu rumah mengikuti sesi amali di pejabat kami di Kuala Lumpur, seperti memasak. Gambar-gambar ini daripada sesi kami sendiri.',
-    trainCaps: ['Sesi memasak amali di pejabat kami', 'Peserta bersama selepas sesi', 'Berkongsi hidangan yang mereka sediakan', 'Pasukan kami bersama dua peserta'],
+    trainE: 'Pusat latihan kami', trainH: 'Latihan sebenar, amali secara langsung',
+    trainP: 'Pembantu rumah kami berlatih memasak dan kemahiran rumah dalam sesi amali di pusat latihan kami. Gambar-gambar ini daripada hari latihan kami sendiri.',
+    trainCaps: ['Latihan memasak secara amali', 'Peserta bersama selepas sesi', 'Berkongsi hidangan yang mereka sediakan', 'Pasukan kami bersama dua peserta'],
     trainAlts: ['Peserta berapron Final Choice menunjukkan tangan di atas meja bahan dan mangkuk semasa sesi memasak', 'Lapan peserta berapron Final Choice dan berbaju biru tersenyum bersama di pejabat kami', 'Peserta dan seorang pasukan memegang mangkuk makanan yang mereka sediakan, di hadapan sepanduk Final Choice', 'Seorang pasukan Final Choice berbaju merah bersama dua peserta memegang mangkuk makanan'],
     trainBtn: 'Kenali pembantu rumah kami',
+    meetE: 'Kenali pembantu rumah kami', meetH: 'Pembantu sebenar, biodata sebenar',
+    meetP: 'Layari biodata pembantu rumah Indonesia dan Filipina yang berdaftar dengan Final Choice. Setiap profil memaparkan gambar, pengalaman, kemahiran dan bahasa, dan anda boleh memuat turun biodatanya dalam bentuk PDF. Sila sahkan status terkini dengan perunding kami sebelum mengatur temu duga.',
+    meetInd: 'Pembantu rumah Indonesia', meetFil: 'Pembantu rumah Filipina', meetCount: (n: number) => `${n} profil biodata`,
+    meetBtnInd: 'Lihat pembantu rumah Indonesia', meetBtnFil: 'Lihat pembantu rumah Filipina',
+    officeE: 'Pejabat kami', officeH: 'Kunjungi Final Choice di pejabat',
+    officeP: 'Berjumpa perunding kami di pejabat dan bincangkan keperluan keluarga anda secara bersemuka. Sila WhatsApp kami dahulu supaya kami dapat mengesahkan masa dengan anda.',
+    officeHours: 'Waktu operasi', officePhotoAlt: (i: number) => `Pejabat Final Choice, gambar ${i}`,
+    officeNoPhoto: 'Gambar pejabat kami akan dipaparkan tidak lama lagi.',
     badgeT: 'Kontrak dua tahun', badgeX: 'Terma diterangkan dengan jelas sebelum anda menandatangani.',
     onPage: 'Dalam halaman ini',
     nav: ['Perkhidmatan', 'Pembantu Indonesia', 'Pembantu Filipina', 'Proses', 'Dokumen', 'Pakej', 'Ketibaan & FOMEMA', 'Soalan lazim', 'Hubungi'],
@@ -265,28 +288,37 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
     </div>
   </nav>
 
-  <!-- 2. WHY CHOOSE FINAL CHOICE -->
-  <section class="section section--tint" aria-labelledby="why-h" id="why">
+  <!-- 1b. MEET OUR MAIDS -->
+  <section class="section" aria-labelledby="meet-h" id="meet-maids">
     <div class="container">
-      <div class="section-head section-head--center">
-        <p class="eyebrow">{C.whyE}</p>
-        <h2 id="why-h">{C.whyH}</h2>
-        <p>{C.whyP}</p>
+      <div class="section-head section-head--center reveal">
+        <p class="eyebrow">{C.meetE}</p>
+        <h2 id="meet-h">{C.meetH}</h2>
+        <p>{C.meetP}</p>
       </div>
-      <div class="grid grid--3">
-        {C.strengths.map(([icon, title, text]) => (
-          <div class="card">
-            <span class="card__icon"><Icon name={icon} size={24} /></span>
-            <h3>{title}</h3>
-            <p class="muted">{text}</p>
+      <div class="meet">
+        {meet.map(({ nat, count, tiles }, k) => (
+          <div class="meet__card reveal" style={`--d:${k * 120}ms`}>
+            <div class="meet__head"><h3>{nat === 'indonesian' ? C.meetInd : C.meetFil}</h3><span class="meet__count">{C.meetCount(count)}</span></div>
+            <ul class="meet__tiles">
+              {tiles.map((m) => (
+                <li>
+                  <a href={href(withLang(lang, profilePath(lang, m.slug)))}>
+                    <img src={asset(m.photo!)} alt={m.displayName ? `${m.displayName} (${m.code})` : m.code} width="720" height="900" loading="lazy" decoding="async" />
+                    <span>{m.displayName ?? m.code}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="btn btn--primary" href={p(nat)}>{nat === 'indonesian' ? C.meetBtnInd : C.meetBtnFil} <Icon name="arrow" size={18} /></a>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- 2b. TRAINING & PREPARATION -->
-  <section class="section" aria-labelledby="train-h" id="training">
+  <!-- 1c. OUR TRAINING CENTRE -->
+  <section class="section section--tint" aria-labelledby="train-h" id="training">
     <div class="container">
       <div class="section-head section-head--center reveal">
         <p class="eyebrow">{C.trainE}</p>
@@ -307,6 +339,64 @@ const sectionIds = ['services', 'indonesian-maid', 'filipino-maid', 'process', '
         ))}
       </div>
       <p class="gallery__cta reveal"><a class="btn btn--primary" href={p('maids')}>{C.trainBtn} <Icon name="arrow" size={18} /></a></p>
+    </div>
+  </section>
+
+  <!-- 1d. OUR OFFICE (real photographs only: photo-inbox/07-office-team → npm run photos:prepare) -->
+  <section class="section" aria-labelledby="office-h" id="office">
+    <div class="container office">
+      <div class="office__info reveal">
+        <p class="eyebrow">{C.officeE}</p>
+        <h2 id="office-h">{C.officeH}</h2>
+        <p>{C.officeP}</p>
+        <ul class="office__list">
+          <li><Icon name="pin" size={20} /><span><strong>{c.legalName}</strong><br />{c.address.street}, {c.address.postcode} {c.address.city}</span></li>
+          <li><Icon name="clock" size={20} /><span><strong>{C.officeHours}</strong><br />{hours.map((h) => <>{h.label}: {h.opens}–{h.closes}<br /></>)}</span></li>
+          <li><Icon name="phone" size={20} /><span>{site.contact.consultantName} · {site.contact.phoneDisplay}</span></li>
+        </ul>
+        <div class="btn-row">
+          <a class="btn btn--wa" href={whatsappLink(T.wa.home)} target="_blank" rel="noopener" data-track="office_whatsapp"><Icon name="whatsapp" size={18} /> {T.btn.whatsappUs}</a>
+          <a class="btn btn--outline" href={c.mapsUrl} target="_blank" rel="noopener">{T.btn.directions}</a>
+        </div>
+      </div>
+      <div class="office__media reveal" style="--d:120ms">
+        {officePhotos.photos.length > 0 ? (
+          <div class={`office__photos office__photos--${Math.min(officePhotos.photos.length, 3)}`}>
+            {officePhotos.photos.slice(0, 3).map((ph, i) => (
+              <figure class="office__photo">
+                <img src={asset(`images/office/office-${ph.id}-${ph.mid}.webp`)} srcset={ph.sizes.map((w) => `${asset(`images/office/office-${ph.id}-${w}.webp`)} ${w}w`).join(', ')} sizes="(max-width: 900px) 100vw, 50vw" alt={C.officePhotoAlt(i + 1)} width={ph.width} height={ph.height} loading="lazy" decoding="async" />
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <div class="office__placeholder" data-office-photos-missing>
+            <Icon name="pin" size={44} />
+            <strong>{c.brandName}</strong>
+            <span>{c.address.city}</span>
+            <small>{C.officeNoPhoto}</small>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. WHY CHOOSE FINAL CHOICE -->
+  <section class="section section--tint" aria-labelledby="why-h" id="why">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">{C.whyE}</p>
+        <h2 id="why-h">{C.whyH}</h2>
+        <p>{C.whyP}</p>
+      </div>
+      <div class="grid grid--3">
+        {C.strengths.map(([icon, title, text]) => (
+          <div class="card">
+            <span class="card__icon"><Icon name={icon} size={24} /></span>
+            <h3>{title}</h3>
+            <p class="muted">{text}</p>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
